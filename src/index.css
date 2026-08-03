@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Playfair Display', ui-serif, Georgia, serif;
+
+  /* Cardanova Luxury Brand Palette */
+  --color-brand-green-950: #071309;
+  --color-brand-green-900: #112D15;
+  --color-brand-green-800: #1A3E1F;
+  --color-brand-green-700: #25522C;
+  --color-brand-green-600: #346D3D;
+  --color-brand-green-100: #E6EFE8;
+  --color-brand-green-50: #F3F7F4;
+
+  --color-brand-gold-700: #7A6224;
+  --color-brand-gold-600: #8B712A;
+  --color-brand-gold-500: #A18637;
+  --color-brand-gold-400: #C5A046;
+  --color-brand-gold-300: #E2BF63;
+  --color-brand-gold-100: #F7F1E1;
+  --color-brand-gold-50: #FCF9F0;
+
+  --color-brand-ivory: #FAF8F5;
+}
+
+/* ─── Base & Scroll ─────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  background-color: #FAF8F5;
+  color: #112D15;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Native cursor configuration */
+a, button, [role="button"], input, select, textarea {
+  cursor: pointer;
+}
+input[type="text"], input[type="email"], input[type="password"], textarea {
+  cursor: text;
+}
+
+/* Luxury selection */
+::selection {
+  background-color: rgba(197, 160, 70, 0.25);
+  color: #112D15;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #FAF8F5; }
+::-webkit-scrollbar-thumb { background: #C5A046; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #A18637; }
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #FAF8F5;
+  color: #112D15;
+}
+
+/* ─── Typography Utilities ──────────────────────────────────── */
+.font-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.text-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+.label-caps {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* ─── Gradient Utilities ────────────────────────────────────── */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #E2BF63 0%, #C5A046 40%, #A18637 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #C5A046 0%, #A18637 50%, #8B712A 100%);
+}
+
+.green-gradient-bg {
+  background: linear-gradient(135deg, #112D15 0%, #1A3E1F 50%, #071309 100%);
+}
+
+/* ─── Glass Panels ──────────────────────────────────────────── */
+.glass-panel-dark {
+  background: rgba(17, 45, 21, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(197, 160, 70, 0.2);
+}
+
+.glass-panel-light {
+  background: rgba(250, 248, 245, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(197, 160, 70, 0.15);
+}
+
+/* ─── Luxury Card ───────────────────────────────────────────── */
+.card-luxury {
+  border: 1px solid rgba(197, 160, 70, 0.25);
+  background: rgba(7, 19, 9, 0.7);
+  backdrop-filter: blur(16px);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.card-luxury:hover {
+  border-color: rgba(197, 160, 70, 0.6);
+  box-shadow: 0 0 40px rgba(197, 160, 70, 0.08), 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* ─── Luxury Divider ────────────────────────────────────────── */
+.luxury-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C5A046, transparent);
+  opacity: 0.5;
+}
+
+.luxury-divider-v {
+  width: 1px;
+  background: linear-gradient(180deg, transparent, #C5A046, transparent);
+  opacity: 0.4;
+}
+
+/* ─── Gold Glow ─────────────────────────────────────────────── */
+.gold-glow {
+  box-shadow: 0 0 30px rgba(197, 160, 70, 0.3), 0 0 60px rgba(197, 160, 70, 0.1);
+}
+
+.gold-glow-text {
+  text-shadow: 0 0 40px rgba(197, 160, 70, 0.4);
+}
+
+/* ─── Animations ────────────────────────────────────────────── */
+
+/* Floating spice particles */
+@keyframes floatParticle {
+  0%   { transform: translateY(0px) rotate(0deg) scale(1);   opacity: 0; }
+  15%  { opacity: 0.5; }
+  80%  { opacity: 0.4; }
+  100% { transform: translateY(-140px) rotate(360deg) scale(0.7); opacity: 0; }
+}
+.animate-float-particle {
+  animation: floatParticle 10s ease-in-out infinite;
+}
+
+/* Slow drift left/right */
+@keyframes drift {
+  0%, 100% { transform: translateX(0px) translateY(0px); }
+  33%  { transform: translateX(8px) translateY(-6px); }
+  66%  { transform: translateX(-5px) translateY(4px); }
+}
+.animate-drift {
+  animation: drift 8s ease-in-out infinite;
+}
+
+/* Slow background zoom (Ken Burns) */
+@keyframes slowZoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
+}
+.animate-slow-zoom {
+  animation: slowZoom 12s ease-in-out infinite alternate;
+}
+
+/* Gold shimmer sweep */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shimmer {
+  background: linear-gradient(
+    105deg,
+    #E2BF63 0%,
+    #C5A046 20%,
+    #FAF8F5 40%,
+    #C5A046 60%,
+    #A18637 80%,
+    #E2BF63 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Scan line */
+@keyframes scanLine {
+  0%   { top: 0%; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 0.3; }
+  100% { top: 100%; opacity: 0; }
+}
+.animate-scan-line {
+  animation: scanLine 6s linear infinite;
+}
+
+/* Gentle pulse */
+@keyframes gentlePulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+.animate-gentle-pulse {
+  animation: gentlePulse 3s ease-in-out infinite;
+}
+
+/* Reveal from bottom */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-reveal-up {
+  animation: revealUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Counter number tick */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-count-up {
+  animation: countUp 0.4s ease forwards;
+}
+
+/* Dashed line travel */
+@keyframes dashTravel {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Leaf sway */
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%       { transform: rotate(3deg); }
+}
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+/* Scroll indicator bounce */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50%       { transform: translateY(6px); opacity: 1; }
+}
+.animate-scroll-bounce {
+  animation: scrollBounce 1.8s ease-in-out infinite;
+}
+
+/* Image overlay gradient reveal */
+@keyframes gradientReveal {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Section Spacing ───────────────────────────────────────── */
+.section-luxury {
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+}
+
+@media (max-width: 768px) {
+  .section-luxury {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
