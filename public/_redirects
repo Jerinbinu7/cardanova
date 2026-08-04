@@ -1,0 +1,4 @@
+# Cardanova SPA routing — serves index.html for all routes
+# Compatible with Netlify
+
+/*    /index.html   200

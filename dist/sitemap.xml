@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Home Page -->
+  <url>
+    <loc>https://cardanovaspices.com/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cardanovaspices.com/"/>
+  </url>
+
+  <!-- About Page -->
+  <url>
+    <loc>https://cardanovaspices.com/#about</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cardanovaspices.com/#about"/>
+  </url>
+
+  <!-- Products & Catalogue Page -->
+  <url>
+    <loc>https://cardanovaspices.com/#products</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cardanovaspices.com/#products"/>
+  </url>
+
+  <!-- Our Origin Page -->
+  <url>
+    <loc>https://cardanovaspices.com/#origin</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cardanovaspices.com/#origin"/>
+  </url>
+
+  <!-- Contact Section -->
+  <url>
+    <loc>https://cardanovaspices.com/#contact</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cardanovaspices.com/#contact"/>
+  </url>
+
+</urlset>

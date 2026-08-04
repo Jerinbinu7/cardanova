@@ -1,0 +1,18 @@
+# Cardanova Spices LLP — robots.txt
+# https://cardanovaspices.com
+
+User-agent: *
+Allow: /
+Disallow: /#admin
+
+# Block admin hash-route from all crawlers
+User-agent: Googlebot
+Allow: /
+Disallow: /#admin
+
+User-agent: Bingbot
+Allow: /
+Disallow: /#admin
+
+# Sitemap
+Sitemap: https://cardanovaspices.com/sitemap.xml

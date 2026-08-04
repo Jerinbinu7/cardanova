@@ -1,0 +1,44 @@
+{
+  "name": "Cardanova Spices — Premium Cardamom Export",
+  "short_name": "Cardanova",
+  "description": "Single-origin premium cardamom, pepper & turmeric from Idukki, Kerala. Trusted B2B spice exporter to 30+ countries.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#071309",
+  "background_color": "#071309",
+  "lang": "en",
+  "scope": "/",
+  "categories": ["food", "business", "shopping"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Cardanova Spices Homepage"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

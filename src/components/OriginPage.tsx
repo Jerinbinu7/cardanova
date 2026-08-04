@@ -125,12 +125,16 @@ function ProcessStep({ step, index }: { step: typeof PROCESS_STEPS[0]; index: nu
       <div className={`relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl ${!isEven ? 'lg:order-2' : ''}`} style={{ height: '320px', minHeight: '260px' }}>
         <motion.img
           src={step.image}
-          alt={step.title}
+          alt={`Step ${step.step}: ${step.title} (${step.phase}) — Cardanova Spices cardamom sourcing process in Idukki, Kerala`}
+          width={1400}
+          height={800}
+          loading="lazy"
+          decoding="async"
           className="h-full w-full object-cover"
           whileHover={{ scale: 1.04 }}
           transition={{ duration: 0.6 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#071309]/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#071309]/80 via-transparent to-transparent" aria-hidden="true" />
 
         {/* Step number overlay */}
         <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-3">
@@ -221,15 +225,21 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
         ref={heroRef}
         className="relative overflow-hidden flex flex-col items-center justify-center text-center"
         style={{ height: '90vh', minHeight: '500px', paddingTop: '5rem' }}
+        aria-labelledby="origin-page-title"
       >
         <motion.img
           src="https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop"
-          alt="Idukki Cardamom Estates"
+          alt="High-altitude cardamom plantations in the mist-covered hills of Idukki, Kerala"
+          width={2070}
+          height={1380}
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover brightness-[0.28]"
           style={{ y: heroY }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#071309]/60 via-transparent to-[#071309]" />
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#071309] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#071309]/60 via-transparent to-[#071309]" aria-hidden="true" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#071309] to-transparent" aria-hidden="true" />
 
         <motion.div
           style={{ opacity: heroOpacity }}
@@ -241,6 +251,7 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
           <span className="label-caps text-[#C5A046]">Idukki, Kerala · Single Origin</span>
 
           <h1
+            id="origin-page-title"
             className="font-display font-light text-[#FAF8F5] mt-4 leading-[0.9]"
             style={{ fontSize: 'clamp(3rem, 9vw, 7.5rem)' }}
           >

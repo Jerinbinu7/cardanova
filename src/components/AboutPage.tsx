@@ -150,7 +150,12 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
         {/* Slow Parallax Plantation Image */}
         <motion.img
           src="https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop"
-          alt="Cardamom Plantations in Idukki"
+          alt="Misty cardamom plantation hills in Idukki, Kerala — the origin of Cardanova spices"
+          width={2070}
+          height={1380}
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover brightness-[0.32]"
           style={{ y: heroY }}
         />
@@ -221,7 +226,11 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
           >
             <img
               src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop"
-              alt="Idukki Cardamom Farm"
+              alt="Lush cardamom farm in Idukki high ranges, Kerala — Cardanova single-origin estate"
+              width={1200}
+              height={800}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#071309]/80 via-transparent to-transparent" />
@@ -270,7 +279,11 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
                 <div className="relative overflow-hidden" style={{ height: '340px' }}>
                   <img
                     src={founder.photo}
-                    alt={founder.name}
+                    alt={`${founder.name} — ${founder.position} at Cardanova Spices LLP`}
+                    width={800}
+                    height={340}
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-[#071309]/30 to-transparent" />

@@ -222,13 +222,19 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
       <section
         className="relative overflow-hidden flex items-end"
         style={{ height: '55vh', minHeight: '380px', paddingTop: '5rem' }}
+        aria-labelledby="products-page-title"
       >
         <img
           src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop"
-          alt="Cardamom Grades"
+          alt="Cardanova Spices premium green cardamom grades catalogue from Idukki, Kerala"
+          width={2070}
+          height={1380}
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover brightness-[0.3]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#071309]/50 to-[#071309]/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#071309]/50 to-[#071309]/90" aria-hidden="true" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -238,6 +244,7 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
         >
           <span className="label-caps text-[#C5A046]">Export Grade Trade Catalogue</span>
           <h1
+            id="products-page-title"
             className="font-display font-light text-[#FAF8F5] mt-4 leading-[0.92]"
             style={{ fontSize: 'clamp(2.8rem, 6vw, 6rem)' }}
           >
@@ -252,14 +259,17 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
       </section>
 
       {/* ── Catalogue Section ────────────────────────── */}
-      <section className="py-20 px-6 lg:px-10 max-w-7xl mx-auto">
+      <section className="py-20 px-6 lg:px-10 max-w-7xl mx-auto" aria-label="Cardamom Grades Catalogue">
 
         {/* Filter tabs */}
-        <div className="flex flex-wrap gap-2 mb-14 justify-center">
+        <div className="flex flex-wrap gap-2 mb-14 justify-center" role="tablist" aria-label="Filter cardamom grades">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setFilter(tab.id as typeof filter)}
+              role="tab"
+              aria-selected={filter === tab.id}
+              aria-label={`Filter by ${tab.label}`}
               className={`rounded-full px-6 py-2.5 label-caps transition-all cursor-pointer ${
                 filter === tab.id
                   ? 'gold-gradient-bg text-[#071309] shadow-lg'
@@ -283,7 +293,7 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
             className="space-y-10"
           >
             {filtered.map((product, i) => (
-              <motion.div
+              <motion.article
                 key={product.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -295,13 +305,17 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
                 <div className="lg:col-span-5 relative overflow-hidden" style={{ minHeight: '280px' }}>
                   <motion.img
                     src={product.image}
-                    alt={product.gradeName}
+                    alt={`${product.gradeName} (${product.size}) — Cardanova Spices green cardamom from Idukki, Kerala`}
+                    width={1200}
+                    height={800}
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover"
                     whileHover={{ scale: 1.04 }}
                     transition={{ duration: 0.5 }}
                     style={{ minHeight: '280px' }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 lg:bg-gradient-to-r lg:from-transparent lg:to-[#FAF8F5]/20" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 lg:bg-gradient-to-r lg:from-transparent lg:to-[#FAF8F5]/20" aria-hidden="true" />
 
                   {/* Badge overlay */}
                   <span className={`absolute top-5 left-5 rounded-full px-3 py-1.5 label-caps shadow-lg ${BADGE_STYLES[product.badgeStyle]}`}
@@ -386,7 +400,7 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </motion.article>
             ))}
           </motion.div>
         </AnimatePresence>
@@ -410,10 +424,11 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
 
           <div className="overflow-x-auto rounded-2xl border border-[#A18637]/20 shadow-2xl">
             <table className="w-full text-left text-xs">
+              <caption className="sr-only">Cardanova Spices Green Cardamom Grade Comparison Matrix</caption>
               <thead>
                 <tr className="border-b border-[#A18637]/20">
                   {['Grade', 'Pod Size', 'Color', 'Applications', 'MOQ', 'Availability'].map((h) => (
-                    <th key={h} className="px-5 py-4 label-caps text-[#C5A046] font-normal bg-[#071309]"
+                    <th key={h} scope="col" className="px-5 py-4 label-caps text-[#C5A046] font-normal bg-[#071309]"
                       style={{ fontSize: '0.55rem' }}>
                       {h}
                     </th>
@@ -428,13 +443,13 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
                       i % 2 === 0 ? 'bg-[#071309]/60' : 'bg-[#0A1C0B]/60'
                     }`}
                   >
-                    <td className="px-5 py-4">
+                    <th scope="row" className="px-5 py-4 font-normal text-left">
                       <span className="font-display text-base text-[#FAF8F5] font-light">
                         {p.gradeNum}{p.gradeUnit}
                       </span>
                       <br />
                       <span className="text-stone-500" style={{ fontSize: '0.65rem' }}>{p.gradeName}</span>
-                    </td>
+                    </th>
                     <td className="px-5 py-4 text-[#C5A046] font-medium">{p.size}</td>
                     <td className="px-5 py-4 text-stone-400 font-light">{p.color}</td>
                     <td className="px-5 py-4 text-stone-400 font-light max-w-[200px] truncate">{p.applications}</td>

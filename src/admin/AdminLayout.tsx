@@ -61,9 +61,9 @@ export default function AdminLayout({ onLogout, onReturnToSite }: AdminLayoutPro
     <div className="min-h-screen bg-[#071309] text-[#FAF8F5] flex flex-col md:flex-row relative font-sans">
       {/* Mobile Top Nav */}
       <div className="md:hidden bg-[#0D2012] border-b border-[#C5A046]/30 px-4 py-3 flex justify-between items-center z-40">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5 text-[#C5A046]" />
-          <span className="font-light tracking-widest uppercase text-xs text-[#FAF8F5]">Cardanova Admin</span>
+        <div className="flex items-center gap-2.5">
+          <img src="/images/cardanova-emblem.png" alt="Cardanova emblem" width={538} height={470} className="h-7 w-auto object-contain" />
+          <img src="/images/cardanova-wordmark-light.png" alt="Cardanova Admin" width={944} height={232} className="h-5 w-auto object-contain" />
         </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -82,15 +82,8 @@ export default function AdminLayout({ onLogout, onReturnToSite }: AdminLayoutPro
         <div className="p-6">
           {/* Brand Logo */}
           <div className="flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 rounded-xl bg-[#C5A046]/10 border border-[#C5A046]/40 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-[#C5A046]" />
-            </div>
-            <div>
-              <h2 className="font-light text-sm tracking-[0.2em] text-[#FAF8F5] uppercase">
-                Cardanova
-              </h2>
-              <p className="text-[9px] uppercase tracking-widest text-[#C5A046]">Enterprise Admin</p>
-            </div>
+            <img src="/images/cardanova-emblem.png" alt="Cardanova Emblem" width={538} height={470} className="h-9 w-auto object-contain" />
+            <img src="/images/cardanova-wordmark-light.png" alt="Cardanova Spices" width={944} height={232} className="h-7 w-auto object-contain" />
           </div>
 
           {/* Nav Items */}

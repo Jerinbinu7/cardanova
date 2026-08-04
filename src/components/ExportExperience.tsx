@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { MAP_DOTS } from './mapDots';
 
 const STATS = [
   { value: 15, suffix: '+', label: 'Years of Heritage' },
@@ -250,75 +251,97 @@ export default function ExportExperience() {
               className="w-full h-full"
               style={{ fill: 'none' }}
             >
-              {/* Simplified continents */}
-              <path d="M80,80 Q130,60 200,70 T310,120 Q340,180 290,240 Q240,300 180,280 Q120,260 90,200 Z"
-                fill="rgba(17,45,21,0.8)" stroke="rgba(197,160,70,0.15)" strokeWidth="1" />
-              <path d="M200,280 Q240,260 270,290 Q300,340 280,380 Q240,410 200,390 Q170,360 185,320 Z"
-                fill="rgba(17,45,21,0.8)" stroke="rgba(197,160,70,0.15)" strokeWidth="1" />
-              <path d="M420,60 Q480,40 520,70 Q550,100 530,140 Q500,160 460,150 Q430,130 420,100 Z"
-                fill="rgba(17,45,21,0.8)" stroke="rgba(197,160,70,0.15)" strokeWidth="1" />
-              <path d="M460,150 Q510,130 540,160 Q570,220 550,300 Q520,350 480,340 Q440,310 440,240 Q440,180 460,150 Z"
-                fill="rgba(17,45,21,0.8)" stroke="rgba(197,160,70,0.15)" strokeWidth="1" />
-              <path d="M540,60 Q650,30 780,60 Q860,90 880,160 Q860,220 800,230 Q720,240 660,200 Q590,160 560,120 Q540,90 540,60 Z"
-                fill="rgba(17,45,21,0.8)" stroke="rgba(197,160,70,0.15)" strokeWidth="1" />
-              <path d="M640,180 Q660,170 680,200 Q690,240 670,270 Q650,260 640,230 Q630,210 640,180 Z"
-                fill="rgba(17,45,21,0.95)" stroke="rgba(197,160,70,0.4)" strokeWidth="1.5" />
-              <path d="M790,300 Q850,280 890,310 Q920,350 890,390 Q840,410 790,380 Q760,350 790,300 Z"
-                fill="rgba(17,45,21,0.8)" stroke="rgba(197,160,70,0.15)" strokeWidth="1" />
+              {/* Dotted World Map Matrix */}
+              {MAP_DOTS.map((dot, idx) => (
+                <circle
+                  key={idx}
+                  cx={dot.x}
+                  cy={dot.y}
+                  r="1.2"
+                  fill="rgba(197, 160, 70, 0.16)"
+                  style={{
+                    opacity: 0.35 + (idx % 5) * 0.15,
+                  }}
+                />
+              ))}
 
               {/* Grid lines */}
               {[100, 200, 300].map(y => (
                 <line key={y} x1="0" y1={y} x2="1000" y2={y}
-                  stroke="rgba(197,160,70,0.05)" strokeWidth="1" strokeDasharray="4 8" />
+                  stroke="rgba(197,160,70,0.04)" strokeWidth="1" strokeDasharray="4 8" />
               ))}
               {[200, 400, 600, 800].map(x => (
                 <line key={x} x1={x} y1="0" x2={x} y2="440"
-                  stroke="rgba(197,160,70,0.05)" strokeWidth="1" strokeDasharray="4 8" />
+                  stroke="rgba(197,160,70,0.04)" strokeWidth="1" strokeDasharray="4 8" />
               ))}
 
-              {/* Origin marker */}
-              <circle cx="662" cy="230" r="10" fill="none" stroke="#C5A046" strokeWidth="1.5" opacity="0.5">
-                <animate attributeName="r" values="10;18;10" dur="2s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" />
-              </circle>
-              <circle cx="662" cy="230" r="5" fill="#C5A046" />
-              <text x="672" y="225" fill="#FAF8F5" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="600">
-                Idukki, India
-              </text>
+              {/* Origin marker (Cochin Port / Idukki, India) */}
+              <g>
+                <circle cx="662" cy="230" r="10" fill="none" stroke="#C5A046" strokeWidth="1.5" opacity="0.5">
+                  <animate attributeName="r" values="10;20;10" dur="2.5s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="662" cy="230" r="5" fill="#C5A046" />
+                <text x="672" y="225" fill="#FAF8F5" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="600">
+                  Idukki, India (Origin)
+                </text>
+              </g>
 
-              {/* Shipping routes */}
+              {/* Shipping routes & flowing cargo packets */}
               {EXPORT_REGIONS.map((region, i) => {
                 const pathLength = 300;
+                const pathD = `M662,230 Q${(662 + region.x) / 2},${Math.min(region.y, 230) - 50} ${region.x},${region.y}`;
                 return (
                   <g key={i}>
+                    {/* Underlying static route path */}
                     <path
-                      d={`M662,230 Q${(662 + region.x) / 2},${Math.min(region.y, 230) - 60} ${region.x},${region.y}`}
-                      stroke="rgba(197,160,70,0.25)"
-                      strokeWidth="1.5"
-                      strokeDasharray="5 6"
+                      d={pathD}
+                      stroke="rgba(197,160,70,0.18)"
+                      strokeWidth="1.2"
+                      fill="none"
                     />
+                    
+                    {/* Flowing animated route dash line */}
                     <path
-                      d={`M662,230 Q${(662 + region.x) / 2},${Math.min(region.y, 230) - 60} ${region.x},${region.y}`}
+                      d={pathD}
                       stroke="#C5A046"
                       strokeWidth="1.5"
                       strokeDasharray={`${pathLength} ${pathLength}`}
                       strokeDashoffset={pathLength}
-                      opacity="0.7"
+                      fill="none"
+                      opacity="0.65"
                     >
                       <animate
                         attributeName="stroke-dashoffset"
                         values={`${pathLength};0;${pathLength}`}
-                        dur={`${3 + i * 0.8}s`}
+                        dur={`${3.5 + i * 0.8}s`}
+                        repeatCount="indefinite"
+                        begin={`${i * 0.4}s`}
+                      />
+                    </path>
+
+                    {/* Cargo light packet flowing smoothly along Bezier path */}
+                    <circle r="2.2" fill="#FAF8F5" style={{ filter: 'drop-shadow(0 0 4px rgba(197,160,70,0.8))' }}>
+                      <animateMotion
+                        path={pathD}
+                        dur={`${2.2 + i * 0.6}s`}
                         repeatCount="indefinite"
                         begin={`${i * 0.5}s`}
                       />
-                    </path>
-                    <circle cx={region.x} cy={region.y} r="4" fill="#FAF8F5" opacity="0.8" />
+                    </circle>
+
+                    {/* Destination hub pulsing marker */}
+                    <circle cx={region.x} cy={region.y} r="6" fill="none" stroke="#C5A046" strokeWidth="1" opacity="0.6">
+                      <animate attributeName="r" values="4;12;4" dur="2.2s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.6;0;0.6" dur="2.2s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx={region.x} cy={region.y} r="3" fill="#C5A046" />
+
                     <text
-                      x={region.x + 7}
-                      y={region.y + 4}
+                      x={region.x + 8}
+                      y={region.y + 3}
                       fill="#C5A046"
-                      fontSize="8"
+                      fontSize="8.5"
                       fontFamily="Inter,sans-serif"
                       fontWeight="500"
                     >

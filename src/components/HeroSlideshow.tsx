@@ -11,18 +11,21 @@ interface HeroProps {
 const HERO_SLIDES = [
   {
     image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop',
+    alt: 'Premium green cardamom pods from Idukki, Kerala — Cardanova Spices flagship grade',
     headline: "The World's Finest",
     accent: 'Idukki Green Cardamom',
     sub: 'Single-Origin · High Elevation Estates (1,100m) · Kerala, India',
   },
   {
     image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=2070&auto=format&fit=crop',
+    alt: 'Farmers handpicking cardamom pods at peak ripeness in Kerala spice estates',
     headline: 'Handpicked by Local Farmers.',
     accent: 'Graded for Excellence.',
     sub: 'Direct partnership with 250+ smallholder farming families',
   },
   {
     image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=2070&auto=format&fit=crop',
+    alt: 'Vacuum-sealed cardamom export packaging ready for global shipping via Cochin Port',
     headline: 'Peak Pod Freshness',
     accent: 'Exported to 30+ Countries',
     sub: 'Flue-cured & Vacuum Sealed · FOB/CIF Cochin Port',
@@ -58,6 +61,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           setSlides([
             {
               image: HERO_SLIDES[0].image,
+              alt: HERO_SLIDES[0].alt,
               headline: parsed.heroHeadline,
               accent: 'Single-Origin Kerala Spices',
               sub: parsed.heroSubtext || HERO_SLIDES[0].sub,
@@ -122,9 +126,10 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
       ref={heroRef}
       className="relative h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-end"
       style={{ minHeight: '100svh' }}
+      aria-label="Hero slideshow — Premium Cardanova Spices"
     >
       {/* ── Background Slideshow ─────────────────────────── */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0" aria-hidden="true">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide}
@@ -136,9 +141,15 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           >
             <motion.img
               src={slides[slide]?.image || HERO_SLIDES[0].image}
-              alt="Cardanova Plantation"
+              alt={slides[slide]?.alt || HERO_SLIDES[0].alt}
+              width={2070}
+              height={1380}
               className="h-full w-full object-cover object-center"
               style={{ y: imgY, scale: 1.08 }}
+              /* First slide: eager + high priority (LCP). Subsequent: lazy */
+              loading={slide === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={slide === 0 ? 'high' : 'auto'}
             />
           </motion.div>
         </AnimatePresence>
@@ -151,7 +162,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Scanning Line ───────────────────────────────── */}
       {!reducedMotion && (
-        <div className="absolute inset-0 z-1 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 z-1 pointer-events-none overflow-hidden" aria-hidden="true">
           <motion.div
             className="absolute left-0 right-0 h-[1px] opacity-10"
             style={{
@@ -165,7 +176,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Floating Particles ───────────────────────────── */}
       {!reducedMotion && (
-        <div className="absolute inset-0 z-1 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 z-1 pointer-events-none overflow-hidden" aria-hidden="true">
           {PARTICLES.map((p) => (
             <div
               key={p.id}
@@ -200,8 +211,10 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              <h1 className="font-display font-light leading-[0.92] tracking-[-0.02em] text-[#FAF8F5]"
-                style={{ fontSize: 'clamp(3.5rem, 9vw, 8rem)' }}>
+              <h1
+                className="font-display font-light leading-[0.92] tracking-[-0.02em] text-[#FAF8F5]"
+                style={{ fontSize: 'clamp(3.5rem, 9vw, 8rem)' }}
+              >
                 {slides[slide]?.headline || HERO_SLIDES[0].headline}
                 <br />
                 <span className="animate-shimmer italic">
@@ -232,6 +245,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             as="button"
             onClick={() => onOpenQuoteModal()}
             cursorLabel="Quote"
+            aria-label="Request a cardamom trade quote"
             className="rounded-full gold-gradient-bg px-8 py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow"
           >
             {primaryCtaText}
@@ -241,6 +255,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             as="button"
             onClick={onNavigateToProducts}
             cursorLabel="Catalogue"
+            aria-label="View our cardamom product catalogue"
             className="rounded-full border border-[#FAF8F5]/20 bg-white/5 backdrop-blur-md px-8 py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/50 hover:bg-white/10 transition-all cursor-pointer"
           >
             {secondaryCtaText}
@@ -249,13 +264,19 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
       </motion.div>
 
       {/* ── Slide Progress — vertical right side ────────── */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 hidden lg:flex flex-col items-center gap-4">
+      <div
+        className="absolute right-8 top-1/2 -translate-y-1/2 z-10 hidden lg:flex flex-col items-center gap-4"
+        role="tablist"
+        aria-label="Slideshow navigation"
+      >
         {HERO_SLIDES.map((_, i) => (
           <button
             key={i}
             onClick={() => setSlide(i)}
             className="relative flex flex-col items-center cursor-pointer group"
-            aria-label={`Slide ${i + 1}`}
+            aria-label={`Go to slide ${i + 1} of ${HERO_SLIDES.length}`}
+            aria-selected={slide === i}
+            role="tab"
           >
             <div
               className={`rounded-full transition-all duration-500 ${
@@ -270,6 +291,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
                   initial={{ height: '0%' }}
                   animate={{ height: `${progress}%` }}
                   transition={{ duration: 0.05, ease: 'linear' }}
+                  aria-hidden="true"
                 />
               )}
             </div>
@@ -283,12 +305,13 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+        aria-hidden="true"
       >
         <span className="label-caps text-stone-400/60" style={{ fontSize: '0.55rem' }}>
           Scroll to Discover
         </span>
         <div className="animate-scroll-bounce">
-          <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
+          <svg width="16" height="24" viewBox="0 0 16 24" fill="none" aria-hidden="true">
             <rect x="1" y="1" width="14" height="22" rx="7" stroke="rgba(197,160,70,0.4)" strokeWidth="1"/>
             <motion.rect
               x="6.5" y="5" width="3" height="6" rx="1.5" fill="#C5A046"

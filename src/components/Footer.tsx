@@ -24,11 +24,16 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
       console.warn('Failed to parse footer contact cms', e);
     }
   }, []);
+
   return (
-    <footer className="relative bg-[#071309] text-[#FAF8F5] overflow-hidden">
+    <footer
+      className="relative bg-[#071309] text-[#FAF8F5] overflow-hidden"
+      aria-label="Site footer"
+    >
       {/* Subtle botanical watermark */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        aria-hidden="true"
         style={{
           backgroundImage: 'radial-gradient(circle, rgba(197,160,70,0.8) 1px, transparent 1px)',
           backgroundSize: '30px 30px',
@@ -37,7 +42,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
       <div
         className="absolute bottom-0 right-0 text-[20rem] opacity-[0.025] leading-none pointer-events-none select-none font-display font-light"
         style={{ color: '#C5A046' }}
-        aria-hidden
+        aria-hidden="true"
       >
         🌿
       </div>
@@ -47,20 +52,21 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
         <div className="mx-auto max-w-7xl flex flex-col lg:flex-row items-center justify-between gap-8">
           <div>
             <span className="label-caps text-[#C5A046]">Ready to Source?</span>
-            <h3
+            <h2
               className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.95]"
               style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3.2rem)' }}
             >
               Let's build a long-term
               <br />
               <em className="animate-shimmer not-italic">trade partnership.</em>
-            </h3>
+            </h2>
           </div>
 
           <MagneticButton
             as="button"
             onClick={() => onOpenQuoteModal()}
             cursorLabel="Quote"
+            aria-label="Request a trade quote — open the B2B quote form"
             className="rounded-full gold-gradient-bg px-9 py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow whitespace-nowrap"
           >
             Request a Trade Quote →
@@ -76,26 +82,30 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
           <div className="md:col-span-1">
             <button
               onClick={() => setActiveTab('home')}
-              className="flex items-center gap-3 mb-6 text-left group"
+              className="flex items-center gap-3.5 mb-6 text-left group cursor-pointer"
+              aria-label="Cardanova Spices LLP — Go to homepage"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C5A046]/40">
-                <span>🌿</span>
-              </div>
-              <div>
-                <span className="font-display text-lg font-light tracking-[0.15em] text-[#FAF8F5] block uppercase">
-                  Cardanova
-                </span>
-                <span className="label-caps text-[#C5A046]" style={{ fontSize: '0.55rem' }}>
-                  Spices LLP
-                </span>
-              </div>
+              <img
+                src="/images/cardanova-emblem.png"
+                alt="Cardanova Spices Emblem"
+                width={538}
+                height={470}
+                className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+              <img
+                src="/images/cardanova-wordmark-light.png"
+                alt="Cardanova Spices — Exporting Nature's Finest"
+                width={944}
+                height={232}
+                className="h-10 w-auto object-contain"
+              />
             </button>
             <p className="text-xs text-stone-500 leading-relaxed font-light">
               Premier B2B green cardamom exporter. Single-origin luxury spices from Idukki, Kerala to global markets.
             </p>
 
-            {/* Certifications line */}
-            <div className="mt-6 flex flex-wrap gap-1.5">
+            {/* Certifications */}
+            <div className="mt-6 flex flex-wrap gap-1.5" aria-label="Export certifications">
               {['APEDA', 'Spices Board', 'FSSAI', 'IEC'].map((cert) => (
                 <span
                   key={cert}
@@ -109,8 +119,8 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
           </div>
 
           {/* Navigation */}
-          <div>
-            <h4 className="label-caps text-[#C5A046] mb-5">Navigation</h4>
+          <nav aria-label="Footer navigation">
+            <h3 className="label-caps text-[#C5A046] mb-5">Navigation</h3>
             <ul className="space-y-3 text-xs text-stone-400">
               {[
                 { label: 'Home', action: () => setActiveTab('home') },
@@ -122,6 +132,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
                 <li key={item.label}>
                   <button
                     onClick={item.action}
+                    aria-label={`Go to ${item.label}`}
                     className="hover:text-[#C5A046] transition-colors cursor-pointer font-light"
                   >
                     {item.label}
@@ -129,11 +140,11 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Grades */}
-          <div>
-            <h4 className="label-caps text-[#C5A046] mb-5">Cardamom Grades</h4>
+          <nav aria-label="Cardamom grades">
+            <h3 className="label-caps text-[#C5A046] mb-5">Cardamom Grades</h3>
             <ul className="space-y-3 text-xs text-stone-400 font-light">
               {[
                 '8.5 mm Extra Bold',
@@ -146,6 +157,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
                 <li key={g}>
                   <button
                     onClick={() => setActiveTab('products')}
+                    aria-label={`View ${g} cardamom grade`}
                     className="hover:text-[#C5A046] transition-colors cursor-pointer text-left"
                   >
                     {g}
@@ -153,11 +165,11 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Contact */}
-          <div>
-            <h4 className="label-caps text-[#C5A046] mb-5">Export Operations</h4>
+          <address className="not-italic">
+            <h3 className="label-caps text-[#C5A046] mb-5">Export Operations</h3>
             <div className="space-y-4 text-xs text-stone-400 font-light leading-relaxed">
               <p>
                 <span className="text-stone-500 block label-caps mb-1" style={{ fontSize: '0.5rem' }}>Registered Address</span>
@@ -165,31 +177,44 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
               </p>
               <p>
                 <span className="text-stone-500 block label-caps mb-1" style={{ fontSize: '0.5rem' }}>Export Inquiry</span>
-                {email}
+                <a
+                  href={`mailto:${email}`}
+                  className="hover:text-[#C5A046] transition-colors"
+                  aria-label={`Send email to ${email}`}
+                >
+                  {email}
+                </a>
               </p>
               <p>
                 <span className="text-stone-500 block label-caps mb-1" style={{ fontSize: '0.5rem' }}>Phone / WhatsApp</span>
-                {phone}
+                <a
+                  href={`tel:${phone.replace(/\s/g, '')}`}
+                  className="hover:text-[#C5A046] transition-colors"
+                  aria-label={`Call ${phone}`}
+                >
+                  {phone}
+                </a>
               </p>
             </div>
-          </div>
+          </address>
         </div>
 
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-stone-600 font-light">
-            © {new Date().getFullYear()} Cardanova Spices LLP. All Rights Reserved.
+            <small>© {new Date().getFullYear()} Cardanova Spices LLP. All Rights Reserved.</small>
           </p>
-          <div className="flex items-center gap-6 text-xs text-stone-600">
+          <nav aria-label="Legal navigation" className="flex items-center gap-6 text-xs text-stone-600">
             <span className="hover:text-[#C5A046] transition-colors cursor-pointer">Terms of Trade</span>
             <span className="hover:text-[#C5A046] transition-colors cursor-pointer">Privacy Policy</span>
             <button
               onClick={() => setActiveTab('admin')}
               className="hover:text-[#C5A046] transition-colors cursor-pointer font-medium text-[#C5A046]/80 flex items-center gap-1"
+              aria-label="Access admin portal"
             >
               Admin Portal 🔒
             </button>
-          </div>
+          </nav>
         </div>
       </div>
     </footer>

@@ -60,15 +60,23 @@ export default function AdminLogin({ onSuccess, onReturnToSite }: AdminLoginProp
         className="w-full max-w-md bg-[#0D2012]/90 border border-[#C5A046]/30 rounded-2xl p-8 backdrop-blur-xl shadow-2xl relative z-10"
       >
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#C5A046]/10 border border-[#C5A046]/40 mb-4 shadow-[0_0_20px_rgba(197,160,70,0.2)]">
-            <ShieldCheck className="w-8 h-8 text-[#C5A046]" />
-          </div>
-          <h1 className="text-2xl font-light tracking-[0.2em] text-[#FAF8F5] uppercase">
-            Cardanova
-          </h1>
-          <p className="text-[10px] uppercase tracking-widest text-[#C5A046] mt-1 font-semibold">
-            Spices LLP · Enterprise Admin Portal
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img
+            src="/images/cardanova-emblem.png"
+            alt="Cardanova Emblem"
+            width={538}
+            height={470}
+            className="h-20 w-auto object-contain mb-3 filter drop-shadow-[0_0_16px_rgba(197,160,70,0.35)]"
+          />
+          <img
+            src="/images/cardanova-wordmark-light.png"
+            alt="Cardanova Spices — Exporting Nature's Finest"
+            width={944}
+            height={232}
+            className="h-9 w-auto object-contain"
+          />
+          <p className="text-[10px] uppercase tracking-widest text-[#C5A046] mt-3 font-semibold">
+            CMS & Operations Management Desk
           </p>
         </div>
 

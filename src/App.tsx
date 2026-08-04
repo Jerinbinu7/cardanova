@@ -1,6 +1,19 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from './hooks/useReducedMotion';
+import SEOHead from './seo/SEOHead';
+import {
+  organizationSchema,
+  localBusinessSchema,
+  websiteSchema,
+  faqSchema,
+  productsListSchema,
+  productsBreadcrumbSchema,
+  aboutBreadcrumbSchema,
+  aboutPageSchema,
+  originBreadcrumbSchema,
+  buildSchemaGraph,
+} from './seo/schemas';
 import CustomCursor from './components/CustomCursor';
 import Header from './components/Header';
 import HeroSlideshow from './components/HeroSlideshow';
@@ -19,6 +32,56 @@ import QuoteModal from './components/QuoteModal';
 import CartDrawer, { CartItem } from './components/CartDrawer';
 import AdminPortal from './admin/AdminPortal';
 
+const SITE_URL = 'https://cardanovaspices.com';
+
+// ── Per-page SEO configurations ───────────────────────────────────────────────
+const PAGE_SEO = {
+  home: {
+    title: 'Cardanova Spices — Premium Cardamom from Idukki, Kerala | B2B Export & Wholesale',
+    description:
+      'Cardanova Spices LLP — single-origin premium green cardamom, pepper & turmeric from Idukki, Kerala. APEDA-certified B2B spice exporter to 30+ countries. FOB/CIF Cochin Port.',
+    canonical: `${SITE_URL}/`,
+    ogImage:
+      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
+    keywords:
+      'green cardamom export, Kerala cardamom, Idukki cardamom, cardamom wholesaler, spice exporter India, B2B cardamom supplier, premium cardamom Kerala, cardamom FOB CIF Cochin',
+    schema: buildSchemaGraph(organizationSchema, localBusinessSchema, websiteSchema, faqSchema),
+  },
+  about: {
+    title: 'About Cardanova Spices — Our Story, Mission & Founders | Kerala Spice Exporters',
+    description:
+      'Learn about Cardanova Spices LLP — founded by Akhilkumar K A and Amal Babu in Idukki, Kerala. Discover our mission to deliver authentic premium spices to global buyers with trust and transparency.',
+    canonical: `${SITE_URL}/#about`,
+    ogImage:
+      'https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1200&auto=format&fit=crop',
+    keywords:
+      'Cardanova Spices about, Kerala spice exporters, Idukki cardamom founders, premium spice company India, B2B spice exporter story',
+    schema: buildSchemaGraph(organizationSchema, aboutPageSchema, aboutBreadcrumbSchema),
+  },
+  products: {
+    title: 'Green Cardamom Grades & Catalogue — 8.5mm to 7.0mm Export Specifications | Cardanova',
+    description:
+      'Complete B2B trade catalogue of single-origin Idukki green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial. MOQ 500kg. FOB/CIF pricing available.',
+    canonical: `${SITE_URL}/#products`,
+    ogImage:
+      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
+    keywords:
+      'green cardamom grades, 8.5mm cardamom, extra bold cardamom, cardamom specifications, cardamom export catalogue, Kerala cardamom wholesale, cardamom MOQ, cardamom HS code',
+    schema: buildSchemaGraph(organizationSchema, productsListSchema, productsBreadcrumbSchema),
+  },
+  origin: {
+    title: 'Our Origin — Farm to Freight Process | Idukki Cardamom Estates | Cardanova Spices',
+    description:
+      'Discover how Cardanova cardamom travels from mist-covered Idukki estates to global markets. Six transparent steps: cultivation, hand harvesting, flue curing, grading, vacuum sealing, and export to 30+ countries.',
+    canonical: `${SITE_URL}/#origin`,
+    ogImage:
+      'https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1200&auto=format&fit=crop',
+    keywords:
+      'Idukki cardamom origin, cardamom farming Kerala, flue cured cardamom, cardamom supply chain, farm to freight spice, Cardanova origin story, cardamom export process',
+    schema: buildSchemaGraph(organizationSchema, originBreadcrumbSchema),
+  },
+} as const;
+
 function PageLoader() {
   return (
     <motion.div
@@ -26,6 +89,8 @@ function PageLoader() {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.02 }}
       transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+      aria-hidden="true"
+      role="presentation"
     >
       {/* Subtle grid */}
       <div className="absolute inset-0 opacity-[0.04]"
@@ -38,26 +103,30 @@ function PageLoader() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Icon */}
-        <div className="relative flex h-16 w-16 items-center justify-center">
-          <div className="absolute inset-0 rounded-full border border-[#C5A046]/40 animate-gentle-pulse" />
-          <div className="absolute inset-2 rounded-full border border-[#C5A046]/20" />
-          <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 12px rgba(197,160,70,0.5))' }}>🌿</span>
+        {/* Official Emblem Logo */}
+        <div className="relative flex h-24 items-center justify-center" aria-hidden="true">
+          <img
+            src="/images/cardanova-emblem.png"
+            alt="Cardanova Spices Emblem"
+            width={538}
+            height={470}
+            className="h-20 w-auto object-contain filter drop-shadow-[0_0_20px_rgba(197,160,70,0.4)]"
+          />
         </div>
 
-        {/* Wordmark */}
-        <div>
-          <h2 className="font-display font-light tracking-[0.22em] text-[#FAF8F5] uppercase"
-            style={{ fontSize: '1.6rem', letterSpacing: '0.22em' }}>
-            Cardanova
-          </h2>
-          <p className="label-caps text-[#C5A046] mt-1" style={{ fontSize: '0.55rem' }}>
-            Spices LLP · Kerala, India
-          </p>
+        {/* Official Wordmark */}
+        <div className="flex flex-col items-center">
+          <img
+            src="/images/cardanova-wordmark-light.png"
+            alt="Cardanova Spices — Exporting Nature's Finest"
+            width={944}
+            height={232}
+            className="h-10 w-auto object-contain"
+          />
         </div>
 
         {/* Progress bar */}
-        <div className="w-40 h-[1px] overflow-hidden" style={{ background: 'rgba(197,160,70,0.2)' }}>
+        <div className="w-40 h-[1px] overflow-hidden" style={{ background: 'rgba(197,160,70,0.2)' }} role="progressbar" aria-label="Loading">
           <motion.div
             className="h-full gold-gradient-bg"
             initial={{ width: '0%' }}
@@ -75,7 +144,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'about' | 'products' | 'origin' | 'admin'>('home');
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState<string>('8.5 mm Extra Bold');
-  
+
   // Cart state
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -167,8 +236,21 @@ export default function App() {
     return <AdminPortal onReturnToSite={handleReturnToSite} />;
   }
 
+  // Determine current page SEO config
+  const currentSEO = PAGE_SEO[activeTab as keyof typeof PAGE_SEO] ?? PAGE_SEO.home;
+
   return (
     <>
+      {/* ── Per-Page SEO Head — updates <title>, meta, canonical, JSON-LD ── */}
+      <SEOHead
+        title={currentSEO.title}
+        description={currentSEO.description}
+        canonical={currentSEO.canonical}
+        ogImage={currentSEO.ogImage}
+        keywords={currentSEO.keywords}
+        schema={currentSEO.schema}
+      />
+
       <CustomCursor />
 
       <AnimatePresence mode="wait">
@@ -191,7 +273,7 @@ export default function App() {
         />
 
         {/* Dynamic Page Routing View */}
-        <main>
+        <main id="main-content" tabIndex={-1}>
           {activeTab === 'home' && (
             <motion.div
               key="home"
