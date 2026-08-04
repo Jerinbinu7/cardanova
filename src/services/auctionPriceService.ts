@@ -75,7 +75,7 @@ const SPICE_CONFIGS: SpiceConfig[] = [
   {
     id: 'small_cardamom',
     name: 'Green Cardamom',
-    sourceUrl: 'https://www.indianspices.com/price/daily-auction-price-small-cardamom',
+    sourceUrl: 'https://www.indianspices.com/marketing/price/domestic/daily-price.html',
     cacheKey: 'cardanova_auction_v2_small_cardamom',
     patterns: {
       /**
