@@ -18,6 +18,7 @@ import CustomCursor from './components/CustomCursor';
 import Header from './components/Header';
 import HeroSlideshow from './components/HeroSlideshow';
 import WhyChooseCardanova from './components/WhyChooseCardanova';
+import AuctionPriceTicker from './components/AuctionPriceTicker';
 import ProductCards from './components/ProductCards';
 import ExportExperience from './components/ExportExperience';
 import GlobalStandards from './components/GlobalStandards';
@@ -286,6 +287,7 @@ export default function App() {
                 onOpenQuoteModal={handleOpenQuoteModal}
                 onNavigateToProducts={handleNavigateToProducts}
               />
+              <AuctionPriceTicker />
               <WhyChooseCardanova />
               <ProductCards
                 onOpenQuoteModal={handleOpenQuoteModal}
