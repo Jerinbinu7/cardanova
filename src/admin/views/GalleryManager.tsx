@@ -1,181 +1,130 @@
-import React, { useEffect, useState } from 'react';
-import { cmsService } from '../../services/cmsService';
-import { GalleryItemData } from '../../services/mockSanityStore';
-import { Upload, Trash2, ArrowUp, ArrowDown, Image as ImageIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Plus, Trash2, X } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { getGalleryItems, createGalleryItem, deleteGalleryItem, uploadGalleryImage } from '../../services/galleryService';
+import type { GalleryItemRow, GalleryFolder } from '../../types/database';
+import FileUpload from '../components/FileUpload';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { SkeletonCard } from '../components/Skeleton';
+
+const FOLDERS: { id: GalleryFolder; label: string }[] = [
+  { id: 'factory',      label: 'Factory' },
+  { id: 'warehouse',    label: 'Warehouse' },
+  { id: 'products',     label: 'Products' },
+  { id: 'packaging',    label: 'Packaging' },
+  { id: 'certificates', label: 'Certificates' },
+  { id: 'events',       label: 'Events' },
+];
 
 export default function GalleryManager() {
-  const [gallery, setGallery] = useState<GalleryItemData[]>([]);
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState<'cultivation' | 'processing' | 'quality' | 'export'>('cultivation');
-  const [uploadedImage, setUploadedImage] = useState<string>('');
+  const [activeFolder, setActiveFolder] = useState<GalleryFolder>('factory');
+  const [items, setItems]               = useState<GalleryItemRow[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<GalleryItemRow | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [newTitle, setNewTitle]         = useState('');
+  const [showUpload, setShowUpload]     = useState(false);
 
-  useEffect(() => {
-    loadGallery();
-  }, []);
-
-  const loadGallery = async () => {
-    const data = await cmsService.getGallery();
-    setGallery(data);
+  const load = async () => {
+    setLoading(true);
+    try { setItems(await getGalleryItems(activeFolder)); }
+    catch (e: any) { toast.error(e.message); }
+    finally { setLoading(false); }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        if (evt.target?.result) {
-          setUploadedImage(evt.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+  useEffect(() => { load(); }, [activeFolder]);
+
+  const handleUpload = async (files: File[]) => {
+    if (!newTitle.trim()) { toast.error('Please enter a title for the image.'); return; }
+    setUploadProgress(10);
+    try {
+      for (const file of files) {
+        const url = await uploadGalleryImage(activeFolder, file, (p) => setUploadProgress(p));
+        await createGalleryItem({ title: newTitle, folder: activeFolder, image_url: url, display_order: items.length });
+      }
+      toast.success('Image(s) uploaded!');
+      setNewTitle('');
+      setShowUpload(false);
+      load();
+    } catch (e: any) { toast.error(e.message); }
+    finally { setTimeout(() => setUploadProgress(0), 1500); }
   };
 
-  const handleAddImage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !uploadedImage) return;
-
-    await cmsService.saveGalleryItem({
-      id: '',
-      title,
-      category,
-      image: uploadedImage,
-      displayOrder: gallery.length + 1,
-    });
-
-    setTitle('');
-    setUploadedImage('');
-    loadGallery();
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this gallery image?')) {
-      await cmsService.deleteGalleryItem(id);
-      loadGallery();
-    }
-  };
-
-  const handleMove = async (index: number, direction: 'up' | 'down') => {
-    const targetIdx = direction === 'up' ? index - 1 : index + 1;
-    if (targetIdx < 0 || targetIdx >= gallery.length) return;
-
-    const newGallery = [...gallery];
-    const temp = newGallery[index];
-    newGallery[index] = newGallery[targetIdx];
-    newGallery[targetIdx] = temp;
-
-    // re-index
-    newGallery.forEach((item, i) => {
-      item.displayOrder = i + 1;
-      cmsService.saveGalleryItem(item);
-    });
-
-    setGallery(newGallery);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try { await deleteGalleryItem(deleteTarget); toast.success('Image deleted.'); load(); }
+    catch (e: any) { toast.error(e.message); }
+    finally { setDeleteTarget(null); }
   };
 
   return (
     <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/30 shadow-xl">
-        <h2 className="text-xl font-light text-[#FAF8F5]">Gallery Management CMS</h2>
-        <p className="text-xs text-gray-400 mt-1">Upload, categorize, and reorder estate and processing photos</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/30 shadow-xl">
+        <div>
+          <h2 className="text-xl font-light text-[#FAF8F5]">Gallery Manager</h2>
+          <p className="text-xs text-gray-400 mt-1">Upload and manage images across all gallery folders</p>
+        </div>
+        <button onClick={() => setShowUpload((s) => !s)}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-medium text-xs uppercase tracking-wider hover:brightness-110 cursor-pointer shadow-lg">
+          <Plus className="w-4 h-4" /> Upload Images
+        </button>
       </div>
 
-      {/* Upload Form */}
-      <div className="bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/20 shadow-xl space-y-4">
-        <h3 className="text-sm uppercase tracking-wider text-[#C5A046] font-medium flex items-center gap-2">
-          <Upload className="w-4 h-4" /> Upload New Gallery Photo
-        </h3>
-
-        <form onSubmit={handleAddImage} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">Image Title / Description</label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Cardamom Flue Drying Chamber"
-              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as any)}
-              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white"
-            >
-              <option value="cultivation">Cultivation & Estate</option>
-              <option value="processing">Processing & Curing</option>
-              <option value="quality">Quality Inspection</option>
-              <option value="export">Export & Shipment</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">Select File</label>
-            <div className="flex items-center gap-2">
-              <label className="flex-1 px-4 py-2 bg-[#C5A046]/10 border border-[#C5A046]/30 rounded-xl text-xs text-[#C5A046] cursor-pointer hover:bg-[#C5A046]/20 flex items-center justify-center gap-2">
-                <ImageIcon className="w-4 h-4" />
-                {uploadedImage ? 'Photo Selected' : 'Choose File'}
-                <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-              </label>
-
-              <button
-                type="submit"
-                className="px-5 py-2 bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-medium text-xs rounded-xl uppercase tracking-wider cursor-pointer"
-              >
-                Add Image
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {/* Gallery Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {gallery.map((item, idx) => (
-          <div key={item.id} className="bg-[#0D2012]/80 border border-[#C5A046]/20 rounded-2xl overflow-hidden group shadow-lg">
-            <div className="relative h-44">
-              <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-              <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-[#071309]/80 text-[10px] text-[#C5A046] uppercase border border-[#C5A046]/30">
-                {item.category}
-              </div>
-            </div>
-            <div className="p-4 flex items-center justify-between gap-2">
-              <div>
-                <p className="text-xs font-medium text-[#FAF8F5] line-clamp-1">{item.title}</p>
-                <p className="text-[10px] text-gray-400">Order: #{item.displayOrder}</p>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handleMove(idx, 'up')}
-                  disabled={idx === 0}
-                  className="p-1 rounded bg-[#071309] text-gray-300 hover:text-white disabled:opacity-30"
-                >
-                  <ArrowUp className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleMove(idx, 'down')}
-                  disabled={idx === gallery.length - 1}
-                  className="p-1 rounded bg-[#071309] text-gray-300 hover:text-white disabled:opacity-30"
-                >
-                  <ArrowDown className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="p-1 rounded bg-red-950/60 text-red-400 hover:text-red-300"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* Folder tabs */}
+      <div className="flex overflow-x-auto gap-2 pb-1">
+        {FOLDERS.map((f) => (
+          <button key={f.id} onClick={() => setActiveFolder(f.id)}
+            className={`px-4 py-2 rounded-xl text-xs font-medium uppercase tracking-wider shrink-0 transition-all ${
+              activeFolder === f.id ? 'bg-[#C5A046] text-[#071309]' : 'bg-[#0D2012]/80 text-gray-300 border border-[#C5A046]/20 hover:border-[#C5A046]/50'
+            }`}>
+            {f.label}
+          </button>
         ))}
       </div>
+
+      {/* Upload form */}
+      {showUpload && (
+        <div className="bg-[#0D2012]/80 border border-[#C5A046]/30 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm text-[#C5A046] font-medium">Upload to {FOLDERS.find((f) => f.id === activeFolder)?.label}</h3>
+            <button onClick={() => setShowUpload(false)}><X className="w-4 h-4 text-gray-400" /></button>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-300 mb-1.5">Image Title *</label>
+            <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="e.g. High Altitude Plantation"
+              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A046]" />
+          </div>
+          <FileUpload label="Choose Images" accept="image" multiple onFiles={handleUpload} progress={uploadProgress} />
+        </div>
+      )}
+
+      {/* Gallery grid */}
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[1,2,3,4,5,6].map((i) => <SkeletonCard key={i} />)}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="text-center py-16 text-gray-400">
+          <p className="text-sm">No images in this folder yet.</p>
+          <button onClick={() => setShowUpload(true)} className="text-xs text-[#C5A046] hover:underline mt-2">Upload the first image →</button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {items.map((item) => (
+            <div key={item.id} className="group relative rounded-xl overflow-hidden border border-[#C5A046]/20 aspect-square bg-[#0D2012]/80">
+              <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-end p-3 gap-2">
+                <p className="text-xs text-white text-center line-clamp-2">{item.title}</p>
+                <button onClick={() => setDeleteTarget(item)} className="flex items-center gap-1.5 text-xs text-red-400 bg-red-950/80 px-3 py-1.5 rounded-lg border border-red-500/30">
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <ConfirmDialog isOpen={!!deleteTarget} title="Delete Image" message={`Delete "${deleteTarget?.title}"? This will also remove the image from Supabase Storage.`} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
     </div>
   );
 }

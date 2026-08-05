@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import SEOHead from './seo/SEOHead';
@@ -31,7 +32,12 @@ import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import QuoteModal from './components/QuoteModal';
 import CartDrawer, { CartItem } from './components/CartDrawer';
+// Admin Routes (lazy-friendly imports)
 import AdminPortal from './admin/AdminPortal';
+import AdminLayout from './admin/AdminLayout';
+import AdminLogin from './admin/AdminLogin';
+import AdminForgotPassword from './admin/AdminForgotPassword';
+import AdminResetPassword from './admin/AdminResetPassword';
 
 const SITE_URL = 'https://cardanovaspices.com';
 
@@ -152,22 +158,14 @@ export default function App() {
 
   const reducedMotion = useReducedMotion();
 
-  useEffect(() => {
-    // Check initial hash for #admin or /admin
-    if (window.location.hash === '#admin' || window.location.pathname.startsWith('/admin')) {
-      setActiveTab('admin');
-    }
+  const navigate = useNavigate();
 
-    const handleHashChange = () => {
-      if (window.location.hash === '#admin' || window.location.pathname.startsWith('/admin')) {
-        setActiveTab('admin');
-      } else if (activeTab === 'admin' && window.location.hash !== '#admin') {
-        setActiveTab('home');
-      }
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [activeTab]);
+  useEffect(() => {
+    // Redirect hash #admin or /admin to real router route
+    if (window.location.hash === '#admin') {
+      navigate('/admin');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const timer = setTimeout(
@@ -177,20 +175,12 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [reducedMotion]);
 
-  const handleSelectTab = (tab: 'home' | 'about' | 'products' | 'origin' | 'admin') => {
+  const handleSelectTab = (tab: string) => {
     if (tab === 'admin') {
-      window.location.hash = 'admin';
-    } else if (window.location.hash === '#admin') {
-      history.pushState('', document.title, window.location.pathname + window.location.search);
+      navigate('/admin');
+      return;
     }
-    setActiveTab(tab);
-  };
-
-  const handleReturnToSite = () => {
-    if (window.location.hash === '#admin') {
-      history.pushState('', document.title, window.location.pathname + window.location.search);
-    }
-    setActiveTab('home');
+    setActiveTab(tab as any);
   };
 
   const handleOpenQuoteModal = (grade?: string) => {
@@ -213,6 +203,7 @@ export default function App() {
       }
       return [...prev, item];
     });
+    setIsCartOpen(true);
   };
 
   const handleUpdateQuantity = (id: string, newQty: number) => {
@@ -233,15 +224,24 @@ export default function App() {
     setIsQuoteOpen(true);
   };
 
-  if (activeTab === 'admin') {
-    return <AdminPortal onReturnToSite={handleReturnToSite} />;
-  }
+  // Admin routing handled below via React Router Routes
 
   // Determine current page SEO config
   const currentSEO = PAGE_SEO[activeTab as keyof typeof PAGE_SEO] ?? PAGE_SEO.home;
 
   return (
-    <>
+    <Routes>
+      {/* ── Admin Routes — all under /admin ── */}
+      <Route path="/admin/*" element={<AdminPortal />}>
+        <Route index element={<AdminLayout />} />
+        <Route path="*" element={<AdminLayout />} />
+      </Route>
+      <Route path="/admin/login"            element={<AdminLogin />} />
+      <Route path="/admin/forgot-password"  element={<AdminForgotPassword />} />
+      <Route path="/admin/reset-password"   element={<AdminResetPassword />} />
+
+      {/* ── Public Site — all other routes ── */}
+      <Route path="*" element={<>
       {/* ── Per-Page SEO Head — updates <title>, meta, canonical, JSON-LD ── */}
       <SEOHead
         title={currentSEO.title}
@@ -266,7 +266,7 @@ export default function App() {
       >
         {/* Header Navigation */}
         <Header
-          activeTab={activeTab}
+          activeTab={activeTab as any}
           setActiveTab={(tab) => handleSelectTab(tab as 'home' | 'about' | 'products' | 'origin' | 'admin')}
           onOpenQuoteModal={handleOpenQuoteModal}
           cartCount={cartItems.length}
@@ -368,6 +368,7 @@ export default function App() {
           onCheckoutRFQ={handleCheckoutRFQ}
         />
       </motion.div>
-    </>
+      </>} />
+    </Routes>
   );
 }

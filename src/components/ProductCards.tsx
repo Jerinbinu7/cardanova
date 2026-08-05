@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
-import { cmsService } from '../services/cmsService';
+import { getProducts } from '../services/productsService';
 
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -160,9 +160,9 @@ function GradeCard({
         <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-[#071309]/20 to-transparent" />
 
         {/* Badges row */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
           <span
-            className={`rounded-full px-3 py-1 label-caps text-[10px] shrink-0 ${
+            className={`rounded-full px-2.5 py-1 label-caps text-[9px] sm:text-[10px] truncate max-w-[60%] shrink-0 ${
               item.badgePrimary
                 ? 'gold-gradient-bg text-[#071309] font-semibold'
                 : 'border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] backdrop-blur-md'
@@ -171,7 +171,7 @@ function GradeCard({
             {item.badge}
           </span>
           {/* Price */}
-          <div className="rounded-xl border border-[#C5A046]/40 bg-[#071309]/90 px-3 py-1 backdrop-blur-md shrink-0">
+          <div className="rounded-xl border border-[#C5A046]/40 bg-[#071309]/90 px-2.5 py-1 backdrop-blur-md shrink-0">
             <span className="text-xs font-display text-[#C5A046] font-medium">${item.pricePerKg}/kg</span>
           </div>
         </div>
@@ -270,27 +270,28 @@ export default function ProductCards({
 
   useEffect(() => {
     async function fetchProducts() {
-      const cmsProds = await cmsService.getProducts();
-      if (cmsProds && cmsProds.length > 0) {
-        const published = cmsProds.filter((p) => p.isPublished ?? true);
-        if (published.length > 0) {
-          const mapped = published.map((p, idx) => ({
+      try {
+        const prods = await getProducts(true);
+        if (prods && prods.length > 0) {
+          const mapped = prods.map((p, idx) => ({
             id: p.id,
-            gradeNum: p.grades?.[0]?.sizeMm ? p.grades[0].sizeMm.replace('mm', '') : String(8.5 - idx * 0.5),
-            gradeUnit: p.grades?.[0]?.sizeMm?.includes('mm') ? 'mm' : '',
+            gradeNum: p.grades?.[0]?.size_mm ? p.grades[0].size_mm.replace('mm', '') : String(8.5 - idx * 0.5),
+            gradeUnit: p.grades?.[0]?.size_mm?.includes('mm') ? 'mm' : '',
             gradeName: p.name,
-            badge: p.isFeatured ? 'Flagship Grade' : (p.category ? p.category.toUpperCase() : 'Export Grade'),
-            badgePrimary: p.isFeatured,
-            origin: p.shortDescription || p.specifications?.find((s) => s.label === 'Origin')?.value || 'Idukki, Kerala',
-            packaging: p.packagingOptions?.[0] || '5 kg Multi-Layer Vacuum Packs',
+            badge: p.featured ? 'Flagship Grade' : (p.category?.name ? p.category.name.toUpperCase() : 'Export Grade'),
+            badgePrimary: p.featured,
+            origin: p.short_description || p.specifications?.find((s) => s.label === 'Origin')?.value || 'Idukki, Kerala',
+            packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
             moq: '25 kg',
             volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
             pricePerKg: 32 - idx * 3,
             defaultQtyKg: 25,
-            image: p.images?.[0] || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
+            image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
           }));
           setCards(mapped);
         }
+      } catch (e) {
+        console.error(e);
       }
     }
     fetchProducts();
