@@ -44,7 +44,7 @@ export default defineConfig({
           "react-vendor": ["react", "react-dom"],
           "motion-vendor": ["framer-motion"],
           "ui-vendor": ["lucide-react", "clsx", "tailwind-merge"],
-          "sanity-vendor": ["@sanity/client", "@sanity/image-url"],
+          "supabase-vendor": ["@supabase/supabase-js", "react-router-dom"],
         },
         // Readable chunk names in production
         chunkFileNames: "assets/[name]-[hash].js",

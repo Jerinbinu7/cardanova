@@ -1,108 +1,87 @@
-import React, { useState } from 'react';
-import { Save, Check } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Save } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { getContactInfo, updateContactInfo } from '../../services/contactService';
+import type { ContactInfoRow } from '../../types/database';
+import { SkeletonText } from '../components/Skeleton';
 
 export default function ContactInfoManager() {
-  const [saved, setSaved] = useState(false);
-  const [address, setAddress] = useState('Cardanova Spices LLP, Main Processing Plant, Vandanmedu, Idukki District, Kerala - 685551, India');
-  const [phonePrimary, setPhonePrimary] = useState('+91 94470 00000');
-  const [phoneSecondary, setPhoneSecondary] = useState('+91 4868 270000');
-  const [emailSales, setEmailSales] = useState('export@cardanova.in');
-  const [emailSupport, setEmailSupport] = useState('info@cardanova.in');
-  const [whatsAppNumber, setWhatsAppNumber] = useState('+919447000000');
+  const [data, setData]       = useState<Partial<ContactInfoRow>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    getContactInfo().then((d) => { if (d) setData(d); }).finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem(
-      'cardanova_contact_cms',
-      JSON.stringify({ address, phonePrimary, phoneSecondary, emailSales, emailSupport, whatsAppNumber })
-    );
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setSaving(true);
+    try { await updateContactInfo(data); toast.success('Contact info saved!'); }
+    catch (e: any) { toast.error(e.message); }
+    finally { setSaving(false); }
   };
+
+  if (loading) return <SkeletonText lines={10} />;
+
+  const field = (label: string, key: keyof ContactInfoRow, placeholder = '', type = 'text') => (
+    <div>
+      <label className="block text-xs text-[#C5A046] uppercase tracking-wider mb-1.5">{label}</label>
+      <input type={type} value={(data[key] as string) ?? ''} onChange={(e) => setData((d) => ({ ...d, [key]: e.target.value }))} placeholder={placeholder}
+        className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A046] transition-all" />
+    </div>
+  );
+
+  const sectionClass = "bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/20 shadow-xl space-y-4";
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/30 shadow-xl flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-light text-[#FAF8F5]">Contact Information CMS</h2>
-          <p className="text-xs text-gray-400 mt-1">Manage processing plant address, export phone lines, emails, and WhatsApp</p>
-        </div>
-        {saved && (
-          <span className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-950/80 px-3 py-1.5 rounded-full border border-emerald-500/40">
-            <Check className="w-4 h-4" /> Information Saved!
-          </span>
-        )}
+      <div className="bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/30 shadow-xl">
+        <h2 className="text-xl font-light text-[#FAF8F5]">Contact Information</h2>
+        <p className="text-xs text-gray-400 mt-1">Edit all contact details shown on the website</p>
       </div>
 
-      <form onSubmit={handleSave} className="bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/20 shadow-xl space-y-5">
-        <div>
-          <label className="block text-xs text-[#C5A046] uppercase mb-1">Corporate HQ & Processing Plant Address</label>
-          <textarea
-            rows={3}
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-3 text-xs text-white"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">Primary Phone</label>
-            <input
-              type="text"
-              value={phonePrimary}
-              onChange={(e) => setPhonePrimary(e.target.value)}
-              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">Export Desk Direct Line</label>
-            <input
-              type="text"
-              value={phoneSecondary}
-              onChange={(e) => setPhoneSecondary(e.target.value)}
-              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">Sales / Export Email</label>
-            <input
-              type="email"
-              value={emailSales}
-              onChange={(e) => setEmailSales(e.target.value)}
-              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">General Inquiries Email</label>
-            <input
-              type="email"
-              value={emailSupport}
-              onChange={(e) => setEmailSupport(e.target.value)}
-              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs text-gray-300 mb-1">WhatsApp Quick Connect Number</label>
-            <input
-              type="text"
-              value={whatsAppNumber}
-              onChange={(e) => setWhatsAppNumber(e.target.value)}
-              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white"
-            />
+      <form onSubmit={handleSave} className="space-y-6">
+        <div className={sectionClass}>
+          <h3 className="text-sm uppercase tracking-wider text-[#C5A046] font-medium border-b border-[#C5A046]/20 pb-2">Communication</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {field('Phone', 'phone', '+91 9876543210')}
+            {field('WhatsApp Number', 'whatsapp', '+91 9876543210')}
+            {field('Contact Email', 'email', 'trade@cardanovaspices.com', 'email')}
+            {field('Inquiry Email', 'inquiry_email', 'trade@cardanovaspices.com', 'email')}
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
-          <button
-            type="submit"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-medium text-xs uppercase tracking-wider cursor-pointer shadow-xl hover:brightness-110"
-          >
-            <Save className="w-4 h-4" /> Save Contact Details
+        <div className={sectionClass}>
+          <h3 className="text-sm uppercase tracking-wider text-[#C5A046] font-medium border-b border-[#C5A046]/20 pb-2">Location</h3>
+          <div>
+            <label className="block text-xs text-[#C5A046] uppercase tracking-wider mb-1.5">Full Address</label>
+            <textarea rows={3} value={data.address ?? ''} onChange={(e) => setData((d) => ({ ...d, address: e.target.value }))} placeholder="Cardanova Spices LLP, Vandanmedu, Idukki..."
+              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A046] resize-none" />
+          </div>
+          {field('Business Hours', 'business_hours', 'Mon–Sat: 9:00 AM – 6:00 PM IST')}
+          {field('Google Maps URL', 'google_maps_url', 'https://maps.google.com/...')}
+          <div>
+            <label className="block text-xs text-[#C5A046] uppercase tracking-wider mb-1.5">Google Maps Embed URL (iframe src)</label>
+            <textarea rows={2} value={data.google_maps_embed ?? ''} onChange={(e) => setData((d) => ({ ...d, google_maps_embed: e.target.value }))} placeholder="https://www.google.com/maps/embed?pb=..."
+              className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A046] resize-none" />
+          </div>
+        </div>
+
+        <div className={sectionClass}>
+          <h3 className="text-sm uppercase tracking-wider text-[#C5A046] font-medium border-b border-[#C5A046]/20 pb-2">Social Media</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {field('Instagram URL', 'instagram_url', 'https://instagram.com/...')}
+            {field('LinkedIn URL', 'linkedin_url', 'https://linkedin.com/...')}
+            {field('Twitter / X URL', 'twitter_url', 'https://twitter.com/...')}
+            {field('Facebook URL', 'facebook_url', 'https://facebook.com/...')}
+            {field('YouTube URL', 'youtube_url', 'https://youtube.com/...')}
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button type="submit" disabled={saving} className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-medium text-xs uppercase tracking-widest hover:brightness-110 cursor-pointer shadow-xl disabled:opacity-60">
+            <Save className="w-4 h-4" /> {saving ? 'Saving…' : 'Save Contact Info'}
           </button>
         </div>
       </form>

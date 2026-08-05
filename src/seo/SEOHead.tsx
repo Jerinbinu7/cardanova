@@ -1,6 +1,5 @@
 import { Helmet } from 'react-helmet-async';
 
-const SITE_URL = 'https://cardanovaspices.com';
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop';
 const TWITTER_HANDLE = '@CardanovaSpices';
 const SITE_NAME = 'Cardanova Spices LLP';

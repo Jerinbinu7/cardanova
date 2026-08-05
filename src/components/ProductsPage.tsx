@@ -1,10 +1,38 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cmsService } from '../services/cmsService';
+import { getProducts } from '../services/productsService';
+import { getGradeComparison } from '../services/gradeComparisonService';
+import type { GradeComparisonRow } from '../types/database';
 
 interface ProductsPageProps {
   onOpenQuoteModal: (grade?: string) => void;
 }
+
+const SPEC_ICONS: Record<string, string> = {
+  'Pod Diameter': '📏',
+  'Color Profile': '🍃',
+  Moisture: '💧',
+  Packaging: '📦',
+  'Min. Order': '⚖️',
+  'Shelf Life': '⏳',
+  'HS Code': '🏷️',
+  Availability: '🌐',
+};
+
+const FILTER_TABS = [
+  { id: 'all', label: 'All Export Grades' },
+  { id: 'bold', label: 'Extra Bold (8.5mm+)' },
+  { id: 'premium', label: 'Premium (8mm)' },
+  { id: 'export', label: 'Export Standard (7.5mm)' },
+  { id: 'commercial', label: 'Commercial (7mm)' },
+] as const;
+
+const BADGE_STYLES: Record<string, string> = {
+  gold: 'gold-gradient-bg text-[#071309] font-semibold',
+  emerald: 'bg-emerald-900/80 text-emerald-200 border border-emerald-500/40',
+  silver: 'bg-white/90 text-stone-800 border border-stone-200',
+  bronze: 'bg-amber-950/80 text-amber-200 border border-amber-500/40',
+};
 
 const PRODUCTS_CATALOGUE = [
   {
@@ -120,75 +148,66 @@ const PRODUCTS_CATALOGUE = [
     availability: 'Contract Basis',
     packaging: '50kg Industrial HDPE Woven Bags',
     moq: '5 Metric Tons',
-    hsCode: '0908.32.00',
-    shelfLife: '18 Months',
-    applications: 'Essential Oil Distillation, Oleoresin Extraction, Pharmaceutical Processing',
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1200&auto=format&fit=crop',
+    shelfLife: '24 Months',
+    hsCode: '0908.31.20',
+    applications: 'Commercial Kitchens, Institutional Supply, Extract Processing',
+    image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?q=80&w=1200&auto=format&fit=crop',
     badge: 'Oil & Extract',
     badgeStyle: 'neutral',
   },
 ];
 
-const FILTER_TABS = [
-  { id: 'all', label: 'All Grades' },
-  { id: 'flagship', label: 'Flagship & Premium' },
-  { id: 'standard', label: 'Export & Commercial' },
-  { id: 'industrial', label: 'Milling & Industrial' },
-];
-
-const BADGE_STYLES: Record<string, string> = {
-  gold: 'gold-gradient-bg text-[#071309]',
-  silver: 'border border-[#A18637]/40 bg-[#112D15]/80 text-[#C5A046] backdrop-blur-sm',
-  neutral: 'border border-white/20 bg-white/10 text-stone-300 backdrop-blur-sm',
-};
-
-const SPEC_ICONS: Record<string, string> = {
-  'Pod Diameter': '📐',
-  'Color Profile': '🌿',
-  'Moisture': '💧',
-  'Packaging': '📦',
-  'Min. Order': '⚖️',
-  'Shelf Life': '🗓️',
-  'HS Code': '📋',
-  'Availability': '✓',
-};
-
 export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
-  const [filter, setFilter] = useState<'all' | 'flagship' | 'standard' | 'industrial'>('all');
+  const [filter, setFilter] = useState<string>('all');
   const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
-  const [catalogue, setCatalogue] = useState(PRODUCTS_CATALOGUE);
+  const [catalogue, setCatalogue] = useState<any[]>(PRODUCTS_CATALOGUE);
+  const [gradeMatrix, setGradeMatrix] = useState<GradeComparisonRow[]>([]);
 
   useEffect(() => {
     async function fetchProducts() {
-      const cmsProds = await cmsService.getProducts();
-      if (cmsProds && cmsProds.length > 0) {
-        const published = cmsProds.filter((p) => p.isPublished ?? true);
-        if (published.length > 0) {
-          const mapped = published.map((p, idx) => ({
+      try {
+        const prods = await getProducts();
+        if (prods && prods.length > 0) {
+          const mapped = prods.map((p, idx) => ({
             id: p.id,
-            category: (p.category === 'cardamom' ? 'flagship' : p.category === 'pepper' ? 'standard' : 'industrial') as any,
-            gradeNum: p.grades?.[0]?.sizeMm ? p.grades[0].sizeMm.replace('mm', '') : String(8.5 - idx * 0.5),
-            gradeUnit: p.grades?.[0]?.sizeMm?.includes('mm') ? 'mm' : '',
+            category: p.category_id ? 'flagship' : 'standard',
+            gradeNum: p.name.match(/\d+(\.\d+)?/)?.[0] || String(8.5 - idx * 0.5),
+            gradeUnit: 'mm',
             gradeName: p.name,
-            size: p.grades?.[0]?.sizeMm || '8.5 mm+',
-            color: 'Natural Emerald Green',
-            origin: p.specifications?.find((s) => s.label === 'Origin')?.value || 'Idukki, Kerala, India',
-            moisture: p.specifications?.find((s) => s.label === 'Moisture')?.value || '< 10.0%',
-            availability: 'In Stock',
-            packaging: p.packagingOptions?.[0] || '5kg Multi-Layer Vacuum Packs',
+            size: p.specifications?.find((s) => s.label.toLowerCase().includes('size'))?.value || '8.5 mm+',
+            color: p.specifications?.find((s) => s.label.toLowerCase().includes('color'))?.value || 'Natural Emerald Green',
+            origin: p.specifications?.find((s) => s.label.toLowerCase().includes('origin'))?.value || 'Idukki, Kerala, India',
+            moisture: p.specifications?.find((s) => s.label.toLowerCase().includes('moisture'))?.value || '< 10.0%',
+            availability: p.availability?.replace('_', ' ') || 'In Stock',
+            packaging: p.packaging_info || '5kg Multi-Layer Vacuum Packs',
             moq: '500 kg',
-            hsCode: '0908.31.10',
+            hsCode: p.hs_code || '0908.31.10',
             shelfLife: '24 Months',
-            applications: p.shortDescription || p.description || 'Luxury Retail, High-End Gourmet, Export',
-            image: p.images?.[0] || PRODUCTS_CATALOGUE[idx % PRODUCTS_CATALOGUE.length].image,
-            badge: p.isFeatured ? 'Flagship Grade' : 'Export Standard',
-            badgeStyle: p.isFeatured ? 'gold' : 'silver',
+            applications: p.short_description || p.long_description || 'Luxury Retail, High-End Gourmet, Export',
+            image: p.main_image_url || p.images?.[0]?.url || PRODUCTS_CATALOGUE[idx % PRODUCTS_CATALOGUE.length].image,
+            badge: p.featured ? 'Flagship Grade' : 'Export Standard',
+            badgeStyle: p.featured ? 'gold' : 'silver',
           }));
           setCatalogue(mapped);
         }
+      } catch (e) {
+        console.error(e);
       }
     }
+
+    async function fetchMatrix() {
+      try {
+        const matrix = await getGradeComparison();
+        if (matrix && matrix.length > 0) {
+          setGradeMatrix(matrix);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     fetchProducts();
+    fetchMatrix();
   }, []);
 
   const filtered = catalogue.filter(
@@ -302,7 +321,7 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
                 className="group rounded-2xl bg-white border border-stone-200 shadow-sm hover:shadow-2xl hover:border-[#A18637]/30 transition-all duration-500 overflow-hidden grid grid-cols-1 lg:grid-cols-12"
               >
                 {/* Image column */}
-                <div className="lg:col-span-5 relative overflow-hidden" style={{ minHeight: '280px' }}>
+                <div className="lg:col-span-5 relative overflow-hidden h-60 sm:h-72 lg:h-full min-h-[240px]">
                   <motion.img
                     src={product.image}
                     alt={`${product.gradeName} (${product.size}) — Cardanova Spices green cardamom from Idukki, Kerala`}
@@ -313,50 +332,47 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
                     className="h-full w-full object-cover"
                     whileHover={{ scale: 1.04 }}
                     transition={{ duration: 0.5 }}
-                    style={{ minHeight: '280px' }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 lg:bg-gradient-to-r lg:from-transparent lg:to-[#FAF8F5]/20" aria-hidden="true" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#FAF8F5]/20" aria-hidden="true" />
 
                   {/* Badge overlay */}
-                  <span className={`absolute top-5 left-5 rounded-full px-3 py-1.5 label-caps shadow-lg ${BADGE_STYLES[product.badgeStyle]}`}
+                  <span className={`absolute top-4 left-4 sm:top-5 sm:left-5 rounded-full px-3 py-1.5 label-caps shadow-lg z-10 max-w-[70%] truncate ${BADGE_STYLES[product.badgeStyle]}`}
                     style={{ fontSize: '0.55rem' }}>
                     {product.badge}
                   </span>
 
                   {/* Large grade number watermark */}
                   <div
-                    className="absolute bottom-3 right-4 font-display font-light leading-none opacity-20"
-                    style={{ fontSize: '5rem', color: '#C5A046' }}
+                    className="absolute bottom-2 right-4 font-display font-light leading-none opacity-25 text-5xl sm:text-6xl text-[#C5A046] pointer-events-none select-none z-10"
                   >
                     {product.gradeNum}
                   </div>
                 </div>
 
                 {/* Specs column */}
-                <div className="lg:col-span-7 p-8 lg:p-10 flex flex-col justify-between">
+                <div className="lg:col-span-7 p-4 sm:p-8 lg:p-10 flex flex-col justify-between">
                   <div>
                     {/* Grade display */}
                     <div className="flex items-end gap-2 mb-1">
                       <span
-                        className="font-display font-light gold-gradient-text leading-none"
-                        style={{ fontSize: 'clamp(3rem, 5vw, 5rem)' }}
+                        className="font-display font-light gold-gradient-text leading-none text-4xl sm:text-5xl"
                       >
                         {product.gradeNum}
                       </span>
                       {product.gradeUnit && (
-                        <span className="font-display text-xl text-[#A18637]/60 mb-2 font-light">{product.gradeUnit}</span>
+                        <span className="font-display text-lg sm:text-xl text-[#A18637]/60 mb-1 font-light">{product.gradeUnit}</span>
                       )}
                     </div>
-                    <h2 className="font-display text-2xl font-light text-[#112D15]">{product.gradeName}</h2>
+                    <h2 className="font-display text-xl sm:text-2xl font-light text-[#112D15]">{product.gradeName}</h2>
 
                     {/* Applications */}
-                    <div className="mt-4 flex items-start gap-2">
+                    <div className="mt-3 sm:mt-4 flex items-start gap-2">
                       <span className="text-[#A18637] text-sm mt-0.5">◈</span>
-                      <p className="text-sm text-stone-600 font-light leading-relaxed">{product.applications}</p>
+                      <p className="text-xs sm:text-sm text-stone-600 font-light leading-relaxed">{product.applications}</p>
                     </div>
 
                     {/* Spec grid */}
-                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4 rounded-2xl bg-[#FAF8F5] p-5 border border-stone-100">
+                    <div className="mt-4 sm:mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 rounded-2xl bg-[#FAF8F5] p-3.5 sm:p-5 border border-stone-100">
                       {[
                         { label: 'Pod Diameter', value: product.size },
                         { label: 'Color Profile', value: product.color },
@@ -367,12 +383,12 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
                         { label: 'HS Code', value: product.hsCode },
                         { label: 'Availability', value: product.availability },
                       ].map((spec) => (
-                        <div key={spec.label}>
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="text-xs">{SPEC_ICONS[spec.label]}</span>
-                            <span className="label-caps text-stone-400" style={{ fontSize: '0.52rem' }}>{spec.label}</span>
+                        <div key={spec.label} className="min-w-0">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="text-xs shrink-0">{SPEC_ICONS[spec.label]}</span>
+                            <span className="label-caps text-stone-400 truncate" style={{ fontSize: '0.5rem' }}>{spec.label}</span>
                           </div>
-                          <span className={`text-xs font-medium ${
+                          <span className={`text-xs font-medium block truncate ${
                             spec.label === 'Min. Order' ? 'text-[#A18637]'
                             : spec.label === 'Availability' ? 'text-emerald-700'
                             : 'text-[#112D15]'
@@ -436,28 +452,28 @@ export default function ProductsPage({ onOpenQuoteModal }: ProductsPageProps) {
                 </tr>
               </thead>
               <tbody>
-                {PRODUCTS_CATALOGUE.map((p, i) => (
+                {(gradeMatrix.length > 0 ? gradeMatrix : PRODUCTS_CATALOGUE).map((row: any, i) => (
                   <tr
-                    key={i}
+                    key={row.id || i}
                     className={`border-b border-[#A18637]/10 transition-colors hover:bg-[#112D15]/80 ${
                       i % 2 === 0 ? 'bg-[#071309]/60' : 'bg-[#0A1C0B]/60'
                     }`}
                   >
                     <th scope="row" className="px-5 py-4 font-normal text-left">
                       <span className="font-display text-base text-[#FAF8F5] font-light">
-                        {p.gradeNum}{p.gradeUnit}
+                        {row.grade || `${row.gradeNum}${row.gradeUnit}`}
                       </span>
                       <br />
-                      <span className="text-stone-500" style={{ fontSize: '0.65rem' }}>{p.gradeName}</span>
+                      <span className="text-stone-500" style={{ fontSize: '0.65rem' }}>{row.grade_name || row.gradeName}</span>
                     </th>
-                    <td className="px-5 py-4 text-[#C5A046] font-medium">{p.size}</td>
-                    <td className="px-5 py-4 text-stone-400 font-light">{p.color}</td>
-                    <td className="px-5 py-4 text-stone-400 font-light max-w-[200px] truncate">{p.applications}</td>
-                    <td className="px-5 py-4 text-stone-300 font-medium">{p.moq}</td>
+                    <td className="px-5 py-4 text-[#C5A046] font-medium">{row.pod_size || row.size}</td>
+                    <td className="px-5 py-4 text-stone-400 font-light">{row.color}</td>
+                    <td className="px-5 py-4 text-stone-400 font-light max-w-[200px] truncate">{row.applications}</td>
+                    <td className="px-5 py-4 text-stone-300 font-medium">{row.moq}</td>
                     <td className="px-5 py-4">
                       <span className="flex items-center gap-1.5 text-emerald-400">
                         <span>✓</span>
-                        <span className="font-light">{p.availability}</span>
+                        <span className="font-light">{row.availability}</span>
                       </span>
                     </td>
                   </tr>

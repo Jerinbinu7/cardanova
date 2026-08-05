@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cmsService } from '../services/cmsService';
+import { submitQuoteRequest } from '../services/quoteService';
+import { validateEmail } from '../utils/emailValidator';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -22,26 +23,53 @@ export default function QuoteModal({ isOpen, onClose, defaultGrade = '8.5 mm Ext
     message: '',
   });
 
-  const [submitted, setSubmitted] = useState(false);
+  const [emailError, setEmailError]           = useState<string | null>(null);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
+  const [submitted, setSubmitted]             = useState(false);
+
+  const handleEmailChange = (val: string) => {
+    setFormData((prev) => ({ ...prev, email: val }));
+    if (!val) {
+      setEmailError(null);
+      setEmailSuggestion(null);
+      return;
+    }
+    const res = validateEmail(val);
+    if (!res.isValid) {
+      setEmailError(res.error ?? 'Invalid email');
+      setEmailSuggestion(null);
+    } else {
+      setEmailError(null);
+      setEmailSuggestion(res.suggestion ?? null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await cmsService.addQuoteRequest({
-      fullName: formData.fullName,
-      companyName: formData.companyName,
-      country: formData.country,
-      email: formData.email,
-      phone: formData.phone,
-      selectedProducts: formData.grade,
-      quantityKg: formData.quantity,
-      message: `${formData.message} ${formData.destinationPort ? `| Port: ${formData.destinationPort}` : ''} | Pack: ${formData.packaging}`,
-    });
-
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      onClose();
-    }, 2800);
+    const emailRes = validateEmail(formData.email);
+    if (!emailRes.isValid) {
+      setEmailError(emailRes.error ?? 'Invalid email');
+      return;
+    }
+    try {
+      await submitQuoteRequest({
+        full_name: formData.fullName,
+        company_name: formData.companyName,
+        country: formData.country,
+        email: formData.email,
+        phone: formData.phone,
+        selected_products: formData.grade,
+        quantity_kg: formData.quantity,
+        message: `${formData.message} ${formData.destinationPort ? `| Port: ${formData.destinationPort}` : ''} | Pack: ${formData.packaging}`,
+      });
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        onClose();
+      }, 2800);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (!isOpen) return null;
@@ -136,9 +164,25 @@ export default function QuoteModal({ isOpen, onClose, defaultGrade = '8.5 mm Ext
                       required
                       placeholder="trade@company.com"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:border-[#C5A046] focus:outline-none"
+                      onChange={(e) => handleEmailChange(e.target.value)}
+                      className={`w-full rounded-lg border bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:outline-none ${
+                        emailError ? 'border-red-500/80 focus:border-red-500' : 'border-[#A18637]/30 focus:border-[#C5A046]'
+                      }`}
                     />
+                    {emailError && (
+                      <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
+                        ⚠️ {emailError}
+                      </p>
+                    )}
+                    {emailSuggestion && (
+                      <button
+                        type="button"
+                        onClick={() => handleEmailChange(emailSuggestion)}
+                        className="text-[11px] text-[#C5A046] mt-1 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        💡 Did you mean <span className="font-semibold">{emailSuggestion}</span>?
+                      </button>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-stone-300 mb-1">Phone / WhatsApp *</label>

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cmsService } from '../services/cmsService';
+import { submitQuoteRequest } from '../services/quoteService';
+import { getContactInfo } from '../services/contactService';
+import { validateEmail } from '../utils/emailValidator';
 
 interface ContactFormProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -22,8 +24,8 @@ const CONTACT_DETAILS = [
   {
     icon: '📍',
     label: 'Registered Office',
-    value: 'Kattappana, Idukki District, Kerala — 685508, India',
-    href: 'https://maps.google.com/?q=Kattappana+Idukki+Kerala+India',
+    value: 'Cardanova Spices LLP, Vandanmedu, Idukki District, Kerala — 685 533, India',
+    href: 'https://maps.google.com/?q=Vandanmedu+Idukki+Kerala+India',
   },
   {
     icon: '🏛️',
@@ -35,44 +37,69 @@ const CONTACT_DETAILS = [
 
 export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
   const [submitted, setSubmitted] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [country, setCountry] = useState('');
-  const [message, setMessage] = useState('');
-  const [contactItems, setContactItems] = useState(CONTACT_DETAILS);
+  const [fullName, setFullName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [country, setCountry]     = useState('');
+  const [message, setMessage]     = useState('');
+  const [emailError, setEmailError]           = useState<string | null>(null);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
+  const [contactItems, setContactItems]       = useState(CONTACT_DETAILS);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('cardanova_contact_cms');
-      if (raw) {
-        const parsed = JSON.parse(raw);
+    getContactInfo().then((info) => {
+      if (info) {
         setContactItems([
-          { icon: '✉️', label: 'Export Inquiry', value: parsed.emailSales || CONTACT_DETAILS[0].value, href: `mailto:${parsed.emailSales || CONTACT_DETAILS[0].value}` },
-          { icon: '💬', label: 'WhatsApp Trade Desk', value: parsed.whatsAppNumber || CONTACT_DETAILS[1].value, href: `https://wa.me/${(parsed.whatsAppNumber || '').replace(/\D/g, '')}` },
-          { icon: '📍', label: 'Registered Office', value: parsed.address || CONTACT_DETAILS[2].value, href: CONTACT_DETAILS[2].href },
+          { icon: '✉️', label: 'Export Inquiry', value: info.email || CONTACT_DETAILS[0].value, href: `mailto:${info.email || CONTACT_DETAILS[0].value}` },
+          { icon: '💬', label: 'WhatsApp Trade Desk', value: info.whatsapp || CONTACT_DETAILS[1].value, href: `https://wa.me/${(info.whatsapp || '').replace(/\D/g, '')}` },
+          { icon: '📍', label: 'Registered Office', value: info.address || CONTACT_DETAILS[2].value, href: info.google_maps_url || CONTACT_DETAILS[2].href },
           CONTACT_DETAILS[3],
         ]);
       }
-    } catch (e) {
-      console.warn('Failed to load contact cms', e);
-    }
+    }).catch(() => {});
   }, []);
+
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    if (!val) {
+      setEmailError(null);
+      setEmailSuggestion(null);
+      return;
+    }
+    const res = validateEmail(val);
+    if (!res.isValid) {
+      setEmailError(res.error ?? 'Invalid email');
+      setEmailSuggestion(null);
+    } else {
+      setEmailError(null);
+      setEmailSuggestion(res.suggestion ?? null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await cmsService.addQuoteRequest({
-      fullName,
-      companyName: 'Quick Inquiry',
-      country,
-      email,
-      phone: 'N/A',
-      selectedProducts: 'General Trade Inquiry',
-      quantityKg: 'Inquiry',
-      message,
-    });
-
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
+    const res = validateEmail(email);
+    if (!res.isValid) {
+      setEmailError(res.error ?? 'Invalid email');
+      return;
+    }
+    try {
+      await submitQuoteRequest({
+        full_name: fullName,
+        company_name: 'Quick Inquiry',
+        country,
+        email,
+        phone: 'N/A',
+        selected_products: 'General Trade Inquiry',
+        quantity_kg: 'Inquiry',
+        message,
+      });
+      setSubmitted(true);
+      setFullName(''); setEmail(''); setCountry(''); setMessage('');
+      setEmailError(null); setEmailSuggestion(null);
+      setTimeout(() => setSubmitted(false), 4000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -240,10 +267,26 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
                         aria-required="true"
                         autoComplete="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => handleEmailChange(e.target.value)}
                         placeholder="trade@company.com"
-                        className="w-full rounded-xl border border-[#A18637]/25 bg-[#071309]/60 px-4 py-3 text-xs text-[#FAF8F5] placeholder-stone-600 focus:border-[#C5A046]/60 focus:outline-none transition-colors"
+                        className={`w-full rounded-xl border bg-[#071309]/60 px-4 py-3 text-xs text-[#FAF8F5] placeholder-stone-600 focus:outline-none transition-colors ${
+                          emailError ? 'border-red-500/80 focus:border-red-500' : 'border-[#A18637]/25 focus:border-[#C5A046]/60'
+                        }`}
                       />
+                      {emailError && (
+                        <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
+                          ⚠️ {emailError}
+                        </p>
+                      )}
+                      {emailSuggestion && (
+                        <button
+                          type="button"
+                          onClick={() => handleEmailChange(emailSuggestion)}
+                          className="text-[11px] text-[#C5A046] mt-1 hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          💡 Did you mean <span className="font-semibold">{emailSuggestion}</span>?
+                        </button>
+                      )}
                     </div>
                     {/* Country */}
                     <div>
