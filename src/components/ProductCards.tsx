@@ -321,9 +321,9 @@ export default function ProductCards({
               className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.95]"
               style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)' }}
             >
-              Premium Green Cardamom
+              The Cardanova Collection
               <br />
-              <em className="animate-shimmer not-italic">Grade Selection</em>
+              <em className="animate-shimmer not-italic">Handpicked Premium Grades</em>
             </h2>
             <div className="mt-4 luxury-divider w-24" />
           </div>
