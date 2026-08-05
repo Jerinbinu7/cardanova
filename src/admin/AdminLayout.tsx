@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard,
   Package,
+  Layers,
   Image as ImageIcon,
   Home,
   Info,
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import DashboardOverview from './views/DashboardOverview';
 import ProductManager from './views/ProductManager';
+import GradeComparisonManager from './views/GradeComparisonManager';
 import GalleryManager from './views/GalleryManager';
 import HomepageManager from './views/HomepageManager';
 import AboutManager from './views/AboutManager';
@@ -41,6 +43,7 @@ export default function AdminLayout({ onLogout, onReturnToSite }: AdminLayoutPro
   const sidebarItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'products', label: 'Products', icon: Package },
+    { id: 'gradeComparison', label: 'Grade Comparison', icon: Layers },
     { id: 'gallery', label: 'Gallery', icon: ImageIcon },
     { id: 'homepage', label: 'Homepage Content', icon: Home },
     { id: 'about', label: 'About Page', icon: Info },
@@ -133,6 +136,7 @@ export default function AdminLayout({ onLogout, onReturnToSite }: AdminLayoutPro
       <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto overflow-y-auto">
         {activeTab === 'dashboard' && <DashboardOverview onNavigateTab={setActiveTab} />}
         {activeTab === 'products' && <ProductManager />}
+        {activeTab === 'gradeComparison' && <GradeComparisonManager />}
         {activeTab === 'gallery' && <GalleryManager />}
         {activeTab === 'homepage' && <HomepageManager />}
         {activeTab === 'about' && <AboutManager />}

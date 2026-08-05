@@ -270,8 +270,42 @@ export default function ProductManager() {
                 </label>
               </div>
 
+              {/* Price, Rating, Review Count, Export Tag */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs text-[#C5A046] uppercase mb-1">Price per Kg (₹)</label>
+                  <input
+                    type="number"
+                    value={editingProduct.pricePerKg ?? 2500}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, pricePerKg: Number(e.target.value) })}
+                    className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#C5A046] uppercase mb-1">Rating (1–5)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    max="5"
+                    value={editingProduct.rating ?? 4.8}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, rating: Number(e.target.value) })}
+                    className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#C5A046] uppercase mb-1">Review Count</label>
+                  <input
+                    type="number"
+                    value={editingProduct.reviewCount ?? 50}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, reviewCount: Number(e.target.value) })}
+                    className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+              </div>
+
               {/* Toggles */}
-              <div className="flex items-center gap-6 pt-2">
+              <div className="flex flex-wrap items-center gap-6 pt-2">
                 <label className="flex items-center gap-2 cursor-pointer text-xs uppercase text-gray-300">
                   <input
                     type="checkbox"
@@ -280,6 +314,16 @@ export default function ProductManager() {
                     className="accent-[#C5A046]"
                   />
                   Featured Product
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer text-xs uppercase text-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={editingProduct.exportTag ?? true}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, exportTag: e.target.checked })}
+                    className="accent-[#C5A046]"
+                  />
+                  Export Grade Badge
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer text-xs uppercase text-gray-300">

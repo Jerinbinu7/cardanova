@@ -12,6 +12,11 @@ export interface ProductItem {
   packagingOptions: string[];
   isFeatured: boolean;
   isPublished: boolean;
+  // New fields for storefront display
+  pricePerKg?: number;
+  rating?: number;      // 0–5
+  reviewCount?: number;
+  exportTag?: boolean;  // shows "Export Grade" badge
   seoTitle?: string;
   seoDescription?: string;
 }
@@ -58,6 +63,19 @@ export interface TestimonialData {
   isFeatured: boolean;
 }
 
+// Grade Comparison table row — fully admin-editable
+export interface GradeComparisonRow {
+  id: string;
+  grade: string;       // e.g. "8.5mm"
+  gradeName: string;   // e.g. "Extra Bold"
+  podSize: string;     // e.g. "8.5 mm+"
+  color: string;       // e.g. "Deep Natural Emerald Green"
+  applications: string;
+  moq: string;
+  availability: string;
+  displayOrder: number;
+}
+
 const INITIAL_PRODUCTS: ProductItem[] = [
   {
     id: 'prod-1',
@@ -66,7 +84,7 @@ const INITIAL_PRODUCTS: ProductItem[] = [
     shortDescription: 'Aleppey Green Extra Bold — 8mm+ pod diameter, vivid jade green, intense essential oil content.',
     description: 'Harvested from the lush high-altitude plantations of Idukki, Western Ghats. Sun-dried and machine-sorted to international export standards.',
     images: [
-      'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
     ],
     specifications: [
       { label: 'Origin', value: 'Idukki, Kerala, India' },
@@ -82,6 +100,10 @@ const INITIAL_PRODUCTS: ProductItem[] = [
     packagingOptions: ['5kg Vacuum Foil Pack inside 25kg Master Carton', '10kg Jute Sack with PE Liner', 'Custom Private Label Packaging'],
     isFeatured: true,
     isPublished: true,
+    pricePerKg: 2850,
+    rating: 4.8,
+    reviewCount: 124,
+    exportTag: true,
     seoTitle: 'Buy Premium AGEB Green Cardamom Wholesale | Cardanova Spices',
     seoDescription: 'Direct from Idukki, Kerala. Premium 8mm+ Extra Bold Green Cardamom for B2B global export.',
   },
@@ -106,8 +128,10 @@ const INITIAL_PRODUCTS: ProductItem[] = [
     packagingOptions: ['25kg Multi-layer Kraft Paper Bags', '50kg PP Bags with Liner'],
     isFeatured: true,
     isPublished: true,
-    seoTitle: 'Tellicherry Black Pepper Bulk Exporter | Cardanova',
-    seoDescription: 'Exporting premium Malabar Black Pepper worldwide.',
+    pricePerKg: 2550,
+    rating: 4.5,
+    reviewCount: 98,
+    exportTag: true,
   },
   {
     id: 'prod-3',
@@ -128,6 +152,10 @@ const INITIAL_PRODUCTS: ProductItem[] = [
     packagingOptions: ['25kg Jute Bag', 'Bulk Container Bags'],
     isFeatured: false,
     isPublished: true,
+    pricePerKg: 950,
+    rating: 4.3,
+    reviewCount: 36,
+    exportTag: false,
   },
 ];
 
@@ -264,6 +292,76 @@ const INITIAL_TESTIMONIALS: TestimonialData[] = [
   },
 ];
 
+// Seeded from the 6 PRODUCTS_CATALOGUE static rows
+const INITIAL_GRADE_COMPARISON: GradeComparisonRow[] = [
+  {
+    id: 'gc-1',
+    grade: '8.5mm',
+    gradeName: 'Extra Bold',
+    podSize: '8.5 mm+',
+    color: 'Deep Natural Emerald Green',
+    applications: 'Luxury Retail, High-End Gourmet, Middle East Coffee Blends, Premium Export',
+    moq: '500 kg',
+    availability: 'Year-Round',
+    displayOrder: 1,
+  },
+  {
+    id: 'gc-2',
+    grade: '8.0mm',
+    gradeName: 'Premium Bold',
+    podSize: '8.0 mm – 8.4 mm',
+    color: 'Vibrant Forest Green',
+    applications: 'Premium Wholesale, Supermarket Labels, Confectionery & Beverage',
+    moq: '1 Metric Ton',
+    availability: 'In Stock',
+    displayOrder: 2,
+  },
+  {
+    id: 'gc-3',
+    grade: '7.5mm',
+    gradeName: 'Export Grade',
+    podSize: '7.5 mm – 7.9 mm',
+    color: 'Rich Emerald Green',
+    applications: 'Export Wholesalers, Culinary Repackers, Bakery & Spice Blenders',
+    moq: '1 Metric Ton',
+    availability: 'In Stock',
+    displayOrder: 3,
+  },
+  {
+    id: 'gc-4',
+    grade: '7.0mm',
+    gradeName: 'Commercial Grade',
+    podSize: '7.0 mm – 7.4 mm',
+    color: 'Medium Light Green',
+    applications: 'Commercial Kitchens, Institutional Foodservice, Catering Supply',
+    moq: '2 Metric Tons',
+    availability: 'In Stock',
+    displayOrder: 4,
+  },
+  {
+    id: 'gc-5',
+    grade: 'MIX',
+    gradeName: 'AGEB / LGB Blend',
+    podSize: 'Assorted 6.5 mm – 8.0 mm',
+    color: 'Natural Harvest Green Blend',
+    applications: 'Spice Powder Milling, Garam Masala, Tea & Chai Premixes',
+    moq: '3 Metric Tons',
+    availability: 'In Stock',
+    displayOrder: 5,
+  },
+  {
+    id: 'gc-6',
+    grade: 'OIL',
+    gradeName: 'Extraction Grade',
+    podSize: 'Pods, Seeds & Husks',
+    color: 'Natural Pale / Yellowish Green',
+    applications: 'Essential Oil Distillation, Oleoresin Extraction, Pharmaceutical Processing',
+    moq: '5 Metric Tons',
+    availability: 'Contract Basis',
+    displayOrder: 6,
+  },
+];
+
 export class MockSanityStore {
   private static getKey(key: string) {
     return `cardanova_cms_${key}`;
@@ -332,5 +430,19 @@ export class MockSanityStore {
 
   static saveTestimonials(items: TestimonialData[]) {
     localStorage.setItem(this.getKey('testimonials'), JSON.stringify(items));
+  }
+
+  // Grade Comparison table — admin-editable
+  static getGradeComparison(): GradeComparisonRow[] {
+    const raw = localStorage.getItem(this.getKey('gradeComparison'));
+    if (!raw) {
+      localStorage.setItem(this.getKey('gradeComparison'), JSON.stringify(INITIAL_GRADE_COMPARISON));
+      return INITIAL_GRADE_COMPARISON;
+    }
+    return JSON.parse(raw);
+  }
+
+  static saveGradeComparison(rows: GradeComparisonRow[]) {
+    localStorage.setItem(this.getKey('gradeComparison'), JSON.stringify(rows));
   }
 }

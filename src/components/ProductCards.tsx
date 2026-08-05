@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
 import { cmsService } from '../services/cmsService';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -110,6 +111,10 @@ function GradeCard({
 }) {
   const [qtyKg, setQtyKg] = useState(item.defaultQtyKg);
   const [addedToast, setAddedToast] = useState(false);
+  const prefersReduced = useReducedMotion();
+
+  // Alternate: even cards slide from left, odd from right
+  const xFrom = prefersReduced ? 0 : index % 2 === 0 ? -40 : 40;
 
   const handleAddToCart = () => {
     if (onAddToCart) {
@@ -130,10 +135,14 @@ function GradeCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: xFrom, y: prefersReduced ? 0 : 20 }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.65, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{
+        duration: prefersReduced ? 0.01 : 0.45,
+        delay: prefersReduced ? 0 : index * 0.1,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#C5A046]/25 bg-[#071309] transition-all duration-400 hover:border-[#C5A046]/60 hover:shadow-[0_16px_48px_rgba(197,160,70,0.1)]"
     >
       {/* Toast */}
@@ -343,16 +352,17 @@ export default function ProductCards({
           </div>
         </div>
 
-        {/* Grade Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        {/* Grade Cards Carousel (Single Row) */}
+        <div className="flex gap-6 overflow-x-auto pb-8 pt-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-[#C5A046]/40 scrollbar-track-transparent">
           {cards.map((item, i) => (
-            <GradeCard
-              key={item.id}
-              item={item}
-              index={i}
-              onOpenQuoteModal={onOpenQuoteModal}
-              onAddToCart={onAddToCart}
-            />
+            <div key={item.id} className="min-w-[290px] sm:min-w-[340px] flex-1 max-w-[360px] shrink-0 snap-align-start">
+              <GradeCard
+                item={item}
+                index={i}
+                onOpenQuoteModal={onOpenQuoteModal}
+                onAddToCart={onAddToCart}
+              />
+            </div>
           ))}
         </div>
 

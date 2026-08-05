@@ -6,7 +6,10 @@ import {
   QuoteRequestData,
   CertificationData,
   TestimonialData,
+  GradeComparisonRow,
 } from './mockSanityStore';
+
+export type { GradeComparisonRow };
 
 // GROQ Queries
 export const GROQ_QUERIES = {
@@ -245,11 +248,40 @@ export const cmsService = {
   },
 
   addQuoteRequest: async (data: Omit<QuoteRequestData, 'id' | 'status' | 'submittedAt'>): Promise<QuoteRequestData> => {
+    const submittedAt = new Date().toISOString();
+
+    if (cmsService.isSanityLive()) {
+      try {
+        const doc = {
+          _type: 'quoteRequest',
+          fullName: data.fullName,
+          companyName: data.companyName,
+          country: data.country,
+          email: data.email,
+          phone: data.phone,
+          selectedProducts: data.selectedProducts,
+          quantityKg: data.quantityKg,
+          message: data.message,
+          status: 'pending',
+          submittedAt,
+        };
+        const result = await sanityClient!.create(doc);
+        const newQuote: QuoteRequestData = { ...data, id: result._id, status: 'pending', submittedAt };
+
+        // Keep a local copy too, so the admin dashboard reads instantly without waiting on Sanity CDN
+        const current = MockSanityStore.getQuotes();
+        MockSanityStore.saveQuotes([newQuote, ...current]);
+        return newQuote;
+      } catch (err) {
+        console.warn('Sanity quote save error, saving to local store:', err);
+      }
+    }
+
     const newQuote: QuoteRequestData = {
       ...data,
       id: 'q-' + Date.now(),
       status: 'pending',
-      submittedAt: new Date().toISOString(),
+      submittedAt,
     };
     const current = MockSanityStore.getQuotes();
     MockSanityStore.saveQuotes([newQuote, ...current]);
@@ -306,5 +338,35 @@ export const cmsService = {
   deleteTestimonial: async (id: string): Promise<void> => {
     const current = MockSanityStore.getTestimonials();
     MockSanityStore.saveTestimonials(current.filter((t) => t.id !== id));
+  },
+
+  // GRADE COMPARISON TABLE
+  getGradeComparison: async (): Promise<GradeComparisonRow[]> => {
+    return MockSanityStore.getGradeComparison();
+  },
+
+  saveGradeComparison: async (rows: GradeComparisonRow[]): Promise<void> => {
+    MockSanityStore.saveGradeComparison(rows);
+  },
+
+  saveGradeComparisonRow: async (row: GradeComparisonRow): Promise<GradeComparisonRow> => {
+    const current = MockSanityStore.getGradeComparison();
+    const idx = current.findIndex((r) => r.id === row.id);
+    let updated: GradeComparisonRow[];
+    if (idx > -1) {
+      updated = [...current];
+      updated[idx] = row;
+    } else {
+      const newRow = { ...row, id: 'gc-' + Date.now(), displayOrder: current.length + 1 };
+      updated = [...current, newRow];
+      row = newRow;
+    }
+    MockSanityStore.saveGradeComparison(updated);
+    return row;
+  },
+
+  deleteGradeComparisonRow: async (id: string): Promise<void> => {
+    const current = MockSanityStore.getGradeComparison();
+    MockSanityStore.saveGradeComparison(current.filter((r) => r.id !== id));
   },
 };
