@@ -123,13 +123,13 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           {onOpenCart && (
             <button
               onClick={onOpenCart}
-              aria-label={`Open cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
+              aria-label={`Open Sourcing Cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
               className="ml-2 relative flex items-center gap-2 rounded-full border border-[#C5A046]/40 bg-[#112D15]/60 px-4 py-2 label-caps text-[#FAF8F5] hover:border-[#C5A046] hover:bg-[#112D15] transition-all cursor-pointer"
             >
               <svg className="w-4 h-4 text-[#C5A046]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span>Cart</span>
+              <span>Sourcing Cart</span>
               {cartCount > 0 && (
                 <span
                   className="flex h-5 w-5 items-center justify-center rounded-full gold-gradient-bg text-[10px] font-bold text-[#071309]"
@@ -158,15 +158,16 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           {onOpenCart && (
             <button
               onClick={onOpenCart}
-              className="relative flex items-center justify-center h-9 w-9 rounded-full border border-[#C5A046]/40 bg-[#112D15]/60 text-[#C5A046] hover:border-[#C5A046] transition-all cursor-pointer"
-              aria-label={`Open cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C5A046]/40 bg-[#112D15]/60 text-[#FAF8F5] hover:border-[#C5A046] transition-all cursor-pointer text-xs"
+              aria-label={`Open Sourcing Cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <svg className="w-4 h-4 text-[#C5A046]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
+              <span className="hidden sm:inline label-caps text-[10px]">Cart</span>
               {cartCount > 0 && (
                 <span
-                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full gold-gradient-bg text-[9px] font-bold text-[#071309]"
+                  className="flex h-4 w-4 items-center justify-center rounded-full gold-gradient-bg text-[9px] font-bold text-[#071309]"
                   aria-hidden="true"
                 >
                   {cartCount}

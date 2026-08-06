@@ -183,8 +183,11 @@ export default function App() {
     setActiveTab(tab as any);
   };
 
+  const [isCartCheckout, setIsCartCheckout] = useState(false);
+
   const handleOpenQuoteModal = (grade?: string) => {
     if (grade) setSelectedGrade(grade);
+    setIsCartCheckout(false);
     setIsQuoteOpen(true);
   };
 
@@ -221,6 +224,7 @@ export default function App() {
       .map((i) => `${i.gradeName} (${i.quantityKg}kg)`)
       .join(', ');
     setSelectedGrade(`Bulk Cart Order: ${itemsSummary}`);
+    setIsCartCheckout(true);
     setIsQuoteOpen(true);
   };
 
@@ -327,7 +331,10 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <ProductsPage onOpenQuoteModal={handleOpenQuoteModal} />
+              <ProductsPage
+                onOpenQuoteModal={handleOpenQuoteModal}
+                onAddToCart={handleAddToCart}
+              />
             </motion.div>
           )}
 
@@ -354,8 +361,18 @@ export default function App() {
         {/* Interactive International B2B Quote Modal */}
         <QuoteModal
           isOpen={isQuoteOpen}
-          onClose={() => setIsQuoteOpen(false)}
+          onClose={() => {
+            setIsQuoteOpen(false);
+            setIsCartCheckout(false);
+          }}
           defaultGrade={selectedGrade}
+          cartItems={isCartCheckout ? cartItems : []}
+          onSuccess={() => {
+            if (isCartCheckout) {
+              setCartItems([]);
+              setIsCartCheckout(false);
+            }
+          }}
         />
 
         {/* Cart Drawer */}

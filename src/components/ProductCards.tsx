@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
 import { getProducts } from '../services/productsService';
+import { getAuctionPrice } from '../services/auctionPriceService';
 
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -220,8 +221,9 @@ function GradeCard({
           <span className="text-xs text-stone-400 font-light">Qty:</span>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setQtyKg((q) => Math.max(10, q - 25))}
+              onClick={() => setQtyKg((q) => Math.max(1, q <= 5 ? q - 1 : q - 5))}
               className="w-7 h-7 rounded-lg border border-[#C5A046]/40 bg-[#071309] text-[#C5A046] hover:bg-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
+              title="Decrease quantity (min 1 kg)"
             >
               −
             </button>
@@ -229,8 +231,9 @@ function GradeCard({
               {qtyKg} kg
             </span>
             <button
-              onClick={() => setQtyKg((q) => q + 25)}
+              onClick={() => setQtyKg((q) => q + (q < 5 ? 1 : 5))}
               className="w-7 h-7 rounded-lg border border-[#C5A046]/40 bg-[#071309] text-[#C5A046] hover:bg-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
+              title="Increase quantity"
             >
               +
             </button>
@@ -261,6 +264,20 @@ function GradeCard({
   );
 }
 
+function getGradeUsdPrice(name: string, sizeMm?: string, liveAvgInr: number = 3049): number {
+  const str = `${name} ${sizeMm || ''}`.toLowerCase();
+  let mult = 1.0;
+  if (str.includes('8.5') || str.includes('extra bold')) mult = 1.15;
+  else if (str.includes('8.0') || str.includes('8mm') || str.includes('premium')) mult = 1.05;
+  else if (str.includes('7.5') || str.includes('export')) mult = 0.95;
+  else if (str.includes('7.0') || str.includes('7mm') || str.includes('commercial')) mult = 0.85;
+  else if (str.includes('6.5') || str.includes('mix') || str.includes('ageb')) mult = 0.70;
+  else if (str.includes('rej') || str.includes('oil') || str.includes('extract')) mult = 0.50;
+
+  const inrPrice = Math.round(liveAvgInr * mult);
+  return Math.round(inrPrice / 83.5);
+}
+
 export default function ProductCards({
   onOpenQuoteModal,
   onNavigateToProducts,
@@ -270,24 +287,38 @@ export default function ProductCards({
 
   useEffect(() => {
     async function fetchProducts() {
+      let liveAvg = 3049;
+      try {
+        const auctionRes = await getAuctionPrice('small_cardamom');
+        if (auctionRes?.data?.avgPrice) {
+          const parsed = parseFloat(auctionRes.data.avgPrice.replace(/,/g, ''));
+          if (!isNaN(parsed) && parsed > 0) liveAvg = parsed;
+        }
+      } catch (e) {
+        console.error('Failed to fetch live auction rate in ProductCards:', e);
+      }
+
       try {
         const prods = await getProducts(true);
         if (prods && prods.length > 0) {
-          const mapped = prods.map((p, idx) => ({
-            id: p.id,
-            gradeNum: p.grades?.[0]?.size_mm ? p.grades[0].size_mm.replace('mm', '') : String(8.5 - idx * 0.5),
-            gradeUnit: p.grades?.[0]?.size_mm?.includes('mm') ? 'mm' : '',
-            gradeName: p.name,
-            badge: p.featured ? 'Flagship Grade' : (p.category?.name ? p.category.name.toUpperCase() : 'Export Grade'),
-            badgePrimary: p.featured,
-            origin: p.short_description || p.specifications?.find((s) => s.label === 'Origin')?.value || 'Idukki, Kerala',
-            packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
-            moq: '25 kg',
-            volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
-            pricePerKg: 32 - idx * 3,
-            defaultQtyKg: 25,
-            image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
-          }));
+          const mapped = prods.map((p, idx) => {
+            const sizeStr = p.grades?.[0]?.size_mm || '';
+            return {
+              id: p.id,
+              gradeNum: sizeStr ? sizeStr.replace('mm', '') : String(8.5 - idx * 0.5),
+              gradeUnit: sizeStr.includes('mm') ? 'mm' : '',
+              gradeName: p.name,
+              badge: p.featured ? 'Flagship Grade' : (p.category?.name ? p.category.name.toUpperCase() : 'Export Grade'),
+              badgePrimary: p.featured,
+              origin: p.short_description || p.specifications?.find((s) => s.label === 'Origin')?.value || 'Idukki, Kerala',
+              packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
+              moq: '25 kg',
+              volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
+              pricePerKg: getGradeUsdPrice(p.name, sizeStr, liveAvg),
+              defaultQtyKg: 25,
+              image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
+            };
+          });
           setCards(mapped);
         }
       } catch (e) {
