@@ -1,15 +1,14 @@
 import { supabase } from '../lib/supabase';
 import type { QuoteRequestRow, QuoteStatus } from '../types/database';
 
-// Public — anyone can submit
-export async function submitQuoteRequest(data: Omit<QuoteRequestRow, 'id' | 'status' | 'submitted_at' | 'updated_at' | 'internal_notes'>): Promise<QuoteRequestRow> {
-  const { data: result, error } = await supabase
+// Public — anyone can submit (no .select() so anonymous visitors bypass RLS SELECT restriction)
+export async function submitQuoteRequest(
+  data: Omit<QuoteRequestRow, 'id' | 'status' | 'submitted_at' | 'updated_at' | 'internal_notes'>
+): Promise<void> {
+  const { error } = await supabase
     .from('quote_requests')
-    .insert({ ...data, status: 'pending' })
-    .select()
-    .single();
+    .insert({ ...data, status: 'pending' });
   if (error) throw error;
-  return result;
 }
 
 // Admin — paginated list
