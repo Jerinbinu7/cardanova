@@ -14,6 +14,7 @@ const FOLDERS: { id: GalleryFolder; label: string }[] = [
   { id: 'packaging',    label: 'Packaging' },
   { id: 'certificates', label: 'Certificates' },
   { id: 'events',       label: 'Events' },
+  { id: 'homepage_hero', label: 'Homepage Hero Slides' },
 ];
 
 export default function GalleryManager() {
@@ -55,6 +56,31 @@ export default function GalleryManager() {
     try { await deleteGalleryItem(deleteTarget); toast.success('Image deleted.'); load(); }
     catch (e: any) { toast.error(e.message); }
     finally { setDeleteTarget(null); }
+  };
+
+  const handleMove = async (index: number, direction: 'left' | 'right') => {
+    const newItems = [...items];
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    
+    if (targetIndex < 0 || targetIndex >= newItems.length) return;
+    
+    // Swap
+    const temp = newItems[index];
+    newItems[index] = newItems[targetIndex];
+    newItems[targetIndex] = temp;
+    
+    // Update display order sequentially
+    const updated = newItems.map((item, i) => ({ ...item, display_order: i }));
+    setItems(updated);
+    
+    try {
+      const { reorderGalleryItems } = await import('../../services/galleryService');
+      await reorderGalleryItems(updated.map(i => ({ id: i.id, display_order: i.display_order })));
+      toast.success('Images reordered successfully.');
+    } catch (e: any) {
+      toast.error('Failed to reorder images.');
+      load(); // Revert on failure
+    }
   };
 
   return (
@@ -110,14 +136,37 @@ export default function GalleryManager() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {items.map((item) => (
-            <div key={item.id} className="group relative rounded-xl overflow-hidden border border-[#C5A046]/20 aspect-square bg-[#0D2012]/80">
-              <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-end p-3 gap-2">
+          {items.map((item, idx) => (
+            <div key={item.id} className="group relative rounded-xl overflow-hidden border border-[#C5A046]/20 aspect-square bg-[#0D2012]/80 flex flex-col">
+              <img src={item.image_url} alt={item.title} className="w-full flex-1 object-cover transition-transform group-hover:scale-105 duration-300" />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-3 gap-2">
                 <p className="text-xs text-white text-center line-clamp-2">{item.title}</p>
-                <button onClick={() => setDeleteTarget(item)} className="flex items-center gap-1.5 text-xs text-red-400 bg-red-950/80 px-3 py-1.5 rounded-lg border border-red-500/30">
-                  <Trash2 className="w-3.5 h-3.5" /> Delete
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => handleMove(idx, 'left')} 
+                    disabled={idx === 0}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#C5A046]/80 text-[#071309] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#C5A046] transition-colors"
+                    title="Move Left/Earlier"
+                  >
+                    &larr;
+                  </button>
+                  <button 
+                    onClick={() => setDeleteTarget(item)} 
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/80 text-white hover:bg-red-500 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleMove(idx, 'right')} 
+                    disabled={idx === items.length - 1}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#C5A046]/80 text-[#071309] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#C5A046] transition-colors"
+                    title="Move Right/Later"
+                  >
+                    &rarr;
+                  </button>
+                </div>
+                <span className="text-[10px] text-gray-400 mt-2 bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm shadow-sm border border-white/10">Order: {idx + 1}</span>
               </div>
             </div>
           ))}

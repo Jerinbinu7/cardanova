@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import MagneticButton from './MagneticButton';
+import { getContactInfo } from '../services/contactService';
 
 interface FooterProps {
   setActiveTab: (tab: 'home' | 'about' | 'products' | 'origin' | 'admin') => void;
@@ -15,18 +16,17 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
   const [phone, setPhone] = useState('+91 96568 66090');
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('cardanova_contact_cms');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.address) setAddress(parsed.address);
-        if (parsed.emailSales) setEmail(parsed.emailSales);
-        if (parsed.phonePrimary || parsed.whatsAppNumber) setPhone(parsed.phonePrimary || parsed.whatsAppNumber);
+    getContactInfo().then((cms) => {
+      if (cms) {
+        if (cms.address) setAddress(cms.address);
+        if (cms.email || cms.inquiry_email) setEmail(cms.email || cms.inquiry_email || '');
+        if (cms.phone || cms.whatsapp) setPhone(cms.phone || cms.whatsapp || '');
       }
-    } catch (e) {
-      console.warn('Failed to parse footer contact cms', e);
-    }
+    }).catch((e) => {
+      console.warn('Failed to fetch contact info', e);
+    });
   }, []);
+
 
   return (
     <footer
@@ -83,7 +83,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
         <div className="flex flex-col lg:flex-row gap-12 pb-12 border-b border-[#A18637]/15">
 
           {/* Left: Brand + Nav + Grades */}
-          <div className="flex flex-col sm:flex-row gap-10 lg:gap-16 flex-1 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-8 sm:gap-10 lg:gap-16 flex-1 items-start">
 
             {/* Brand */}
             <div className="w-full sm:w-[200px] flex-shrink-0">
@@ -150,7 +150,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
             {/* Grades */}
             <nav className="w-full sm:w-[170px] flex-shrink-0" aria-label="Cardamom grades">
               <h3 className="label-caps text-[#C5A046] mb-4">Cardamom Grades</h3>
-              <ul className="space-y-3 text-xs text-stone-400 font-light whitespace-nowrap">
+              <ul className="space-y-3 text-xs text-stone-400 font-light">
                 {[
                   '8.5 mm Extra Bold',
                   '8.0 mm Premium Bold',
@@ -174,7 +174,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
           </div>
 
           {/* Right: Export Operations + Map */}
-          <address className="lg:w-[320px] flex-shrink-0 not-italic">
+          <address className="lg:w-[320px] flex-shrink-0 not-italic mt-4 sm:mt-0">
             <h3 className="label-caps text-[#C5A046] mb-4">Export Operations</h3>
 
             {/* Contact details */}

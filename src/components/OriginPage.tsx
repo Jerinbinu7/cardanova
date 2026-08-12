@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import MagneticButton from './MagneticButton';
+import { getHomepageContent } from '../services/homepageService';
 
 interface OriginPageProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -189,28 +190,24 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
   const [steps, setSteps] = useState(PROCESS_STEPS);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('cardanova_origin_steps');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const mapped = parsed.map((st: any, idx: number) => ({
-            step: String(st.step || idx + 1).padStart(2, '0'),
-            phase: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].phase,
-            title: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].title,
-            subtitle: st.loc || PROCESS_STEPS[idx % PROCESS_STEPS.length].subtitle,
-            body: st.desc || PROCESS_STEPS[idx % PROCESS_STEPS.length].body,
-            detail: st.loc ? `Location: ${st.loc}` : PROCESS_STEPS[idx % PROCESS_STEPS.length].detail,
-            image: PROCESS_STEPS[idx % PROCESS_STEPS.length].image,
-            accent: PROCESS_STEPS[idx % PROCESS_STEPS.length].accent,
-            icon: PROCESS_STEPS[idx % PROCESS_STEPS.length].icon,
-          }));
-          setSteps(mapped);
-        }
+    getHomepageContent().then((data) => {
+      if (data?.farm_to_export_steps && data.farm_to_export_steps.length > 0) {
+        const mapped = data.farm_to_export_steps.map((st: any, idx: number) => ({
+          step: String(st.step || idx + 1).padStart(2, '0'),
+          phase: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].phase,
+          title: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].title,
+          subtitle: st.loc || PROCESS_STEPS[idx % PROCESS_STEPS.length].subtitle,
+          body: st.desc || PROCESS_STEPS[idx % PROCESS_STEPS.length].body,
+          detail: st.loc ? `Location: ${st.loc}` : PROCESS_STEPS[idx % PROCESS_STEPS.length].detail,
+          image: PROCESS_STEPS[idx % PROCESS_STEPS.length].image,
+          accent: PROCESS_STEPS[idx % PROCESS_STEPS.length].accent,
+          icon: PROCESS_STEPS[idx % PROCESS_STEPS.length].icon,
+        }));
+        setSteps(mapped);
       }
-    } catch (e) {
-      console.warn('Failed to load origin steps', e);
-    }
+    }).catch((e) => {
+      console.warn('Failed to load origin steps from Supabase', e);
+    });
   }, []);
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });

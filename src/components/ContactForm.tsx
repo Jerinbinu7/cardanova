@@ -3,32 +3,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { submitQuoteRequest } from '../services/quoteService';
 import { getContactInfo } from '../services/contactService';
 import { validateEmail } from '../utils/emailValidator';
-
+import { Mail, MessageCircle, MapPin, Building2 } from 'lucide-react';
 interface ContactFormProps {
   onOpenQuoteModal: (grade?: string) => void;
 }
 
 const CONTACT_DETAILS = [
   {
-    icon: '✉️',
+    icon: <Mail className="w-5 h-5" />,
     label: 'Export Inquiry',
     value: 'trade@cardanovaspices.com',
     href: 'mailto:trade@cardanovaspices.com',
   },
   {
-    icon: '💬',
+    icon: <MessageCircle className="w-5 h-5" />,
     label: 'WhatsApp Trade Desk',
     value: '+91 98765 43210',
     href: 'https://wa.me/919876543210',
   },
   {
-    icon: '📍',
+    icon: <MapPin className="w-5 h-5" />,
     label: 'Registered Office',
     value: 'Cardanova Spices LLP, Vandanmedu, Idukki District, Kerala — 685 533, India',
     href: 'https://maps.google.com/?q=Vandanmedu+Idukki+Kerala+India',
   },
   {
-    icon: '🏛️',
+    icon: <Building2 className="w-5 h-5" />,
     label: 'Export Registrations',
     value: 'APEDA · Spices Board · FSSAI · IEC',
     href: undefined,
@@ -39,6 +39,7 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [fullName, setFullName]   = useState('');
   const [email, setEmail]         = useState('');
+  const [phone, setPhone]         = useState('');
   const [country, setCountry]     = useState('');
   const [message, setMessage]     = useState('');
   const [emailError, setEmailError]           = useState<string | null>(null);
@@ -49,9 +50,9 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
     getContactInfo().then((info) => {
       if (info) {
         setContactItems([
-          { icon: '✉️', label: 'Export Inquiry', value: info.email || CONTACT_DETAILS[0].value, href: `mailto:${info.email || CONTACT_DETAILS[0].value}` },
-          { icon: '💬', label: 'WhatsApp Trade Desk', value: info.whatsapp || CONTACT_DETAILS[1].value, href: `https://wa.me/${(info.whatsapp || '').replace(/\D/g, '')}` },
-          { icon: '📍', label: 'Registered Office', value: info.address || CONTACT_DETAILS[2].value, href: info.google_maps_url || CONTACT_DETAILS[2].href },
+          { icon: <Mail className="w-5 h-5" />, label: 'Export Inquiry', value: info.email || CONTACT_DETAILS[0].value, href: `mailto:${info.email || CONTACT_DETAILS[0].value}` },
+          { icon: <MessageCircle className="w-5 h-5" />, label: 'WhatsApp Trade Desk', value: info.whatsapp || CONTACT_DETAILS[1].value, href: `https://wa.me/${(info.whatsapp || '').replace(/\D/g, '')}` },
+          { icon: <MapPin className="w-5 h-5" />, label: 'Registered Office', value: info.address || CONTACT_DETAILS[2].value, href: info.google_maps_url || CONTACT_DETAILS[2].href },
           CONTACT_DETAILS[3],
         ]);
       }
@@ -88,13 +89,13 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
         company_name: 'Quick Inquiry',
         country,
         email,
-        phone: 'N/A',
+        phone: phone || 'N/A',
         selected_products: 'General Trade Inquiry',
         quantity_kg: 'Inquiry',
         message,
       });
       setSubmitted(true);
-      setFullName(''); setEmail(''); setCountry(''); setMessage('');
+      setFullName(''); setEmail(''); setPhone(''); setCountry(''); setMessage('');
       setEmailError(null); setEmailSuggestion(null);
       setTimeout(() => setSubmitted(false), 4000);
     } catch (err) {
@@ -145,7 +146,7 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
                   className="group flex items-start gap-4 rounded-2xl bg-white border border-stone-200 p-5 hover:border-[#A18637]/40 hover:shadow-md transition-all duration-300"
                 >
                   <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#112D15] border border-[#A18637]/30 text-lg"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#112D15] border border-[#A18637]/30 text-[#C5A046]"
                     aria-hidden="true"
                   >
                     {item.icon}
@@ -288,28 +289,51 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
                         </button>
                       )}
                     </div>
-                    {/* Country */}
+                    {/* Phone Number */}
                     <div>
                       <label
-                        htmlFor="contact-country"
+                        htmlFor="contact-phone"
                         className="label-caps text-stone-400 mb-1.5 block"
                         style={{ fontSize: '0.55rem' }}
                       >
-                        Country / Port <span aria-label="required">*</span>
+                        Phone Number <span aria-label="required">*</span>
                       </label>
                       <input
-                        id="contact-country"
-                        type="text"
-                        name="country"
+                        id="contact-phone"
+                        type="tel"
+                        name="phone"
                         required
                         aria-required="true"
-                        autoComplete="country-name"
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        placeholder="e.g. Dubai / UAE"
+                        autoComplete="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+1 (555) 000-0000"
                         className="w-full rounded-xl border border-[#A18637]/25 bg-[#071309]/60 px-4 py-3 text-xs text-[#FAF8F5] placeholder-stone-600 focus:border-[#C5A046]/60 focus:outline-none transition-colors"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    {/* Country / Port */}
+                    <label
+                      htmlFor="contact-country"
+                      className="label-caps text-stone-400 mb-1.5 block"
+                      style={{ fontSize: '0.55rem' }}
+                    >
+                      Country / Port <span aria-label="required">*</span>
+                    </label>
+                    <input
+                      id="contact-country"
+                      type="text"
+                      name="country"
+                      required
+                      aria-required="true"
+                      autoComplete="country-name"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      placeholder="e.g. Dubai / UAE"
+                      className="w-full rounded-xl border border-[#A18637]/25 bg-[#071309]/60 px-4 py-3 text-xs text-[#FAF8F5] placeholder-stone-600 focus:border-[#C5A046]/60 focus:outline-none transition-colors"
+                    />
                   </div>
 
                   {/* Message */}

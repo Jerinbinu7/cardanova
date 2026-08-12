@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
+import { getGalleryItems } from '../services/galleryService';
+import { getHomepageContent } from '../services/homepageService';
 
 interface HeroProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -53,30 +55,51 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   const SLIDE_DURATION = 6000;
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('cardanova_homepage_cms');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.heroHeadline) {
+    // Fetch CMS content from Supabase
+    getHomepageContent().then((cms) => {
+      let baseHeadline = HERO_SLIDES[0].headline;
+      let baseSubtext = HERO_SLIDES[0].sub;
+
+      if (cms) {
+        if (cms.hero_title) baseHeadline = cms.hero_title;
+        if (cms.hero_subtitle) baseSubtext = cms.hero_subtitle;
+        if (cms.hero_cta_primary_text) setPrimaryCtaText(cms.hero_cta_primary_text);
+        if (cms.hero_cta_secondary_text) setSecondaryCtaText(cms.hero_cta_secondary_text);
+      }
+
+      // Fetch dynamic hero images from gallery if any
+      getGalleryItems('homepage_hero').then((galleryData) => {
+        if (galleryData && galleryData.length > 0) {
+          const dynamicSlides = galleryData.map((item, index) => ({
+            image: item.image_url,
+            alt: item.title,
+            headline: index === 0 ? baseHeadline : item.title,
+            accent: index === 0 ? 'Single-Origin Kerala Spices' : '',
+            sub: index === 0 ? baseSubtext : 'Cardanova Spices',
+          }));
+          setSlides(dynamicSlides);
+        } else {
+          // Fallback to default with CMS overrides
           setSlides([
             {
               image: HERO_SLIDES[0].image,
               alt: HERO_SLIDES[0].alt,
-              headline: parsed.heroHeadline,
+              headline: baseHeadline,
               accent: 'Single-Origin Kerala Spices',
-              sub: parsed.heroSubtext || HERO_SLIDES[0].sub,
+              sub: baseSubtext,
             },
             HERO_SLIDES[1],
             HERO_SLIDES[2],
           ]);
         }
-        if (parsed.primaryCta) setPrimaryCtaText(parsed.primaryCta);
-        if (parsed.secondaryCta) setSecondaryCtaText(parsed.secondaryCta);
-      }
-    } catch (e) {
-      console.warn('Failed to parse homepage cms settings', e);
-    }
+      }).catch((e) => {
+        console.warn('Failed to fetch hero images', e);
+      });
+    }).catch((e) => {
+      console.warn('Failed to fetch homepage CMS content', e);
+    });
   }, []);
+
 
   const { scrollY } = useScroll();
   const imgY = useTransform(scrollY, [0, 600], [0, 80]);
@@ -102,7 +125,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
     };
 
     const interval = setInterval(() => {
-      setSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+      setSlide((prev) => (prev + 1) % slides.length);
       setProgress(0);
     }, SLIDE_DURATION);
 
@@ -198,7 +221,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Main Hero Content ────────────────────────────── */}
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10 pb-32 sm:pb-40"
+        className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-10 pb-28 sm:pb-36 lg:pb-40"
         style={{ y: contentY, opacity }}
       >
         {/* Headline */}
@@ -213,7 +236,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             >
               <h1
                 className="font-display font-light leading-[0.92] tracking-[-0.02em] text-[#FAF8F5]"
-                style={{ fontSize: 'clamp(3.5rem, 9vw, 8rem)' }}
+                style={{ fontSize: 'clamp(2.6rem, 8vw, 8rem)' }}
               >
                 {slides[slide]?.headline || HERO_SLIDES[0].headline}
                 <br />
@@ -239,14 +262,14 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.5 }}
-          className="mt-10 flex flex-col sm:flex-row items-start gap-4"
+          className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4"
         >
           <MagneticButton
             as="button"
             onClick={() => onOpenQuoteModal()}
             cursorLabel="Quote"
             aria-label="Request a cardamom trade quote"
-            className="rounded-full gold-gradient-bg px-8 py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow"
+            className="rounded-full gold-gradient-bg px-8 py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow text-center"
           >
             {primaryCtaText}
           </MagneticButton>
@@ -256,7 +279,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             onClick={onNavigateToProducts}
             cursorLabel="Catalogue"
             aria-label="View our cardamom product catalogue"
-            className="rounded-full border border-[#FAF8F5]/20 bg-white/5 backdrop-blur-md px-8 py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/50 hover:bg-white/10 transition-all cursor-pointer"
+            className="rounded-full border border-[#FAF8F5]/20 bg-white/5 backdrop-blur-md px-8 py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/50 hover:bg-white/10 transition-all cursor-pointer text-center"
           >
             {secondaryCtaText}
           </MagneticButton>
@@ -269,12 +292,12 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
         role="tablist"
         aria-label="Slideshow navigation"
       >
-        {HERO_SLIDES.map((_, i) => (
+        {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => setSlide(i)}
             className="relative flex flex-col items-center cursor-pointer group"
-            aria-label={`Go to slide ${i + 1} of ${HERO_SLIDES.length}`}
+            aria-label={`Go to slide ${i + 1} of ${slides.length}`}
             aria-selected={slide === i}
             role="tab"
           >
@@ -304,7 +327,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+        className="absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
         aria-hidden="true"
       >
         <span className="label-caps text-stone-400/60" style={{ fontSize: '0.55rem' }}>

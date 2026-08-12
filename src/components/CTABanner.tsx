@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import MagneticButton from './MagneticButton';
+import { getContactInfo } from '../services/contactService';
 
 interface CTABannerProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -7,15 +9,27 @@ interface CTABannerProps {
 }
 
 export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CTABannerProps) {
+  const [waNumber, setWaNumber] = useState('919656866090');
+
+  useEffect(() => {
+    getContactInfo().then((info) => {
+      if (info?.whatsapp || info?.phone) {
+        const clean = (info.whatsapp || info.phone || '').replace(/\D/g, '');
+        if (clean) setWaNumber(clean);
+      }
+    }).catch(() => {});
+  }, []);
+
   const handleWhatsApp = () => {
     window.open(
-      'https://wa.me/919876543210?text=Hello%20Cardanova%20Spices%2C%20I%20would%20like%20to%20inquire%20about%20cardamom%20export%20rates.',
+      `https://wa.me/${waNumber}?text=Hello%20Cardanova%20Spices%2C%20I%20would%20like%20to%20inquire%20about%20cardamom%20export%20rates.`,
       '_blank'
     );
   };
 
+
   return (
-    <section className="relative overflow-hidden" style={{ height: '85vh', minHeight: '560px' }}>
+    <section className="relative overflow-hidden" style={{ minHeight: '560px', height: 'auto' }}>
       {/* Full-bleed background */}
       <img
         src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop"
@@ -73,7 +87,7 @@ export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CT
               Partner directly with Cardanova Spices LLP — guaranteed high-grade green cardamom, competitive FOB/CIF pricing, and on-time global delivery.
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4">
               <MagneticButton
                 as="button"
                 onClick={() => onOpenQuoteModal()}
@@ -102,6 +116,7 @@ export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CT
               </MagneticButton>
             </div>
           </motion.div>
+          <div className="py-12 sm:py-0" />
         </div>
       </div>
 

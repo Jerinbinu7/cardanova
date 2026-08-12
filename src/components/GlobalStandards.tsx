@@ -1,47 +1,71 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Building2, Leaf, ShieldCheck, FileText, Award } from 'lucide-react';
+import { getCertifications } from '../services/certificationsService';
+import type { CertificationRow } from '../types/database';
 
-const CERTIFICATIONS = [
+const DEFAULT_CERTIFICATIONS = [
   {
     code: 'APEDA',
     fullName: 'Agricultural & Processed Food Export Authority',
     authority: 'Government of India',
-    icon: '🏛️',
+    icon: <Building2 className="w-6 h-6" />,
     badge: 'Verified Exporter',
   },
   {
     code: 'Spices Board',
     fullName: 'Spices Board Registration',
     authority: 'Ministry of Commerce & Industry',
-    icon: '🌿',
+    icon: <Leaf className="w-6 h-6" />,
     badge: 'Govt. Authenticated',
   },
   {
     code: 'FSSAI',
     fullName: 'Food Safety Standards Authority',
     authority: 'FSSAI No. 11322007000342',
-    icon: '🛡️',
+    icon: <ShieldCheck className="w-6 h-6" />,
     badge: 'Food Safety Passed',
   },
   {
     code: 'IEC',
     fullName: 'Import Export Code',
     authority: 'DGFT · Ministry of Commerce',
-    icon: '📜',
+    icon: <FileText className="w-6 h-6" />,
     badge: 'Licensed Trader',
   },
   {
     code: 'ISO / HACCP',
     fullName: 'Hazard Analysis Critical Control Points',
     authority: 'International Standards',
-    icon: '🏅',
+    icon: <Award className="w-6 h-6" />,
     badge: 'ISO Compliant',
   },
 ];
 
 export default function GlobalStandards() {
+  const [certifications, setCertifications] = useState(DEFAULT_CERTIFICATIONS);
+
+  useEffect(() => {
+    getCertifications(true).then((dbCerts) => {
+      if (dbCerts && dbCerts.length > 0) {
+        const mapped = dbCerts.map((c, idx) => ({
+          code: c.title,
+          fullName: c.issuing_body || c.title,
+          authority: c.description || 'Verified Certification',
+          icon: DEFAULT_CERTIFICATIONS[idx % DEFAULT_CERTIFICATIONS.length].icon,
+          badge: 'Verified Exporter',
+        }));
+        setCertifications(mapped);
+      }
+    }).catch((e) => {
+      console.warn('Failed to load certifications from Supabase', e);
+    });
+  }, []);
+
   return (
     <section id="standards" className="relative bg-[#FAF8F5] overflow-hidden"
       style={{ paddingTop: '7rem', paddingBottom: '7rem' }}>
+
 
       {/* Faint dot grid */}
       <div className="absolute inset-0 opacity-[0.03]"
@@ -77,7 +101,7 @@ export default function GlobalStandards() {
 
         {/* Certification Cards — horizontal trust bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {CERTIFICATIONS.map((cert, i) => (
+          {certifications.map((cert, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 30 }}
@@ -88,7 +112,7 @@ export default function GlobalStandards() {
               className="group relative rounded-2xl bg-white border border-stone-200 p-6 hover:border-[#C5A046]/40 hover:shadow-xl transition-all duration-400 flex flex-col items-center text-center"
             >
               {/* Icon */}
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#FAF8F5] text-2xl group-hover:border-[#C5A046]/60 group-hover:bg-[#FDF9F0] transition-colors">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#FAF8F5] text-[#A18637] group-hover:border-[#C5A046]/60 group-hover:bg-[#FDF9F0] group-hover:text-[#C5A046] transition-colors">
                 {cert.icon}
               </div>
 

@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { getHomepageContent } from '../services/homepageService';
 
 const WHY_ITEMS = [
   {
@@ -19,7 +20,7 @@ const WHY_ITEMS = [
     id: 'farmer-network',
     svgIcon: (
       <svg className="w-6 h-6 text-[#C5A046]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
     tag: 'Direct Farmer Sourcing',
@@ -133,6 +134,30 @@ function WhyCard({ card, index }: { card: typeof WHY_ITEMS[0]; index: number }) 
 export default function WhyChooseCardanova() {
   const headingRef = useRef(null);
   const headingInView = useInView(headingRef, { once: true, margin: '-40px' });
+  const [whyItems, setWhyItems] = useState(WHY_ITEMS);
+  const [sectionTitle, setSectionTitle] = useState('Why Us');
+
+  useEffect(() => {
+    getHomepageContent().then((cms) => {
+      if (cms) {
+        if (cms.why_choose_us_title) setSectionTitle(cms.why_choose_us_title);
+        if (cms.why_choose_us_features && cms.why_choose_us_features.length > 0) {
+          const mapped = cms.why_choose_us_features.map((f, idx) => ({
+            id: `feature-${idx}`,
+            svgIcon: WHY_ITEMS[idx % WHY_ITEMS.length].svgIcon,
+            tag: WHY_ITEMS[idx % WHY_ITEMS.length].tag,
+            title: f.title || WHY_ITEMS[idx % WHY_ITEMS.length].title,
+            stat: WHY_ITEMS[idx % WHY_ITEMS.length].stat,
+            statLabel: WHY_ITEMS[idx % WHY_ITEMS.length].statLabel,
+            sub: f.description || WHY_ITEMS[idx % WHY_ITEMS.length].sub,
+          }));
+          setWhyItems(mapped);
+        }
+      }
+    }).catch((e) => {
+      console.warn('Failed to load Why Choose Us content from Supabase', e);
+    });
+  }, []);
 
   return (
     <section
@@ -163,7 +188,7 @@ export default function WhyChooseCardanova() {
             className="font-display font-light text-[#112D15] mt-3 leading-[0.95]"
             style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)' }}
           >
-            Why <em className="gold-gradient-text not-italic">Us</em>
+            {sectionTitle}
           </h2>
           <div className="mt-5 luxury-divider w-20" />
           <p className="mt-5 text-sm sm:text-base text-stone-500 leading-relaxed font-light max-w-md">
@@ -173,7 +198,7 @@ export default function WhyChooseCardanova() {
 
         {/* Cards Grid — 2 cols mobile, 3 cols desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {WHY_ITEMS.map((card, i) => (
+          {whyItems.map((card, i) => (
             <WhyCard key={card.id} card={card} index={i} />
           ))}
         </div>
@@ -181,3 +206,4 @@ export default function WhyChooseCardanova() {
     </section>
   );
 }
+

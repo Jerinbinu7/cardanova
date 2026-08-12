@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import MagneticButton from './MagneticButton';
+import { getAboutContent } from '../services/aboutService';
 
 interface AboutPageProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -108,19 +109,53 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
   const heroRef = useRef<HTMLDivElement>(null);
   const [story, setStory] = useState('Cardanova was founded by two passionate entrepreneurs who grew up surrounded by the rich spice heritage of Idukki, Kerala. Inspired by the quality of locally grown cardamom and the dedication of hardworking farmers, they shared a vision of bringing authentic Indian spices to buyers across the world.');
   const [vision, setVision] = useState('Our vision is to become one of India\'s most trusted spice exporters by combining authentic sourcing, uncompromising quality, and exceptional customer relationships.');
+  const [founders, setFounders] = useState(FOUNDERS);
+  const [ceoData, setCeoData] = useState<{
+    name: string;
+    title: string;
+    message: string;
+    imageUrl: string;
+  } | null>({
+    name: 'Akhilkumar K A',
+    title: 'Chief Executive Officer & Founder',
+    message: 'At Cardanova Spices, our commitment goes beyond exporting premium green cardamom. We are dedicated to upholding the legacy of Kerala spice farming, fostering sustainable agricultural practices, and building relationships of trust with global trade partners.',
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+  });
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('cardanova_about_cms');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.story) setStory(parsed.story);
-        if (parsed.vision) setVision(parsed.vision);
+    getAboutContent().then((cms) => {
+      if (cms) {
+        if (cms.company_story) setStory(cms.company_story);
+        if (cms.vision) setVision(cms.vision);
+        if (cms.ceo_message || cms.ceo_name) {
+          setCeoData({
+            name: cms.ceo_name || 'Akhilkumar K A',
+            title: cms.ceo_title || 'Chief Executive Officer',
+            message: cms.ceo_message || '',
+            imageUrl: cms.ceo_image_url || '',
+          });
+        }
+        if (cms.founders && cms.founders.length > 0) {
+          setFounders(cms.founders.map((f: any) => ({
+            name: f.name || '',
+            position: f.position || 'Co-Founder',
+            photo: f.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+            intro: f.intro || '',
+            quote: f.quote || '',
+            social: {
+              linkedin: f.linkedin || 'https://linkedin.com',
+              facebook: f.facebook || 'https://facebook.com',
+              email: f.email || '',
+            },
+          })));
+        }
       }
-    } catch (e) {
-      console.warn('Failed to parse about cms', e);
-    }
+    }).catch((e) => {
+      console.warn('Failed to fetch about CMS content', e);
+    });
   }, []);
+
+
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -266,9 +301,9 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {FOUNDERS.map((founder, i) => (
+            {founders.map((founder, i) => (
               <motion.div
-                key={founder.name}
+                key={founder.name || i}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -276,50 +311,57 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
                 className="group relative rounded-3xl overflow-hidden card-luxury flex flex-col justify-between"
               >
                 {/* Profile Image & Badge */}
-                <div className="relative overflow-hidden" style={{ height: '340px' }}>
+                <div className="relative overflow-hidden h-[440px] sm:h-[500px] w-full bg-[#071309]">
                   <img
                     src={founder.photo}
                     alt={`${founder.name} — ${founder.position} at Cardanova Spices LLP`}
                     width={800}
-                    height={340}
+                    height={500}
                     loading="lazy"
                     decoding="async"
                     className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-[#071309]/30 to-transparent" />
+                  {/* Subtle bottom fade only — leaves face 100% clear */}
+                  <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-[#071309] to-transparent pointer-events-none" />
 
                   {/* Co-Founder Badge */}
-                  <div className="absolute top-5 left-5 rounded-full gold-gradient-bg px-4 py-1.5 label-caps text-[#071309] shadow-lg" style={{ fontSize: '0.58rem' }}>
+                  <div className="absolute top-5 left-5 rounded-full gold-gradient-bg px-4 py-1.5 label-caps text-[#071309] shadow-lg font-semibold" style={{ fontSize: '0.58rem' }}>
                     {founder.position}
                   </div>
 
                   {/* Social Links on Image */}
                   <div className="absolute bottom-5 right-5 flex items-center gap-2">
-                    <a
-                      href={founder.social.linkedin}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`${founder.name} LinkedIn`}
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
-                    >
-                      in
-                    </a>
-                    <a
-                      href={founder.social.facebook}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`${founder.name} Facebook`}
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
-                    >
-                      fb
-                    </a>
-                    <a
-                      href={`mailto:${founder.social.email}`}
-                      aria-label={`${founder.name} Email`}
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
-                    >
-                      ✉
-                    </a>
+                    {founder.social?.linkedin && (
+                      <a
+                        href={founder.social.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`${founder.name} LinkedIn`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
+                      >
+                        in
+                      </a>
+                    )}
+                    {founder.social?.facebook && (
+                      <a
+                        href={founder.social.facebook}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`${founder.name} Facebook`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
+                      >
+                        fb
+                      </a>
+                    )}
+                    {founder.social?.email && (
+                      <a
+                        href={`mailto:${founder.social.email}`}
+                        aria-label={`${founder.name} Email`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
+                      >
+                        ✉
+                      </a>
+                    )}
                   </div>
                 </div>
 
@@ -338,11 +380,13 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
                     </p>
 
                     {/* Vision Quote */}
-                    <blockquote className="mt-6 rounded-2xl bg-[#112D15]/80 p-4 border-l-2 border-[#C5A046]">
-                      <p className="font-display italic text-stone-200 text-xs sm:text-sm leading-relaxed">
-                        {founder.quote}
-                      </p>
-                    </blockquote>
+                    {founder.quote && (
+                      <blockquote className="mt-6 rounded-2xl bg-[#112D15]/80 p-4 border-l-2 border-[#C5A046]">
+                        <p className="font-display italic text-stone-200 text-xs sm:text-sm leading-relaxed">
+                          {founder.quote}
+                        </p>
+                      </blockquote>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -350,6 +394,61 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
           </div>
         </div>
       </section>
+
+      {/* ── CEO MESSAGE SECTION ─────────────────────────────────── */}
+      {ceoData && ceoData.message && (
+        <section className="py-24 px-6 lg:px-10 bg-[#071309] text-[#FAF8F5] border-t border-[#C5A046]/20">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              {ceoData.imageUrl && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                  className="lg:col-span-4 relative rounded-3xl overflow-hidden shadow-2xl border border-[#C5A046]/30 aspect-[3/4]"
+                >
+                  <img
+                    src={ceoData.imageUrl}
+                    alt={ceoData.name}
+                    className="w-full h-full object-cover object-top"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-transparent to-transparent" />
+                </motion.div>
+              )}
+
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className={ceoData.imageUrl ? 'lg:col-span-8' : 'lg:col-span-12 text-center'}
+              >
+                <span className="label-caps text-[#C5A046]">Leadership Message</span>
+                <h2
+                  className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.95]"
+                  style={{ fontSize: 'clamp(2rem, 4vw, 3.8rem)' }}
+                >
+                  Message from the <em className="animate-shimmer not-italic">CEO</em>
+                </h2>
+                <div className={`mt-5 luxury-divider w-20 ${!ceoData.imageUrl ? 'mx-auto' : ''}`} />
+
+                <blockquote className="font-display italic text-stone-200 text-lg sm:text-2xl mt-8 font-light leading-relaxed border-l-2 border-[#C5A046] pl-6">
+                  "{ceoData.message}"
+                </blockquote>
+
+                <div className="mt-8">
+                  <h4 className="font-display text-2xl font-light text-[#FAF8F5]">{ceoData.name}</h4>
+                  <span className="label-caps text-[#C5A046] mt-1 block" style={{ fontSize: '0.58rem' }}>
+                    {ceoData.title}
+                  </span>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      )}
+
 
       {/* ── 4. OUR VISION ────────────────────────────────────── */}
       <section className="relative overflow-hidden py-28 px-6 lg:px-10 bg-[#071309] text-[#FAF8F5] text-center">

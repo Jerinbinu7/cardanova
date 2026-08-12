@@ -219,31 +219,87 @@ export default function QuoteModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      <div className="fixed inset-0 z-[300] flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-[#071309]/80 backdrop-blur-md"
+          className="fixed inset-0 bg-[#071309]/60 backdrop-blur-sm"
         />
 
         {/* Modal Container */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.97, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 0 }}
-          className="relative w-full max-w-2xl rounded-2xl border border-[#A18637]/30 bg-[#112D15] p-6 sm:p-8 text-[#FAF8F5] shadow-2xl z-10 my-8"
+          exit={{ opacity: 0, scale: 0.97, y: 0 }}
+          className="relative w-[95%] sm:w-full max-w-2xl rounded-2xl overflow-hidden border border-[#C5A046]/20 bg-[#0D2410] text-[#FAF8F5] shadow-[0_32px_80px_rgba(0,0,0,0.55)] z-10 my-4 sm:my-8"
         >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-5 right-5 text-stone-400 hover:text-[#C5A046] transition-colors text-2xl font-light"
-            aria-label="Close modal"
-          >
-            ✕
-          </button>
+          {/* Premium header band */}
+          <div className="relative px-5 sm:px-7 pt-5 pb-4 border-b border-[#C5A046]/15"
+            style={{ background: 'linear-gradient(135deg, #0a1f0c 0%, #112D15 60%, #0f2512 100%)' }}>
+            {/* Subtle corner ornament */}
+            <div className="absolute top-0 right-0 w-32 h-32 opacity-5 pointer-events-none"
+              style={{ background: 'radial-gradient(circle at top right, #C5A046 0%, transparent 70%)' }} />
+
+            {/* Top row: logo + currency + close */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/images/cardanova-wordmark-light.png"
+                  alt="Cardanova"
+                  className="h-6 w-auto object-contain flex-shrink-0 opacity-90"
+                />
+                <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C5A046]/80 hidden sm:block">
+                  International B2B Export Quote
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* Currency toggle */}
+                <div className="flex items-center gap-0.5 bg-black/30 p-0.5 rounded-lg border border-[#C5A046]/20">
+                  {(['USD', 'AED', 'INR'] as CurrencyCode[]).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCurrency(c)}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                        currency === c
+                          ? 'gold-gradient-bg text-[#071309] shadow-sm'
+                          : 'text-[#FAF8F5]/45 hover:text-[#FAF8F5]/80'
+                      }`}
+                    >
+                      {c === 'USD' ? '$USD' : c === 'AED' ? 'AED' : '₹INR'}
+                    </button>
+                  ))}
+                </div>
+                {/* Close */}
+                <button
+                  onClick={onClose}
+                  className="flex items-center justify-center w-8 h-8 rounded-full border border-[#C5A046]/30 text-[#C5A046]/60 hover:text-[#C5A046] hover:border-[#C5A046]/60 transition-colors text-base font-light"
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Heading block */}
+            <div>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C5A046]/70 sm:hidden block mb-1">
+                International B2B Export Quote
+              </span>
+              <h2 className="font-serif font-normal text-[#FAF8F5] leading-tight" style={{ fontSize: 'clamp(1.25rem, 3.5vw, 1.65rem)' }}>
+                Request a Formal Trade Quote
+              </h2>
+              <p className="text-[11px] text-[#FAF8F5]/40 mt-1 font-light">
+                Cardanova Spices · Idukki, Kerala · Live Spices Board India auction rates
+              </p>
+            </div>
+          </div>
+
+          {/* Form body */}
+          <div className="px-5 sm:px-7 py-4" style={{ background: '#0D2410' }}>
 
           {submitted ? (
             <motion.div
@@ -251,52 +307,20 @@ export default function QuoteModal({
               animate={{ opacity: 1, scale: 1 }}
               className="py-12 text-center"
             >
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#A18637]/20 border border-[#C5A046] text-[#C5A046] text-3xl">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#1a3d1e] border border-[#C5A046]/40 text-[#C5A046] text-3xl">
                 ✓
               </div>
               <h3 className="font-serif text-2xl sm:text-3xl text-[#FAF8F5]">Inquiry Received</h3>
-              <p className="mt-2 text-stone-300 text-sm max-w-md mx-auto">
+              <p className="mt-2 text-[#FAF8F5]/50 text-sm max-w-md mx-auto">
                 Thank you for your interest in Cardanova Spices. Our international export team will review your specifications and market benchmark rate to contact you with a formal CIF/FOB quote in {currency} within 24 hours.
               </p>
             </motion.div>
           ) : (
             <>
-              <div className="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                <div>
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#C5A046]">
-                    International B2B Export Quote
-                  </span>
-                  <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[#FAF8F5] mt-1">
-                    Request a Formal Trade Quote
-                  </h2>
-                  <p className="text-xs sm:text-sm text-stone-300 mt-1">
-                    Direct export from Idukki, Kerala. Live Spices Board India auction rates.
-                  </p>
-                </div>
-
-                {/* Currency Selection Toggle */}
-                <div className="flex items-center gap-1 bg-[#071309] p-1.5 rounded-xl border border-[#C5A046]/40 shrink-0">
-                  <span className="text-[10px] text-stone-400 px-2 uppercase tracking-wider font-semibold">Currency:</span>
-                  {(['USD', 'AED', 'INR'] as CurrencyCode[]).map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setCurrency(c)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                        currency === c
-                          ? 'gold-gradient-bg text-[#071309] shadow-md font-bold'
-                          : 'text-stone-300 hover:text-white hover:bg-[#112D15]'
-                      }`}
-                    >
-                      {c === 'USD' ? '$ USD' : c === 'AED' ? 'AED د.إ' : '₹ INR'}
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Spices Board India Market Benchmark Card */}
               {auctionData && (
-                <div className="mb-5 p-3.5 rounded-xl bg-[#071309] border border-[#C5A046]/40 space-y-2.5">
+                <div className="mb-5 p-3.5 rounded-xl border border-[#C5A046]/20 space-y-2.5" style={{ background: 'rgba(197,160,70,0.07)' }}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                     <div className="flex items-start gap-2.5">
                       <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse mt-1 shrink-0" />
@@ -304,19 +328,19 @@ export default function QuoteModal({
                         <span className="font-semibold text-[#C5A046] uppercase tracking-wider text-[10px] block">
                           Spices Board India Market Benchmark ({auctionData.date})
                         </span>
-                        <span className="text-stone-300 font-light text-[11px]">
-                          Daily Avg: <strong className="text-white font-medium">₹{auctionData.avgPrice}/kg</strong> ({activeCfg.symbol}{rateInActiveCurrency}/kg) · Max: ₹{auctionData.maxPrice}/kg
+                        <span className="text-[#FAF8F5]/50 font-light text-[11px]">
+                          Daily Avg: <strong className="text-[#FAF8F5]/80 font-medium">₹{auctionData.avgPrice}/kg</strong> ({activeCfg.symbol}{rateInActiveCurrency}/kg) · Max: ₹{auctionData.maxPrice}/kg
                         </span>
                       </div>
                     </div>
                   </div>
 
                   {estimatedTradeInr > 0 && (
-                    <div className="flex items-center justify-between pt-2 border-t border-stone-800 text-xs">
-                      <span className="text-[11px] text-stone-400">Est. Sourcing Benchmark ({parsedQtyKg} kg):</span>
+                    <div className="flex items-center justify-between pt-2 border-t border-[#C5A046]/15 text-xs">
+                      <span className="text-[11px] text-[#FAF8F5]/40">Est. Sourcing Benchmark ({parsedQtyKg} kg):</span>
                       <span className="font-mono text-sm font-semibold text-[#C5A046]">
                         {formatCurrencyVal(estimatedTradeInr, currency)}
-                        <span className="text-[10px] text-stone-400 ml-1.5 font-sans font-normal font-mono">
+                        <span className="text-[10px] text-[#FAF8F5]/30 ml-1.5 font-sans font-normal font-mono">
                           ({formatCurrencyVal(estimatedTradeInr, currency === 'USD' ? 'AED' : currency === 'AED' ? 'USD' : 'USD')})
                         </span>
                       </span>
@@ -327,25 +351,25 @@ export default function QuoteModal({
 
               {/* Bulk Cart Preview Banner */}
               {isBulkCart && (
-                <div className="mb-5 p-4 rounded-xl bg-[#071309] border border-[#C5A046]/40 shadow-inner">
-                  <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#A18637]/25">
+                <div className="mb-5 p-4 rounded-xl border border-[#C5A046]/20" style={{ background: 'rgba(197,160,70,0.07)' }}>
+                  <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#C5A046]/15">
                     <span className="text-xs font-semibold text-[#C5A046] uppercase tracking-wider flex items-center gap-2">
                       🛒 Bulk Cart Summary ({cartItems.length} {cartItems.length === 1 ? 'grade' : 'grades'})
                     </span>
-                    <span className="text-xs font-mono text-stone-300">
+                    <span className="text-xs font-mono text-[#FAF8F5]/50">
                       Total Weight: <strong className="text-[#C5A046]">{totalCartKg} kg</strong>
                     </span>
                   </div>
                   <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
                     {cartItems.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center text-xs text-stone-300 bg-[#112D15]/60 p-2 rounded-lg border border-stone-800">
+                      <div key={item.id} className="flex justify-between items-center text-xs text-[#FAF8F5]/60 bg-white/5 p-2 rounded-lg border border-white/8">
                         <div className="truncate max-w-[70%]">
-                          <span className="font-medium text-white">{item.gradeName}</span>
-                          <span className="text-[10px] text-stone-400 block">{item.packaging}</span>
+                          <span className="font-medium text-[#FAF8F5]/85">{item.gradeName}</span>
+                          <span className="text-[10px] text-[#FAF8F5]/35 block">{item.packaging}</span>
                         </div>
                         <div className="text-right shrink-0">
                           <span className="font-mono text-[#C5A046] font-semibold">{item.quantityKg} kg</span>
-                          <span className="text-[10px] text-stone-400 block">
+                          <span className="text-[10px] text-[#FAF8F5]/35 block">
                             ~{formatCurrencyVal(item.quantityKg * item.pricePerKg * 83.5, currency)}
                           </span>
                         </div>
@@ -355,47 +379,52 @@ export default function QuoteModal({
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Full Name *</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Full Name *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Alexander Wright"
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:border-[#C5A046] focus:outline-none"
+                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-sm text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Company / Organization *</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Company / Organization *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Global Foods Trading Ltd."
                       value={formData.companyName}
                       onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:border-[#C5A046] focus:outline-none"
+                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-sm text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Corporate Email *</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Corporate Email *</label>
                     <input
                       type="email"
                       required
                       placeholder="trade@company.com"
                       value={formData.email}
                       onChange={(e) => handleEmailChange(e.target.value)}
-                      className={`w-full rounded-lg border bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:outline-none ${
-                        emailError ? 'border-red-500/80 focus:border-red-500' : 'border-[#A18637]/30 focus:border-[#C5A046]'
+                      className={`w-full rounded-lg border px-3 py-2 text-sm text-[#FAF8F5] placeholder-white/20 focus:outline-none transition-colors ${
+                        emailError
+                          ? 'border-red-500/60 focus:border-red-400'
+                          : 'border-white/10 focus:border-[#C5A046]/50'
                       }`}
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                     {emailError && (
-                      <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
+                      <p className="text-[10px] text-red-400 mt-0.5 flex items-center gap-1">
                         ⚠️ {emailError}
                       </p>
                     )}
@@ -403,109 +432,117 @@ export default function QuoteModal({
                       <button
                         type="button"
                         onClick={() => handleEmailChange(emailSuggestion)}
-                        className="text-[11px] text-[#C5A046] mt-1 hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[10px] text-[#C5A046] mt-0.5 hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         💡 Did you mean <span className="font-semibold">{emailSuggestion}</span>?
                       </button>
                     )}
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Phone / WhatsApp *</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Phone / WhatsApp *</label>
                     <input
                       type="tel"
                       required
                       placeholder="+1 (555) 000-0000"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:border-[#C5A046] focus:outline-none"
+                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-sm text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Destination Country *</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Destination Country *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. UAE, Saudi Arabia, Germany, USA"
+                      placeholder="e.g. UAE, Saudi Arabia, Germany"
                       value={formData.country}
                       onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:border-[#C5A046] focus:outline-none"
+                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-sm text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Port of Discharge</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Port of Discharge</label>
                     <input
                       type="text"
-                      placeholder="e.g. Jebel Ali (Dubai), Rotterdam, New York"
+                      placeholder="e.g. Jebel Ali, Rotterdam, NY"
                       value={formData.destinationPort}
                       onChange={(e) => setFormData({ ...formData, destinationPort: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3.5 py-2 text-sm text-[#FAF8F5] placeholder-stone-500 focus:border-[#C5A046] focus:outline-none"
+                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-sm text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Cardamom Grades / Products</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Cardamom Grades / Products</label>
                     <input
                       type="text"
                       value={formData.grade}
                       onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3 py-2 text-xs text-[#FAF8F5] focus:border-[#C5A046] focus:outline-none"
+                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-stone-300 mb-1">Total Quantity</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Total Quantity</label>
                     <input
                       type="text"
                       placeholder="e.g. 2 MT"
                       value={formData.quantity}
                       onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                      className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3 py-2 text-xs text-[#FAF8F5] focus:border-[#C5A046] focus:outline-none"
+                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Additional Specifications / Requirements</label>
+                  <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Additional Specifications / Requirements</label>
                   <textarea
                     rows={2}
-                    placeholder="Provide any target price, sample requests, or specific quality criteria..."
+                    placeholder="Target price, sample requests, or specific quality criteria..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full rounded-lg border border-[#A18637]/30 bg-[#071309]/60 px-3.5 py-2 text-xs text-[#FAF8F5] placeholder-stone-500 focus:border-[#C5A046] focus:outline-none"
+                    className="w-full rounded-lg border border-white/10 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none resize-none transition-colors"
+                    style={{ background: 'rgba(255,255,255,0.05)' }}
                   />
                 </div>
 
                 {submitError && (
-                  <p className="text-xs text-red-400 p-3 rounded-lg bg-red-950/60 border border-red-500/40 text-center font-medium">
+                  <p className="text-xs text-red-400 p-2.5 rounded-lg bg-red-900/30 border border-red-500/30 text-center font-medium">
                     ⚠️ {submitError}
                   </p>
                 )}
 
-                <div className="pt-2">
+                <div>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full rounded-xl gold-gradient-bg py-3 px-6 text-sm font-semibold text-[#112D15] shadow-lg hover:brightness-110 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full rounded-xl gold-gradient-bg py-3 px-6 text-sm font-bold text-[#071309] shadow-lg hover:brightness-110 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 tracking-wide"
                   >
                     {isSubmitting ? (
                       <>
-                        <span className="w-4 h-4 rounded-full border-2 border-[#112D15] border-t-transparent animate-spin" />
-                        <span>Submitting Official Quote Request...</span>
+                        <span className="w-4 h-4 rounded-full border-2 border-[#071309] border-t-transparent animate-spin" />
+                        <span>Submitting...</span>
                       </>
                     ) : (
                       <span>
-                        Submit Official Quote Request in {currency} {isBulkCart && `(${cartItems.length} items)`}
+                        Submit Quote Request in {currency} {isBulkCart && `(${cartItems.length} items)`}
                       </span>
                     )}
                   </button>
+                  <p className="text-center text-[10px] text-[#FAF8F5]/25 mt-1.5 tracking-wide">Secured · Confidential · Response within 24 hrs</p>
                 </div>
               </form>
             </>
           )}
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

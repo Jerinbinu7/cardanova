@@ -4,6 +4,7 @@ import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
 import { getProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
+import { ShoppingCart, ArrowRight } from 'lucide-react';
 
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -89,15 +90,6 @@ const CARDAMOM_GRADES = [
   },
 ];
 
-// Cart icon SVG
-function CartIcon({ className = 'w-4 h-4' }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
-  );
-}
-
 function GradeCard({
   item,
   index,
@@ -131,11 +123,11 @@ function GradeCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.65, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#C5A046]/25 bg-[#071309] transition-all duration-400 hover:border-[#C5A046]/60 hover:shadow-[0_16px_48px_rgba(197,160,70,0.1)]"
+      transition={{ duration: 0.6, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="group relative flex flex-col overflow-hidden rounded-2xl bg-[#071309] border border-white/[0.06] hover:border-[#C5A046]/40 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(197,160,70,0.08)]"
     >
       {/* Toast */}
       <AnimatePresence>
@@ -151,79 +143,74 @@ function GradeCard({
         )}
       </AnimatePresence>
 
-      {/* Image */}
-      <div className="relative h-44 w-full overflow-hidden shrink-0">
+      {/* Image — tighter, cinematic */}
+      <div className="relative h-40 w-full overflow-hidden shrink-0">
         <img
           src={item.image}
           alt={item.gradeName}
           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-[#071309]/20 to-transparent" />
-
-        {/* Badges row */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-[#071309]/30 to-transparent" />
+        {/* Top badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2 z-10">
           <span
-            className={`rounded-full px-2.5 py-1 label-caps text-[9px] sm:text-[10px] truncate max-w-[60%] shrink-0 ${
+            className={`rounded-full px-2.5 py-1 text-[9px] font-semibold tracking-widest uppercase shrink-0 ${
               item.badgePrimary
-                ? 'gold-gradient-bg text-[#071309] font-semibold'
-                : 'border border-[#C5A046]/40 bg-[#071309]/80 text-[#C5A046] backdrop-blur-md'
+                ? 'gold-gradient-bg text-[#071309]'
+                : 'border border-[#C5A046]/40 bg-black/50 text-[#C5A046] backdrop-blur-sm'
             }`}
           >
             {item.badge}
           </span>
-          {/* Price */}
-          <div className="rounded-xl border border-[#C5A046]/40 bg-[#071309]/90 px-2.5 py-1 backdrop-blur-md shrink-0">
-            <span className="text-xs font-display text-[#C5A046] font-medium">${item.pricePerKg}/kg</span>
+          <div className="rounded-xl bg-black/60 border border-white/10 px-2.5 py-1 backdrop-blur-sm shrink-0">
+            <span className="text-xs font-semibold text-[#C5A046]">${item.pricePerKg}/kg</span>
           </div>
         </div>
       </div>
 
       {/* Card Body */}
-      <div className="flex flex-col flex-1 p-5 sm:p-6 gap-4">
-        {/* Grade hero */}
+      <div className="flex flex-col flex-1 p-5 gap-4">
+        {/* Grade title */}
         <div>
-          <div className="flex items-baseline gap-1.5 mb-1">
-            <span className="font-display text-4xl sm:text-5xl font-light gold-gradient-text leading-none">
+          <div className="flex items-baseline gap-1.5 mb-0.5">
+            <span className="font-display text-3xl font-light gold-gradient-text leading-none tracking-tight">
               {item.gradeNum}
             </span>
             {item.gradeUnit && (
-              <span className="font-display text-base text-[#C5A046]/70 font-light">{item.gradeUnit}</span>
+              <span className="text-sm text-[#C5A046]/60 font-light">{item.gradeUnit}</span>
             )}
           </div>
-          <h3 className="font-display text-lg sm:text-xl font-light text-[#FAF8F5] leading-snug">
+          <h3 className="font-display text-base font-light text-[#FAF8F5] leading-snug">
             {item.gradeName}
           </h3>
+          <p className="text-[11px] text-stone-500 mt-1 font-light leading-relaxed">{item.origin}</p>
         </div>
 
-        {/* Spec pills */}
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: 'MOQ', val: item.moq },
-            { label: 'Oils', val: item.volatile },
-            { label: 'Pack', val: item.packaging },
-          ].map((spec) => (
-            <div
-              key={spec.label}
-              className="flex items-center gap-1.5 rounded-lg border border-[#A18637]/25 bg-[#112D15]/80 px-2.5 py-1"
-            >
-              <span className="label-caps text-[#A18637]" style={{ fontSize: '0.48rem' }}>{spec.label}</span>
-              <span className="text-[10px] text-stone-300 font-light">{spec.val}</span>
-            </div>
-          ))}
+        {/* Specs — clean horizontal row */}
+        <div className="flex items-center gap-3 py-3 border-y border-white/[0.06]">
+          <div className="flex-1 text-center">
+            <p className="text-[9px] text-stone-500 font-medium uppercase tracking-widest mb-0.5">MOQ</p>
+            <p className="text-xs text-[#FAF8F5] font-light">{item.moq}</p>
+          </div>
+          <div className="w-px h-6 bg-white/10" />
+          <div className="flex-1 text-center">
+            <p className="text-[9px] text-stone-500 font-medium uppercase tracking-widest mb-0.5">Oil</p>
+            <p className="text-xs text-[#FAF8F5] font-light">{item.volatile}</p>
+          </div>
+          <div className="w-px h-6 bg-white/10" />
+          <div className="flex-1 text-center">
+            <p className="text-[9px] text-stone-500 font-medium uppercase tracking-widest mb-0.5">Pack</p>
+            <p className="text-[10px] text-[#FAF8F5] font-light leading-tight">{item.packaging.split(' ')[0]} {item.packaging.split(' ')[1] || ''}</p>
+          </div>
         </div>
-
-        <p className="text-xs text-stone-400 font-light leading-relaxed">
-          {item.origin} · Vacuum-sealed aroma retention.
-        </p>
 
         {/* Quantity selector */}
-        <div className="flex items-center justify-between rounded-xl bg-[#112D15]/80 px-4 py-2.5 border border-[#A18637]/30 mt-auto">
-          <span className="text-xs text-stone-400 font-light">Qty:</span>
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] text-stone-500">Quantity</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setQtyKg((q) => Math.max(1, q <= 5 ? q - 1 : q - 5))}
-              className="w-7 h-7 rounded-lg border border-[#C5A046]/40 bg-[#071309] text-[#C5A046] hover:bg-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
-              title="Decrease quantity (min 1 kg)"
+              className="w-7 h-7 rounded-lg border border-[#C5A046]/30 bg-transparent text-[#C5A046] hover:bg-[#C5A046]/10 transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
             >
               −
             </button>
@@ -232,8 +219,7 @@ function GradeCard({
             </span>
             <button
               onClick={() => setQtyKg((q) => q + (q < 5 ? 1 : 5))}
-              className="w-7 h-7 rounded-lg border border-[#C5A046]/40 bg-[#071309] text-[#C5A046] hover:bg-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
-              title="Increase quantity"
+              className="w-7 h-7 rounded-lg border border-[#C5A046]/30 bg-transparent text-[#C5A046] hover:bg-[#C5A046]/10 transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
             >
               +
             </button>
@@ -241,22 +227,20 @@ function GradeCard({
         </div>
 
         {/* Action buttons */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 mt-auto">
           <button
             onClick={handleAddToCart}
-            className="w-full rounded-full border border-[#C5A046]/60 bg-white/5 py-3 label-caps text-[#FAF8F5] hover:bg-[#C5A046] hover:text-[#071309] hover:border-[#C5A046] transition-all cursor-pointer flex items-center justify-center gap-2"
-            style={{ fontSize: '0.6rem' }}
+            className="w-full rounded-xl border border-[#C5A046]/25 bg-white/[0.03] py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/10 hover:border-[#C5A046]/50 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
-            <CartIcon className="w-3.5 h-3.5" />
-            Add to Cart
+            <ShoppingCart className="w-3.5 h-3.5" />
+            Cart
           </button>
-
           <button
             onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`)}
-            className="w-full rounded-full gold-gradient-bg py-3 label-caps text-[#071309] hover:brightness-110 transition-all cursor-pointer font-semibold"
-            style={{ fontSize: '0.6rem' }}
+            className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
-            Request RFQ →
+            RFQ
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -331,52 +315,51 @@ export default function ProductCards({
   return (
     <section
       id="products"
-      className="relative overflow-hidden bg-[#112D15] text-[#FAF8F5]"
-      style={{ paddingTop: '6rem', paddingBottom: '6rem' }}
+      className="relative overflow-hidden bg-[#0A1F0D] text-[#FAF8F5]"
+      style={{ paddingTop: '7rem', paddingBottom: '7rem' }}
     >
-      {/* Subtle glows */}
+      {/* Ambient glows */}
       <div
-        className="absolute top-0 right-0 w-80 h-80 rounded-full opacity-10 blur-3xl pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #C5A046, transparent)' }}
+        className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-[120px] pointer-events-none"
+        style={{ background: '#C5A046' }}
       />
       <div
-        className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-5 blur-3xl pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #C5A046, transparent)' }}
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-[0.03] blur-[100px] pointer-events-none"
+        style={{ background: '#C5A046' }}
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 sm:mb-14 gap-6">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        {/* Header — clean, editorial */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-8">
           <div>
-            <span className="label-caps text-[#C5A046]">Single-Origin B2B Sourcing</span>
+            <span className="label-caps text-[#C5A046] text-[10px]">Single-Origin · Idukki, Kerala</span>
             <h2
-              className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.95]"
-              style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)' }}
+              className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.92]"
+              style={{ fontSize: 'clamp(2.4rem, 5vw, 4.8rem)' }}
             >
-              Premium Green Cardamom
-              <br />
-              <em className="animate-shimmer not-italic">Grade Selection</em>
+              Premium Green<br />
+              <em className="not-italic gold-gradient-text">Cardamom Grades</em>
             </h2>
-            <div className="mt-4 luxury-divider w-24" />
+            <div className="mt-5 h-px w-16 bg-[#C5A046]/40" />
           </div>
 
-          <div className="lg:text-right shrink-0">
-            <p className="text-xs text-stone-400 font-light max-w-xs lg:ml-auto mb-5">
-              Select grade & quantity to add to your bulk cart or request a custom FOB/CIF quotation.
+          <div className="lg:text-right shrink-0 max-w-xs lg:max-w-sm">
+            <p className="text-xs text-stone-500 font-light leading-relaxed mb-6">
+              Direct farm-to-export sourcing. Select a grade, configure quantity, add to cart or request a custom FOB/CIF quotation.
             </p>
             <MagneticButton
               as="button"
               onClick={onNavigateToProducts}
               cursorLabel="Catalogue"
-              className="rounded-full border border-[#C5A046]/40 bg-transparent px-6 py-2.5 label-caps text-[#C5A046] hover:bg-[#C5A046]/10 hover:border-[#C5A046]/70 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-full border border-[#C5A046]/30 bg-transparent px-5 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/8 hover:border-[#C5A046]/60 transition-all cursor-pointer"
             >
-              View Full Specifications →
+              Full Catalogue <ArrowRight className="w-3.5 h-3.5" />
             </MagneticButton>
           </div>
         </div>
 
-        {/* Grade Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        {/* Grade Cards Grid — 2 on mobile, 3 on lg, 5 centered on xl */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {cards.map((item, i) => (
             <GradeCard
               key={item.id}
@@ -388,19 +371,23 @@ export default function ProductCards({
           ))}
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom strip — elegant */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-12 sm:mt-14 text-center"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-14 flex flex-col sm:flex-row items-center justify-between gap-6 pt-10 border-t border-white/[0.06]"
         >
+          <p className="text-xs text-stone-500 font-light">
+            All grades ship with Certificate of Origin · Phytosanitary Report · FSSAI Lab Analysis
+          </p>
           <button
             onClick={onNavigateToProducts}
-            className="inline-flex items-center gap-3 rounded-full gold-gradient-bg px-7 sm:px-9 py-4 label-caps text-[#071309] hover:brightness-110 transition-all cursor-pointer shadow-2xl gold-glow font-semibold text-center"
+            className="inline-flex items-center gap-2.5 rounded-full gold-gradient-bg px-7 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer shadow-lg whitespace-nowrap"
           >
-            Explore Complete Export Catalogue & Bulk Discounts →
+            Explore Full Export Catalogue
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </motion.div>
       </div>
