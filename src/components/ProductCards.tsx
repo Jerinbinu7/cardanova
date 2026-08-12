@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
-import { getProducts } from '../services/productsService';
+import { getProducts, getFeaturedProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
 import { ShoppingCart, ArrowRight } from 'lucide-react';
 
@@ -24,7 +24,7 @@ const CARDAMOM_GRADES = [
     packaging: '5 kg Multi-Layer Vacuum Packs',
     moq: '25 kg',
     volatile: '>8.5% V/W',
-    pricePerKg: 32,
+    pricePerKg: 3500,
     defaultQtyKg: 25,
     image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1000&auto=format&fit=crop',
   },
@@ -39,7 +39,7 @@ const CARDAMOM_GRADES = [
     packaging: '10 kg Vacuum Bags',
     moq: '50 kg',
     volatile: '>8.0% V/W',
-    pricePerKg: 28,
+    pricePerKg: 3200,
     defaultQtyKg: 50,
     image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1000&auto=format&fit=crop',
   },
@@ -54,7 +54,7 @@ const CARDAMOM_GRADES = [
     packaging: '25 kg Jute + PE Liner',
     moq: '100 kg',
     volatile: '>7.5% V/W',
-    pricePerKg: 24,
+    pricePerKg: 2900,
     defaultQtyKg: 100,
     image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1000&auto=format&fit=crop',
   },
@@ -69,7 +69,7 @@ const CARDAMOM_GRADES = [
     packaging: '25 kg Jute + PE Liner',
     moq: '100 kg',
     volatile: '>7.0% V/W',
-    pricePerKg: 20,
+    pricePerKg: 2600,
     defaultQtyKg: 100,
     image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1000&auto=format&fit=crop',
   },
@@ -84,7 +84,7 @@ const CARDAMOM_GRADES = [
     packaging: '10 kg / 25 kg as required',
     moq: '50 kg',
     volatile: '>7.0% V/W',
-    pricePerKg: 22,
+    pricePerKg: 2200,
     defaultQtyKg: 50,
     image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1000&auto=format&fit=crop',
   },
@@ -143,70 +143,45 @@ function GradeCard({
         )}
       </AnimatePresence>
 
-      {/* Image — tighter, cinematic */}
-      <div className="relative h-40 w-full overflow-hidden shrink-0">
+      {/* Image */}
+      <div className="relative h-44 w-full overflow-hidden shrink-0">
         <img
           src={item.image}
           alt={item.gradeName}
           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-[#071309]/30 to-transparent" />
-        {/* Top badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2 z-10">
-          <span
-            className={`rounded-full px-2.5 py-1 text-[9px] font-semibold tracking-widest uppercase shrink-0 ${
-              item.badgePrimary
-                ? 'gold-gradient-bg text-[#071309]'
-                : 'border border-[#C5A046]/40 bg-black/50 text-[#C5A046] backdrop-blur-sm'
-            }`}
-          >
+        {item.badge && (
+          <div className="absolute top-3 left-3 rounded-full gold-gradient-bg px-3 py-1 text-[#071309] font-semibold text-[10px] uppercase tracking-wider shadow-sm z-10">
             {item.badge}
-          </span>
-          <div className="rounded-xl bg-black/60 border border-white/10 px-2.5 py-1 backdrop-blur-sm shrink-0">
-            <span className="text-xs font-semibold text-[#C5A046]">${item.pricePerKg}/kg</span>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Card Body */}
       <div className="flex flex-col flex-1 p-5 gap-4">
-        {/* Grade title */}
+        {/* Name & Description */}
         <div>
-          <div className="flex items-baseline gap-1.5 mb-0.5">
-            <span className="font-display text-3xl font-light gold-gradient-text leading-none tracking-tight">
-              {item.gradeNum}
-            </span>
-            {item.gradeUnit && (
-              <span className="text-sm text-[#C5A046]/60 font-light">{item.gradeUnit}</span>
-            )}
-          </div>
-          <h3 className="font-display text-base font-light text-[#FAF8F5] leading-snug">
+          <h3 className="font-display text-lg font-light text-[#FAF8F5] leading-snug">
             {item.gradeName}
           </h3>
-          <p className="text-[11px] text-stone-500 mt-1 font-light leading-relaxed">{item.origin}</p>
+          <p className="text-xs text-stone-400 mt-1 font-light leading-relaxed line-clamp-2">
+            {item.origin}
+          </p>
         </div>
 
-        {/* Specs — clean horizontal row */}
-        <div className="flex items-center gap-3 py-3 border-y border-white/[0.06]">
-          <div className="flex-1 text-center">
-            <p className="text-[9px] text-stone-500 font-medium uppercase tracking-widest mb-0.5">MOQ</p>
-            <p className="text-xs text-[#FAF8F5] font-light">{item.moq}</p>
-          </div>
-          <div className="w-px h-6 bg-white/10" />
-          <div className="flex-1 text-center">
-            <p className="text-[9px] text-stone-500 font-medium uppercase tracking-widest mb-0.5">Oil</p>
-            <p className="text-xs text-[#FAF8F5] font-light">{item.volatile}</p>
-          </div>
-          <div className="w-px h-6 bg-white/10" />
-          <div className="flex-1 text-center">
-            <p className="text-[9px] text-stone-500 font-medium uppercase tracking-widest mb-0.5">Pack</p>
-            <p className="text-[10px] text-[#FAF8F5] font-light leading-tight">{item.packaging.split(' ')[0]} {item.packaging.split(' ')[1] || ''}</p>
+        {/* Price display */}
+        <div className="flex items-baseline justify-between pt-1">
+          <div>
+            <span className="text-xs text-stone-400 font-light">Price: </span>
+            <span className="font-display text-xl font-light gold-gradient-text">₹{item.pricePerKg.toLocaleString('en-IN')}</span>
+            <span className="text-xs text-stone-400 font-light"> / kg</span>
           </div>
         </div>
 
         {/* Quantity selector */}
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] text-stone-500">Quantity</span>
+        <div className="flex items-center justify-between rounded-xl bg-white/[0.03] p-2.5 border border-white/[0.06]">
+          <span className="text-xs text-stone-400 font-light">Quantity</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setQtyKg((q) => Math.max(1, q <= 5 ? q - 1 : q - 5))}
@@ -214,7 +189,7 @@ function GradeCard({
             >
               −
             </button>
-            <span className="font-mono text-sm text-[#FAF8F5] min-w-[52px] text-center font-medium">
+            <span className="font-mono text-xs text-[#FAF8F5] min-w-[50px] text-center font-medium">
               {qtyKg} kg
             </span>
             <button
@@ -227,17 +202,17 @@ function GradeCard({
         </div>
 
         {/* Action buttons */}
-        <div className="grid grid-cols-2 gap-2.5 mt-auto">
+        <div className="grid grid-cols-2 gap-2.5 mt-auto pt-1">
           <button
             onClick={handleAddToCart}
-            className="w-full rounded-xl border border-[#C5A046]/25 bg-white/[0.03] py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/10 hover:border-[#C5A046]/50 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full rounded-xl border border-[#C5A046]/30 bg-white/[0.03] py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/10 hover:border-[#C5A046]/50 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             <ShoppingCart className="w-3.5 h-3.5" />
             Cart
           </button>
           <button
             onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`)}
-            className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5 font-semibold"
           >
             RFQ
             <ArrowRight className="w-3.5 h-3.5" />
@@ -248,7 +223,7 @@ function GradeCard({
   );
 }
 
-function getGradeUsdPrice(name: string, sizeMm?: string, liveAvgInr: number = 3049): number {
+function getGradeInrPrice(name: string, sizeMm?: string, liveAvgInr: number = 3049): number {
   const str = `${name} ${sizeMm || ''}`.toLowerCase();
   let mult = 1.0;
   if (str.includes('8.5') || str.includes('extra bold')) mult = 1.15;
@@ -258,8 +233,7 @@ function getGradeUsdPrice(name: string, sizeMm?: string, liveAvgInr: number = 30
   else if (str.includes('6.5') || str.includes('mix') || str.includes('ageb')) mult = 0.70;
   else if (str.includes('rej') || str.includes('oil') || str.includes('extract')) mult = 0.50;
 
-  const inrPrice = Math.round(liveAvgInr * mult);
-  return Math.round(inrPrice / 83.5);
+  return Math.round(liveAvgInr * mult);
 }
 
 export default function ProductCards({
@@ -283,7 +257,7 @@ export default function ProductCards({
       }
 
       try {
-        const prods = await getProducts(true);
+        const prods = await getFeaturedProducts(4);
         if (prods && prods.length > 0) {
           const mapped = prods.map((p, idx) => {
             const sizeStr = p.grades?.[0]?.size_mm || '';
@@ -292,21 +266,24 @@ export default function ProductCards({
               gradeNum: sizeStr ? sizeStr.replace('mm', '') : String(8.5 - idx * 0.5),
               gradeUnit: sizeStr.includes('mm') ? 'mm' : '',
               gradeName: p.name,
-              badge: p.featured ? 'Flagship Grade' : (p.category?.name ? p.category.name.toUpperCase() : 'Export Grade'),
+              badge: p.export_grade || sizeStr || (p.featured ? 'Flagship Grade' : ''),
               badgePrimary: p.featured,
-              origin: p.short_description || p.specifications?.find((s) => s.label === 'Origin')?.value || 'Idukki, Kerala',
+              origin: p.short_description || p.long_description || p.specifications?.find((s) => s.label === 'Origin')?.value || 'High-grade single origin green cardamom',
               packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
               moq: '25 kg',
               volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
-              pricePerKg: getGradeUsdPrice(p.name, sizeStr, liveAvg),
+              pricePerKg: getGradeInrPrice(p.name, sizeStr, liveAvg),
               defaultQtyKg: 25,
               image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
             };
           });
           setCards(mapped);
+        } else {
+          setCards(CARDAMOM_GRADES.slice(0, 4));
         }
       } catch (e) {
         console.error(e);
+        setCards(CARDAMOM_GRADES.slice(0, 4));
       }
     }
     fetchProducts();
@@ -315,8 +292,7 @@ export default function ProductCards({
   return (
     <section
       id="products"
-      className="relative overflow-hidden bg-[#0A1F0D] text-[#FAF8F5]"
-      style={{ paddingTop: '7rem', paddingBottom: '7rem' }}
+      className="relative overflow-hidden bg-[#0A1F0D] text-[#FAF8F5] py-16 sm:py-28"
     >
       {/* Ambient glows */}
       <div
@@ -328,7 +304,7 @@ export default function ProductCards({
         style={{ background: '#C5A046' }}
       />
 
-      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         {/* Header — clean, editorial */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-8">
           <div>
@@ -358,18 +334,29 @@ export default function ProductCards({
           </div>
         </div>
 
-        {/* Grade Cards Grid — 2 on mobile, 3 on lg, 5 centered on xl */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {cards.map((item, i) => (
-            <GradeCard
-              key={item.id}
-              item={item}
-              index={i}
-              onOpenQuoteModal={onOpenQuoteModal}
-              onAddToCart={onAddToCart}
-            />
-          ))}
-        </div>
+        {/* Grade Cards Grid — dynamically balanced for 1 to 4 products */}
+        {(() => {
+          const displayCards = cards.slice(0, 4);
+          const count = displayCards.length;
+          let gridColsClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+          if (count === 1) gridColsClass = "grid-cols-1 max-w-sm mx-auto";
+          else if (count === 2) gridColsClass = "grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto";
+          else if (count === 3) gridColsClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto";
+
+          return (
+            <div className={`grid ${gridColsClass} gap-6`}>
+              {displayCards.map((item, i) => (
+                <GradeCard
+                  key={item.id}
+                  item={item}
+                  index={i}
+                  onOpenQuoteModal={onOpenQuoteModal}
+                  onAddToCart={onAddToCart}
+                />
+              ))}
+            </div>
+          );
+        })()}
 
         {/* Bottom strip — elegant */}
         <motion.div

@@ -142,15 +142,21 @@ export default function WhyChooseCardanova() {
       if (cms) {
         if (cms.why_choose_us_title) setSectionTitle(cms.why_choose_us_title);
         if (cms.why_choose_us_features && cms.why_choose_us_features.length > 0) {
-          const mapped = cms.why_choose_us_features.map((f, idx) => ({
-            id: `feature-${idx}`,
-            svgIcon: WHY_ITEMS[idx % WHY_ITEMS.length].svgIcon,
-            tag: WHY_ITEMS[idx % WHY_ITEMS.length].tag,
-            title: f.title || WHY_ITEMS[idx % WHY_ITEMS.length].title,
-            stat: WHY_ITEMS[idx % WHY_ITEMS.length].stat,
-            statLabel: WHY_ITEMS[idx % WHY_ITEMS.length].statLabel,
-            sub: f.description || WHY_ITEMS[idx % WHY_ITEMS.length].sub,
-          }));
+          // Always render 6 cards — merge CMS data with WHY_ITEMS defaults for any missing slots
+          const totalCards = Math.max(cms.why_choose_us_features.length, WHY_ITEMS.length);
+          const mapped = Array.from({ length: totalCards }, (_, idx) => {
+            const f = cms.why_choose_us_features![idx];
+            const def = WHY_ITEMS[idx % WHY_ITEMS.length];
+            return {
+              id: `feature-${idx}`,
+              svgIcon: def?.svgIcon || WHY_ITEMS[0].svgIcon,
+              tag: f?.tag || def?.tag || 'Cardanova Guarantee',
+              title: f?.title || def?.title || `Feature ${idx + 1}`,
+              stat: f?.stat || def?.stat || '',
+              statLabel: f?.statLabel || def?.statLabel || '',
+              sub: f?.description || def?.sub || '',
+            };
+          });
           setWhyItems(mapped);
         }
       }

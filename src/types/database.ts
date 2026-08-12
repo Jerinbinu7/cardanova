@@ -166,8 +166,11 @@ export interface StatItem {
 }
 
 export interface WhyChooseUsFeature {
-  icon: string;
+  icon?: string;
+  tag?: string;
   title: string;
+  stat?: string;
+  statLabel?: string;
   description: string;
 }
 

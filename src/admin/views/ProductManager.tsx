@@ -245,12 +245,24 @@ export default function ProductManager() {
                       </td>
                       <td className="p-4 hidden lg:table-cell text-xs text-gray-400">{p.grades?.length ?? 0} grades</td>
                       <td className="p-4">
-                        {p.featured
-                          ? <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-950/60 px-2.5 py-1 rounded-full border border-amber-500/30">
-                              <Star className="w-3 h-3 fill-amber-400" /> Featured
-                            </span>
-                          : <span className="text-xs text-gray-500">—</span>
-                        }
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updateProduct(p.id, { featured: !p.featured });
+                              toast.success(p.featured ? 'Removed from Main Page' : 'Featured on Main Page (Max 4 displayed)');
+                              load();
+                            } catch (e: any) { toast.error(e.message); }
+                          }}
+                          title="Toggle Main Page Visibility"
+                          className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border cursor-pointer transition-all ${
+                            p.featured
+                              ? 'bg-amber-950/70 text-amber-300 border-amber-500/40 shadow-sm hover:bg-amber-900/80'
+                              : 'bg-gray-900/80 text-gray-400 border-gray-750 hover:border-gray-600 hover:text-gray-300'
+                          }`}
+                        >
+                          <Star className={`w-3.5 h-3.5 ${p.featured ? 'fill-amber-400 text-amber-400' : ''}`} />
+                          {p.featured ? 'Main Page' : 'Catalogue Only'}
+                        </button>
                       </td>
                       <td className="p-4">
                         <button onClick={() => handleTogglePublish(p)}
@@ -334,7 +346,7 @@ export default function ProductManager() {
                     {textarea('Full Description', editing.long_description ?? '', (v) => setEditing((p) => ({ ...p, long_description: v })), 5)}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {input('Origin', editing.origin ?? '', (v) => setEditing((p) => ({ ...p, origin: v })), 'Idukki, Kerala, India')}
-                      {input('Export Grade', editing.export_grade ?? '', (v) => setEditing((p) => ({ ...p, export_grade: v })), 'e.g. AGEB')}
+                      {input('Golden Label / Badge', editing.export_grade ?? '', (v) => setEditing((p) => ({ ...p, export_grade: v })), 'e.g. 8.5 mm / Extra Bold / Flagship')}
                       {input('HS Code', editing.hs_code ?? '', (v) => setEditing((p) => ({ ...p, hs_code: v })), 'e.g. 0908.31')}
                     </div>
                     {textarea('Packaging Information', editing.packaging_info ?? '', (v) => setEditing((p) => ({ ...p, packaging_info: v })), 2)}
@@ -342,11 +354,11 @@ export default function ProductManager() {
                       {input('Display Order', String(editing.display_order ?? 0), (v) => setEditing((p) => ({ ...p, display_order: parseInt(v) || 0 })), '0', false, 'number')}
                     </div>
                     <div className="flex items-center gap-6 pt-1">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase font-medium">
                         <input type="checkbox" checked={editing.featured ?? false} onChange={(e) => setEditing((p) => ({ ...p, featured: e.target.checked }))} className="accent-[#C5A046]" />
-                        Featured
+                        Show on Main Page (Featured)
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase font-medium">
                         <input type="checkbox" checked={editing.published ?? true} onChange={(e) => setEditing((p) => ({ ...p, published: e.target.checked }))} className="accent-[#C5A046]" />
                         Published
                       </label>

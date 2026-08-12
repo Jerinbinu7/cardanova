@@ -179,7 +179,7 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="rounded-3xl border border-[#A18637]/25 bg-[#112D15] p-8 sm:p-10 text-[#FAF8F5] shadow-2xl relative overflow-hidden"
+            className="rounded-3xl border border-[#A18637]/25 bg-[#112D15] p-5 sm:p-10 text-[#FAF8F5] shadow-2xl relative overflow-hidden"
           >
             {/* Background glow */}
             <div
@@ -246,7 +246,7 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="e.g. Marcus Vance"
-                      className="w-full rounded-xl border border-[#A18637]/25 bg-[#071309]/60 px-4 py-3 text-xs text-[#FAF8F5] placeholder-stone-600 focus:border-[#C5A046]/60 focus:outline-none transition-colors"
+                      className="w-full rounded-xl border border-[#A18637]/25 bg-[#071309]/60 px-4 py-3 text-base sm:text-xs text-[#FAF8F5] placeholder-stone-600 focus:border-[#C5A046]/60 focus:outline-none transition-colors"
                     />
                   </div>
 

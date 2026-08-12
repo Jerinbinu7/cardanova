@@ -76,7 +76,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
               alt="Cardanova Spices emblem"
               width={538}
               height={470}
-              className="h-10 sm:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-8 sm:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </div>
           <div className="flex items-center">
@@ -85,7 +85,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
               alt="Cardanova Spices — Exporting Nature's Finest"
               width={944}
               height={232}
-              className="h-8 sm:h-9 w-auto object-contain"
+              className="h-6 sm:h-9 w-auto object-contain"
             />
           </div>
         </button>
@@ -177,7 +177,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           )}
 
           <button
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#112D15]/60 backdrop-blur-sm text-[#FAF8F5] transition-colors hover:border-[#C5A046]/60"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#112D15]/60 backdrop-blur-sm text-[#FAF8F5] transition-colors hover:border-[#C5A046]/60 cursor-pointer active:scale-95"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileOpen}
@@ -185,7 +185,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           >
             <motion.span
               animate={{ rotate: mobileOpen ? 45 : 0 }}
-              className="block text-sm"
+              className="block text-base font-semibold"
               aria-hidden="true"
             >
               {mobileOpen ? '✕' : '☰'}

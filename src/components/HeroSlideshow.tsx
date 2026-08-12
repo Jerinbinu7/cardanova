@@ -215,7 +215,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Main Hero Content ────────────────────────────── */}
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 translate-y-[60px] sm:translate-y-0"
         style={{ y: contentY, opacity }}
       >
         {/* Headline */}
@@ -256,7 +256,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4"
+          className="mt-10 sm:mt-16 lg:mt-20 flex flex-col sm:flex-row items-stretch sm:items-start gap-3.5 sm:gap-5"
         >
           <MagneticButton
             as="button"
@@ -279,6 +279,26 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           </MagneticButton>
         </motion.div>
       </motion.div>
+
+      {/* ── Mobile Slide Dots ───────────────────────────── */}
+      <div
+        className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex lg:hidden items-center gap-2"
+        role="tablist"
+        aria-label="Mobile slideshow navigation"
+      >
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setSlide(i)}
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+              slide === i ? 'w-7 bg-[#C5A046]' : 'w-2 bg-white/30'
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+            aria-selected={slide === i}
+            role="tab"
+          />
+        ))}
+      </div>
 
       {/* ── Slide Progress — vertical right side ────────── */}
       <div
