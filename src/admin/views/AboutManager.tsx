@@ -269,6 +269,23 @@ export default function AboutManager() {
         {activeTab === 'images' && (
           <div className="space-y-5">
             <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">
+              <h4 className="text-sm text-[#C5A046] font-medium">About Page Top Hero Background Image</h4>
+              <FileUpload
+                label="Hero Background Banner Image"
+                currentUrl={content.history}
+                accept="image"
+                defaultAspect="16:9"
+                onFiles={async (files) => {
+                  try {
+                    const url = await uploadAboutImage('factory', files[0]);
+                    setContent((c) => ({ ...c, history: url }));
+                    toast.success('Hero banner uploaded!');
+                  } catch (e: any) { toast.error(e.message); }
+                }}
+                onRemove={() => setContent((c) => ({ ...c, history: null }))}
+              />
+            </div>
+            <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">
               <h4 className="text-sm text-[#C5A046] font-medium">Factory Images</h4>
               <div className="flex flex-wrap gap-3">
                 {(content.factory_images ?? []).map((url) => (

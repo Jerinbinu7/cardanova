@@ -188,22 +188,26 @@ function ProcessStep({ step, index }: { step: typeof PROCESS_STEPS[0]; index: nu
 export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const [steps, setSteps] = useState(PROCESS_STEPS);
+  const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop');
 
   useEffect(() => {
     getHomepageContent().then((data) => {
-      if (data?.farm_to_export_steps && data.farm_to_export_steps.length > 0) {
-        const mapped = data.farm_to_export_steps.map((st: any, idx: number) => ({
-          step: String(st.step || idx + 1).padStart(2, '0'),
-          phase: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].phase,
-          title: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].title,
-          subtitle: st.loc || PROCESS_STEPS[idx % PROCESS_STEPS.length].subtitle,
-          body: st.desc || PROCESS_STEPS[idx % PROCESS_STEPS.length].body,
-          detail: st.loc ? `Location: ${st.loc}` : PROCESS_STEPS[idx % PROCESS_STEPS.length].detail,
-          image: PROCESS_STEPS[idx % PROCESS_STEPS.length].image,
-          accent: PROCESS_STEPS[idx % PROCESS_STEPS.length].accent,
-          icon: PROCESS_STEPS[idx % PROCESS_STEPS.length].icon,
-        }));
-        setSteps(mapped);
+      if (data) {
+        if (data.hero_bg_image_url) setHeroBg(data.hero_bg_image_url);
+        if (data.farm_to_export_steps && data.farm_to_export_steps.length > 0) {
+          const mapped = data.farm_to_export_steps.map((st: any, idx: number) => ({
+            step: String(st.step || idx + 1).padStart(2, '0'),
+            phase: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].phase,
+            title: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].title,
+            subtitle: st.loc || PROCESS_STEPS[idx % PROCESS_STEPS.length].subtitle,
+            body: st.desc || PROCESS_STEPS[idx % PROCESS_STEPS.length].body,
+            detail: st.loc ? `Location: ${st.loc}` : PROCESS_STEPS[idx % PROCESS_STEPS.length].detail,
+            image: PROCESS_STEPS[idx % PROCESS_STEPS.length].image,
+            accent: PROCESS_STEPS[idx % PROCESS_STEPS.length].accent,
+            icon: PROCESS_STEPS[idx % PROCESS_STEPS.length].icon,
+          }));
+          setSteps(mapped);
+        }
       }
     }).catch((e) => {
       console.warn('Failed to load origin steps from Supabase', e);
@@ -225,7 +229,7 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
         aria-labelledby="origin-page-title"
       >
         <motion.img
-          src="https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop"
+          src={heroBg}
           alt="High-altitude cardamom plantations in the mist-covered hills of Idukki, Kerala"
           width={2070}
           height={1380}

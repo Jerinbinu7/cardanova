@@ -122,11 +122,14 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
     imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
   });
 
+  const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop');
+
   useEffect(() => {
     getAboutContent().then((cms) => {
       if (cms) {
         if (cms.company_story) setStory(cms.company_story);
         if (cms.vision) setVision(cms.vision);
+        if (cms.history) setHeroBg(cms.history);
         if (cms.ceo_message || cms.ceo_name) {
           setCeoData({
             name: cms.ceo_name || 'Akhilkumar K A',
@@ -184,7 +187,7 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
       >
         {/* Slow Parallax Plantation Image */}
         <motion.img
-          src="https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop"
+          src={heroBg}
           alt="Misty cardamom plantation hills in Idukki, Kerala — the origin of Cardanova spices"
           width={2070}
           height={1380}
