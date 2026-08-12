@@ -102,14 +102,55 @@ export default function AboutManager() {
     setUploadingFounder(founderIdx);
     try {
       const url = await uploadAboutImage('founders', files[0], () => {});
-      setContent((c) => {
-        const founders = [...(c.founders ?? [])];
-        founders[founderIdx] = { ...founders[founderIdx], photo: url };
-        return { ...c, founders };
+      const defaultFounders = [
+        {
+          name: 'Akhilkumar K A',
+          position: 'Co-Founder',
+          photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+          intro: 'Co-Founder & Director of Cardanova Spices LLP.',
+          quote: 'Every shipment carries the trust of our brand.',
+          linkedin: 'https://linkedin.com',
+          facebook: 'https://facebook.com',
+          email: 'akhilkumar@cardanovaspices.com',
+        },
+        {
+          name: 'Amal Babu',
+          position: 'Co-Founder',
+          photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
+          intro: 'Co-Founder & Director of Cardanova Spices LLP.',
+          quote: 'Connecting Kerala spice farmers with global buyers.',
+          linkedin: 'https://linkedin.com',
+          facebook: 'https://facebook.com',
+          email: 'amal@cardanovaspices.com',
+        },
+      ];
+
+      const currentList = (content.founders && content.founders.length >= 2)
+        ? content.founders
+        : defaultFounders;
+
+      const updatedFounders = currentList.map((f, i) => {
+        if (i === founderIdx) {
+          return {
+            ...f,
+            name: f.name?.trim() ? f.name : (i === 0 ? 'Akhilkumar K A' : i === 1 ? 'Amal Babu' : `Founder ${i + 1}`),
+            position: f.position || 'Co-Founder',
+            photo: url,
+          };
+        }
+        return f;
       });
-      toast.success('Founder photo uploaded!');
-    } catch (e: any) { toast.error(e.message); }
-    finally { setUploadingFounder(null); }
+
+      const newContent = { ...content, founders: updatedFounders };
+      setContent(newContent);
+      await updateAboutContent(newContent);
+      const targetName = updatedFounders[founderIdx]?.name;
+      toast.success(`Photo updated for ${targetName}!`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setUploadingFounder(null);
+    }
   };
 
   const updateFounder = (idx: number, field: string, value: string) => {

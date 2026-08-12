@@ -154,6 +154,10 @@ export interface FarmToExportStep {
   title: string;
   loc: string;
   desc: string;
+  phase?: string;
+  body?: string;
+  detail?: string;
+  image?: string;
 }
 
 export interface StatItem {

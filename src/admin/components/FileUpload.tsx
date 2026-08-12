@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { X, FileText, Image as ImageIcon, CheckCircle, AlertCircle, Crop } from 'lucide-react';
+import { X, FileText, Image as ImageIcon, CheckCircle, AlertCircle } from 'lucide-react';
 import ImageCropperModal from './ImageCropperModal';
 
 interface FileUploadProps {

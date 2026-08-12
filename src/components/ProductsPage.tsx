@@ -579,6 +579,31 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
       return 0;
     });
 
+  const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop');
+
+  useEffect(() => {
+    import('../services/galleryService').then(({ getGalleryItems }) => {
+      getGalleryItems('products_hero').then((items) => {
+        if (items && items.length > 0 && items[0].image_url) {
+          setHeroBg(items[0].image_url);
+        }
+      });
+
+      getGalleryItems('products').then((prodItems) => {
+        if (prodItems && prodItems.length > 0) {
+          setCatalogue((prev) =>
+            prev.map((item, idx) => {
+              if (prodItems[idx] && prodItems[idx].image_url) {
+                return { ...item, image: prodItems[idx].image_url };
+              }
+              return item;
+            })
+          );
+        }
+      });
+    }).catch(() => {});
+  }, []);
+
   const currentSortLabel = SORT_OPTIONS.find((o) => o.id === sort)?.label ?? 'Featured';
 
   return (
@@ -595,12 +620,11 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
       )}
 
       <section
-        className="relative overflow-hidden flex items-end"
-        style={{ height: '52vh', minHeight: '360px', paddingTop: '5rem' }}
+        className="relative overflow-hidden flex flex-col justify-end pt-28 sm:pt-36 pb-12 sm:pb-16 min-h-[420px] w-full"
         aria-labelledby="products-page-title"
       >
         <img
-          src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop"
+          src={heroBg}
           alt="Cardanova Spices premium green cardamom grades catalogue from Idukki, Kerala"
           width={2070}
           height={1380}
@@ -612,10 +636,10 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
         <div className="absolute inset-0 bg-gradient-to-b from-[#071309]/40 to-[#071309]/92" aria-hidden="true" />
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85 }}
-          className="relative z-10 w-full px-6 lg:px-10 pb-14 max-w-7xl mx-auto"
+          className="relative z-10 w-full px-6 lg:px-10 max-w-7xl mx-auto"
         >
           <span className="label-caps text-[#C5A046]" style={{ fontSize: '0.6rem' }}>Export Grade Trade Catalogue</span>
           <h1
@@ -633,7 +657,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
         </motion.div>
       </section>
 
-      <div className="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-100 shadow-sm">
+      <div className="sticky top-[72px] sm:top-[80px] z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
           <div className="hidden md:flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2" role="tablist" aria-label="Filter cardamom grades">

@@ -67,7 +67,16 @@ export default function CertificationsManager() {
         await updateCertification(editing.id, { image_url: url });
         load();
       }
-      toast.success('Image uploaded!');
+
+      const { createGalleryItem } = await import('../../services/galleryService');
+      await createGalleryItem({
+        title: `[certificates] ${editing.title || 'Certification Document'}`,
+        folder: 'certificates',
+        image_url: url,
+        display_order: 0,
+      });
+
+      toast.success('Image uploaded and synced to Gallery!');
     } catch (e: any) { toast.error(e.message); }
     finally { setTimeout(() => setImgProgress(0), 1500); }
   };

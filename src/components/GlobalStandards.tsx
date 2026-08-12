@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Leaf, ShieldCheck, FileText, Award } from 'lucide-react';
 import { getCertifications } from '../services/certificationsService';
-import type { CertificationRow } from '../types/database';
+
 
 const DEFAULT_CERTIFICATIONS = [
   {

@@ -34,7 +34,16 @@ export default function HomepageManager() {
     try {
       const url = await uploadHeroBgImage(files[0], (p) => setUploadProgress(p));
       setContent((c) => ({ ...c, hero_bg_image_url: url }));
-      toast.success('Hero background uploaded!');
+      
+      const { createGalleryItem } = await import('../../services/galleryService');
+      await createGalleryItem({
+        title: '[homepage_hero] Homepage Hero Background',
+        folder: 'homepage_hero',
+        image_url: url,
+        display_order: 0,
+      });
+
+      toast.success('Hero background uploaded and synced to Gallery!');
     } catch (e: any) { toast.error(e.message); }
     finally { setTimeout(() => setUploadProgress(0), 1500); }
   };

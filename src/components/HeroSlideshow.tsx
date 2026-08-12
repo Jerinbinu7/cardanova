@@ -16,7 +16,7 @@ const HERO_SLIDES = [
     alt: 'Premium green cardamom pods from Idukki, Kerala — Cardanova Spices flagship grade',
     headline: "The World's Finest",
     accent: 'Idukki Green Cardamom',
-    sub: 'Single-Origin · High Elevation Estates (1,100m) · Kerala, India',
+    sub: 'SINGLE-ORIGIN · HIGH-ELEVATION ESTATES (1,100M) · KERALA, INDIA',
   },
   {
     image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=2070&auto=format&fit=crop',
@@ -47,8 +47,8 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   const [slide, setSlide] = useState(0);
   const [progress, setProgress] = useState(0);
   const [slides, setSlides] = useState(HERO_SLIDES);
-  const [primaryCtaText, setPrimaryCtaText] = useState('Request a Quote →');
-  const [secondaryCtaText, setSecondaryCtaText] = useState('View Catalogue ↓');
+  const [primaryCtaText, setPrimaryCtaText] = useState('REQUEST A QUOTE');
+  const [secondaryCtaText, setSecondaryCtaText] = useState('VIEW CATALOGUE');
 
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
@@ -70,30 +70,24 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
       // Fetch dynamic hero images from gallery if any
       getGalleryItems('homepage_hero').then((galleryData) => {
         if (galleryData && galleryData.length > 0) {
-          const dynamicSlides = galleryData.map((item, index) => ({
-            image: item.image_url,
-            alt: item.title,
-            headline: index === 0 ? baseHeadline : item.title,
-            accent: index === 0 ? 'Single-Origin Kerala Spices' : '',
-            sub: index === 0 ? baseSubtext : 'Cardanova Spices',
-          }));
+          const dynamicSlides = galleryData.map((item, index) => {
+            const cleanTitle = item.title?.replace('[homepage_hero]', '').trim();
+            return {
+              image: item.image_url,
+              alt: cleanTitle || 'Cardanova Cardamom',
+              headline: index === 0 ? (baseHeadline || cleanTitle || HERO_SLIDES[0].headline) : (cleanTitle || HERO_SLIDES[index % HERO_SLIDES.length].headline),
+              accent: index === 0 ? HERO_SLIDES[0].accent : HERO_SLIDES[index % HERO_SLIDES.length].accent,
+              sub: index === 0 ? (baseSubtext || HERO_SLIDES[0].sub) : HERO_SLIDES[index % HERO_SLIDES.length].sub,
+            };
+          });
           setSlides(dynamicSlides);
         } else {
-          // Fallback to default with CMS overrides
-          setSlides([
-            {
-              image: HERO_SLIDES[0].image,
-              alt: HERO_SLIDES[0].alt,
-              headline: baseHeadline,
-              accent: 'Single-Origin Kerala Spices',
-              sub: baseSubtext,
-            },
-            HERO_SLIDES[1],
-            HERO_SLIDES[2],
-          ]);
+          // Default slides
+          setSlides(HERO_SLIDES);
         }
       }).catch((e) => {
         console.warn('Failed to fetch hero images', e);
+        setSlides(HERO_SLIDES);
       });
     }).catch((e) => {
       console.warn('Failed to fetch homepage CMS content', e);
@@ -103,7 +97,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
   const { scrollY } = useScroll();
   const imgY = useTransform(scrollY, [0, 600], [0, 80]);
-  const contentY = useTransform(scrollY, [0, 400], [0, -60]);
+  const contentY = useTransform(scrollY, [0, 400], [0, 0]);
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
   useEffect(() => {
@@ -147,11 +141,11 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   return (
     <section
       ref={heroRef}
-      className="relative h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-end"
-      style={{ minHeight: '100svh' }}
+      className="relative min-h-screen sm:h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-center sm:justify-end pt-20 sm:pt-24 pb-12 sm:pb-24 lg:pb-28"
       aria-label="Hero slideshow — Premium Cardanova Spices"
     >
       {/* ── Background Slideshow ─────────────────────────── */}
+
       <div className="absolute inset-0 z-0" aria-hidden="true">
         <AnimatePresence mode="wait">
           <motion.div
@@ -221,7 +215,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Main Hero Content ────────────────────────────── */}
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-10 pb-28 sm:pb-36 lg:pb-40"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
         style={{ y: contentY, opacity }}
       >
         {/* Headline */}
@@ -229,14 +223,14 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           <AnimatePresence mode="wait">
             <motion.div
               key={slide}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <h1
-                className="font-display font-light leading-[0.92] tracking-[-0.02em] text-[#FAF8F5]"
-                style={{ fontSize: 'clamp(2.6rem, 8vw, 8rem)' }}
+                className="font-display font-light leading-[0.94] tracking-[-0.02em] text-[#FAF8F5]"
+                style={{ fontSize: 'clamp(2.1rem, 6.5vw, 6.5rem)' }}
               >
                 {slides[slide]?.headline || HERO_SLIDES[0].headline}
                 <br />
@@ -249,7 +243,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="mt-5 label-caps text-stone-300/80"
+                className="mt-3 sm:mt-5 label-caps text-xs sm:text-sm text-stone-300/90 tracking-widest"
               >
                 {slides[slide]?.sub || HERO_SLIDES[0].sub}
               </motion.p>
@@ -261,17 +255,17 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4"
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4"
         >
           <MagneticButton
             as="button"
             onClick={() => onOpenQuoteModal()}
             cursorLabel="Quote"
             aria-label="Request a cardamom trade quote"
-            className="rounded-full gold-gradient-bg px-8 py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow text-center"
+            className="rounded-full gold-gradient-bg px-7 py-3.5 sm:px-8 sm:py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow text-center text-xs font-semibold"
           >
-            {primaryCtaText}
+            {primaryCtaText} →
           </MagneticButton>
 
           <MagneticButton
@@ -279,9 +273,9 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             onClick={onNavigateToProducts}
             cursorLabel="Catalogue"
             aria-label="View our cardamom product catalogue"
-            className="rounded-full border border-[#FAF8F5]/20 bg-white/5 backdrop-blur-md px-8 py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/50 hover:bg-white/10 transition-all cursor-pointer text-center"
+            className="rounded-full border border-[#FAF8F5]/25 bg-white/5 backdrop-blur-md px-7 py-3.5 sm:px-8 sm:py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/60 hover:bg-white/10 transition-all cursor-pointer text-center text-xs font-semibold"
           >
-            {secondaryCtaText}
+            {secondaryCtaText} →
           </MagneticButton>
         </motion.div>
       </motion.div>
