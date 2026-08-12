@@ -161,6 +161,15 @@ export default function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Disable browser automatic scroll position restoration on refresh
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    // Force scroll to top on initial page mount/refresh
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     // Redirect hash #admin or /admin to real router route
     if (window.location.hash === '#admin') {
       navigate('/admin');
@@ -168,12 +177,16 @@ export default function App() {
   }, [navigate]);
 
   useEffect(() => {
-    const timer = setTimeout(
-      () => setLoading(false),
-      reducedMotion ? 200 : 1200
-    );
+    const timer = setTimeout(() => {
+      setLoading(false);
+      window.scrollTo(0, 0);
+    }, reducedMotion ? 200 : 1200);
     return () => clearTimeout(timer);
   }, [reducedMotion]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
 
   const handleSelectTab = (tab: string) => {
     if (tab === 'admin') {
@@ -181,7 +194,10 @@ export default function App() {
       return;
     }
     setActiveTab(tab as any);
+    window.scrollTo(0, 0);
   };
+
+
 
   const [isCartCheckout, setIsCartCheckout] = useState(false);
 

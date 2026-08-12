@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Leaf, ShieldCheck, FileText, Award } from 'lucide-react';
+import { getCertifications } from '../services/certificationsService';
+import type { CertificationRow } from '../types/database';
 
-const CERTIFICATIONS = [
+const DEFAULT_CERTIFICATIONS = [
   {
     code: 'APEDA',
     fullName: 'Agricultural & Processed Food Export Authority',
@@ -40,9 +43,29 @@ const CERTIFICATIONS = [
 ];
 
 export default function GlobalStandards() {
+  const [certifications, setCertifications] = useState(DEFAULT_CERTIFICATIONS);
+
+  useEffect(() => {
+    getCertifications(true).then((dbCerts) => {
+      if (dbCerts && dbCerts.length > 0) {
+        const mapped = dbCerts.map((c, idx) => ({
+          code: c.title,
+          fullName: c.issuing_body || c.title,
+          authority: c.description || 'Verified Certification',
+          icon: DEFAULT_CERTIFICATIONS[idx % DEFAULT_CERTIFICATIONS.length].icon,
+          badge: 'Verified Exporter',
+        }));
+        setCertifications(mapped);
+      }
+    }).catch((e) => {
+      console.warn('Failed to load certifications from Supabase', e);
+    });
+  }, []);
+
   return (
     <section id="standards" className="relative bg-[#FAF8F5] overflow-hidden"
       style={{ paddingTop: '7rem', paddingBottom: '7rem' }}>
+
 
       {/* Faint dot grid */}
       <div className="absolute inset-0 opacity-[0.03]"
@@ -78,7 +101,7 @@ export default function GlobalStandards() {
 
         {/* Certification Cards — horizontal trust bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {CERTIFICATIONS.map((cert, i) => (
+          {certifications.map((cert, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 30 }}

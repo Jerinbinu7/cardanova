@@ -144,8 +144,16 @@ export interface HomepageContentRow {
   about_preview_title: string | null;
   about_preview_text: string | null;
   footer_tagline: string | null;
+  farm_to_export_steps: FarmToExportStep[] | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface FarmToExportStep {
+  step: number;
+  title: string;
+  loc: string;
+  desc: string;
 }
 
 export interface StatItem {
@@ -172,9 +180,21 @@ export interface AboutContentRow {
   ceo_image_url: string | null;
   factory_images: string[] | null;
   warehouse_images: string[] | null;
+  founders: Founder[] | null;
   timeline: TimelineItem[] | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface Founder {
+  name: string;
+  position: string;
+  photo: string;
+  intro: string;
+  quote: string;
+  linkedin: string;
+  facebook: string;
+  email: string;
 }
 
 export interface CoreValue {

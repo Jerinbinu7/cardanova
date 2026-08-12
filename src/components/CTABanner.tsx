@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import MagneticButton from './MagneticButton';
+import { getContactInfo } from '../services/contactService';
 
 interface CTABannerProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -7,12 +9,24 @@ interface CTABannerProps {
 }
 
 export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CTABannerProps) {
+  const [waNumber, setWaNumber] = useState('919656866090');
+
+  useEffect(() => {
+    getContactInfo().then((info) => {
+      if (info?.whatsapp || info?.phone) {
+        const clean = (info.whatsapp || info.phone || '').replace(/\D/g, '');
+        if (clean) setWaNumber(clean);
+      }
+    }).catch(() => {});
+  }, []);
+
   const handleWhatsApp = () => {
     window.open(
-      'https://wa.me/919876543210?text=Hello%20Cardanova%20Spices%2C%20I%20would%20like%20to%20inquire%20about%20cardamom%20export%20rates.',
+      `https://wa.me/${waNumber}?text=Hello%20Cardanova%20Spices%2C%20I%20would%20like%20to%20inquire%20about%20cardamom%20export%20rates.`,
       '_blank'
     );
   };
+
 
   return (
     <section className="relative overflow-hidden" style={{ minHeight: '560px', height: 'auto' }}>

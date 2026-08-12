@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { X, FileText, Image as ImageIcon, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, FileText, Image as ImageIcon, CheckCircle, AlertCircle, Crop } from 'lucide-react';
+import ImageCropperModal from './ImageCropperModal';
 
 interface FileUploadProps {
   /** Label shown above the dropzone */
@@ -18,6 +19,8 @@ interface FileUploadProps {
   progress?: number;
   disabled?: boolean;
   className?: string;
+  /** Default aspect ratio for cropper */
+  defaultAspect?: '3:4' | '1:1' | '4:3' | '16:9' | 'free';
 }
 
 const ACCEPT_MAP = {
@@ -36,10 +39,13 @@ export default function FileUpload({
   progress,
   disabled,
   className = '',
+  defaultAspect = '3:4',
 }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const handleFiles = useCallback((files: File[]) => {
     setError('');
@@ -52,8 +58,23 @@ export default function FileUpload({
     if (valid.length !== files.length) {
       setError('Some files were rejected (wrong type).');
     }
-    if (valid.length) onFiles(valid);
+    if (valid.length) {
+      const firstImage = valid.find((f) => f.type.startsWith('image/'));
+      if (firstImage) {
+        setPendingFiles(valid.filter((f) => f !== firstImage));
+        setCropFile(firstImage);
+      } else {
+        onFiles(valid);
+      }
+    }
   }, [accept, onFiles]);
+
+  const handleCropComplete = (croppedFile: File) => {
+    onFiles([croppedFile, ...pendingFiles]);
+    setPendingFiles([]);
+    setCropFile(null);
+  };
+
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -173,6 +194,19 @@ export default function FileUpload({
           <span>{error}</span>
         </div>
       )}
+
+      {/* Image Cropper Modal */}
+      <ImageCropperModal
+        isOpen={!!cropFile}
+        imageFile={cropFile}
+        onClose={() => {
+          setCropFile(null);
+          setPendingFiles([]);
+        }}
+        onCropComplete={handleCropComplete}
+        defaultAspect={defaultAspect}
+      />
     </div>
   );
 }
+

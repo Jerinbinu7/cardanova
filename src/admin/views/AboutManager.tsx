@@ -10,12 +10,41 @@ export default function AboutManager() {
   const [content, setContent] = useState<Partial<AboutContentRow>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
-  const [activeTab, setActiveTab] = useState<'story' | 'ceo' | 'images' | 'timeline'>('story');
+  const [activeTab, setActiveTab] = useState<'story' | 'founders' | 'ceo' | 'images' | 'timeline'>('story');
   const [uploadingFactory, setUploadingFactory] = useState(0);
   const [uploadingWarehouse, setUploadingWarehouse] = useState(0);
+  const [uploadingFounder, setUploadingFounder] = useState<number | null>(null);
 
   useEffect(() => {
-    getAboutContent().then((d) => { if (d) setContent(d); }).finally(() => setLoading(false));
+    getAboutContent().then((d) => {
+      if (d) {
+        if (!d.founders || d.founders.length === 0) {
+          d.founders = [
+            {
+              name: 'Akhilkumar K A',
+              position: 'Co-Founder',
+              photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+              intro: 'A passionate entrepreneur dedicated to delivering premium-quality spices while building lasting relationships with customers and farmers. With a strong focus on quality, transparency, and innovation, he believes every shipment represents the trust of the Cardanova brand.',
+              quote: '"Every shipment carries the trust of our brand and the hard work of Kerala\'s spice farmers."',
+              linkedin: 'https://linkedin.com',
+              facebook: 'https://facebook.com',
+              email: 'akhilkumar@cardanovaspices.com',
+            },
+            {
+              name: 'Amal Babu',
+              position: 'Co-Founder',
+              photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
+              intro: 'Driven by a vision to connect the finest spices of Kerala with international markets, Amal focuses on customer relationships, business growth, and ensuring every buyer experiences the authenticity and reliability that define Cardanova.',
+              quote: '"Building a global brand means ensuring every buyer experiences the pure authenticity of our origin."',
+              linkedin: 'https://linkedin.com',
+              facebook: 'https://facebook.com',
+              email: 'amal@cardanovaspices.com',
+            },
+          ];
+        }
+        setContent(d);
+      }
+    }).finally(() => setLoading(false));
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -63,10 +92,42 @@ export default function AboutManager() {
   const textareaClass = `${inputClass} resize-none`;
   const tabs = [
     { id: 'story' as const, label: 'Story & Values' },
+    { id: 'founders' as const, label: 'Founders' },
     { id: 'ceo' as const, label: 'CEO Message' },
     { id: 'images' as const, label: 'Images' },
     { id: 'timeline' as const, label: 'Timeline' },
   ];
+
+  const handleFounderPhotoUpload = async (founderIdx: number, files: File[]) => {
+    setUploadingFounder(founderIdx);
+    try {
+      const url = await uploadAboutImage('founders', files[0], () => {});
+      setContent((c) => {
+        const founders = [...(c.founders ?? [])];
+        founders[founderIdx] = { ...founders[founderIdx], photo: url };
+        return { ...c, founders };
+      });
+      toast.success('Founder photo uploaded!');
+    } catch (e: any) { toast.error(e.message); }
+    finally { setUploadingFounder(null); }
+  };
+
+  const updateFounder = (idx: number, field: string, value: string) => {
+    const founders = [...(content.founders ?? [])];
+    founders[idx] = { ...founders[idx], [field]: value };
+    setContent((c) => ({ ...c, founders }));
+  };
+
+  const addFounder = () => {
+    setContent((c) => ({
+      ...c,
+      founders: [...(c.founders ?? []), { name: '', position: 'Co-Founder', photo: '', intro: '', quote: '', linkedin: '', facebook: '', email: '' }],
+    }));
+  };
+
+  const removeFounder = (idx: number) => {
+    setContent((c) => ({ ...c, founders: (c.founders ?? []).filter((_, i) => i !== idx) }));
+  };
 
   return (
     <div className="space-y-6">
@@ -118,6 +179,78 @@ export default function AboutManager() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'founders' && (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm text-[#C5A046] font-medium">Co-Founders / Team Members</h3>
+              <button type="button" onClick={addFounder}
+                className="flex items-center gap-1 text-xs text-[#C5A046] hover:underline"><Plus className="w-3.5 h-3.5" /> Add Founder</button>
+            </div>
+            {(content.founders ?? []).map((f, idx) => (
+              <div key={idx} className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-[#C5A046] uppercase tracking-wider font-semibold">Founder #{idx + 1}</span>
+                  <button type="button" onClick={() => removeFounder(idx)} className="text-red-400 hover:text-red-300"><X className="w-4 h-4" /></button>
+                </div>
+                {/* Photo */}
+                <div className="flex items-start gap-4">
+                  {f.photo && (
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#C5A046]/30 shrink-0">
+                      <img src={f.photo} alt={f.name || 'Founder'} className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => updateFounder(idx, 'photo', '')}
+                        className="absolute top-1 right-1 bg-red-600 text-white p-0.5 rounded-full opacity-0 hover:opacity-100 transition-opacity"><X className="w-3 h-3" /></button>
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <FileUpload
+                      label={f.photo ? 'Change Photo' : 'Upload Photo'}
+                      accept="image"
+                      defaultAspect="3:4"
+                      onFiles={(files) => handleFounderPhotoUpload(idx, files)}
+                      progress={uploadingFounder === idx ? 50 : 0}
+                    />
+                  </div>
+                </div>
+                {/* Name & Position */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div><label className={labelClass}>Full Name</label>
+                    <input value={f.name} onChange={(e) => updateFounder(idx, 'name', e.target.value)} placeholder="e.g. Akhilkumar K A" className={inputClass} />
+                  </div>
+                  <div><label className={labelClass}>Position</label>
+                    <input value={f.position} onChange={(e) => updateFounder(idx, 'position', e.target.value)} placeholder="e.g. Co-Founder" className={inputClass} />
+                  </div>
+                </div>
+                {/* Intro */}
+                <div><label className={labelClass}>Introduction</label>
+                  <textarea rows={3} value={f.intro} onChange={(e) => updateFounder(idx, 'intro', e.target.value)} placeholder="Brief bio / description" className={textareaClass} />
+                </div>
+                {/* Quote */}
+                <div><label className={labelClass}>Quote</label>
+                  <input value={f.quote} onChange={(e) => updateFounder(idx, 'quote', e.target.value)} placeholder='"Every shipment carries the trust..."' className={inputClass} />
+                </div>
+                {/* Social Links */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div><label className={labelClass}>LinkedIn URL</label>
+                    <input value={f.linkedin} onChange={(e) => updateFounder(idx, 'linkedin', e.target.value)} placeholder="https://linkedin.com/in/..." className={inputClass} />
+                  </div>
+                  <div><label className={labelClass}>Facebook URL</label>
+                    <input value={f.facebook} onChange={(e) => updateFounder(idx, 'facebook', e.target.value)} placeholder="https://facebook.com/..." className={inputClass} />
+                  </div>
+                  <div><label className={labelClass}>Email</label>
+                    <input value={f.email} onChange={(e) => updateFounder(idx, 'email', e.target.value)} placeholder="name@cardanovaspices.com" className={inputClass} />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {(content.founders ?? []).length === 0 && (
+              <div className="text-center py-10 text-gray-400">
+                <p className="text-sm">No founders added yet.</p>
+                <button type="button" onClick={addFounder} className="text-xs text-[#C5A046] hover:underline mt-2">Add the first founder →</button>
+              </div>
+            )}
           </div>
         )}
 

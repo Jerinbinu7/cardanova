@@ -26,7 +26,7 @@ export async function updateAboutContent(updates: Partial<AboutContentRow>): Pro
   return data;
 }
 
-export async function uploadAboutImage(folder: 'factory' | 'warehouse' | 'ceo', file: File, onProgress?: (pct: number) => void): Promise<string> {
+export async function uploadAboutImage(folder: 'factory' | 'warehouse' | 'ceo' | 'founders', file: File, onProgress?: (pct: number) => void): Promise<string> {
   return uploadFile('about', folder, file, onProgress);
 }
 

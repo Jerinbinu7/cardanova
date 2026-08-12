@@ -1,20 +1,43 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Save, Check } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { getHomepageContent, updateHomepageContent } from '../../services/homepageService';
+import { SkeletonText } from '../components/Skeleton';
+
+const DEFAULT_STEPS = [
+  { step: 1, title: 'Hand Harvesting', loc: 'Vandanmedu & Bodimettu Estates', desc: 'Ripe cardamom capsules hand-picked at peak essential oil maturity.' },
+  { step: 2, title: 'Controlled Flue Curing', loc: 'Processing Facility, Idukki', desc: '24-hour slow indirect heating maintaining 100% natural emerald green hue.' },
+  { step: 3, title: 'Laser Grading & Sieving', loc: 'Quality Lab', desc: 'Sorted into 8.5mm AGEB, 8mm AGB, and 7.5mm grades with 0% foreign matter.' },
+  { step: 4, title: 'Nitrogen Vacuum Packing', loc: 'Export Terminal', desc: 'Sealed in 5kg high-barrier aluminium foil bags inside 25kg master cartons.' },
+];
 
 export default function FarmToExportManager() {
   const [saved, setSaved] = useState(false);
-  const [steps, setSteps] = useState([
-    { step: 1, title: 'Hand Harvesting', loc: 'Vandanmedu & Bodimettu Estates', desc: 'Ripe cardamom capsules hand-picked at peak essential oil maturity.' },
-    { step: 2, title: 'Controlled Flue Curing', loc: 'Processing Facility, Idukki', desc: '24-hour slow indirect heating maintaining 100% natural emerald green hue.' },
-    { step: 3, title: 'Laser Grading & Sieving', loc: 'Quality Lab', desc: 'Sorted into 8.5mm AGEB, 8mm AGB, and 7.5mm grades with 0% foreign matter.' },
-    { step: 4, title: 'Nitrogen Vacuum Packing', loc: 'Export Terminal', desc: 'Sealed in 5kg high-barrier aluminium foil bags inside 25kg master cartons.' },
-  ]);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [steps, setSteps] = useState(DEFAULT_STEPS);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    getHomepageContent().then((data) => {
+      if (data?.farm_to_export_steps && data.farm_to_export_steps.length > 0) {
+        setSteps(data.farm_to_export_steps);
+      }
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('cardanova_origin_steps', JSON.stringify(steps));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setSaving(true);
+    try {
+      await updateHomepageContent({ farm_to_export_steps: steps } as any);
+      toast.success('Farm to Export steps saved!');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save steps');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const updateStep = (idx: number, field: string, val: string) => {
@@ -22,6 +45,8 @@ export default function FarmToExportManager() {
     (copy[idx] as any)[field] = val;
     setSteps(copy);
   };
+
+  if (loading) return <SkeletonText lines={8} />;
 
   return (
     <div className="space-y-6">
@@ -81,12 +106,14 @@ export default function FarmToExportManager() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-medium text-xs uppercase tracking-wider cursor-pointer shadow-xl hover:brightness-110"
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-medium text-xs uppercase tracking-wider cursor-pointer shadow-xl hover:brightness-110 disabled:opacity-60"
           >
-            <Save className="w-4 h-4" /> Save Traceability Steps
+            <Save className="w-4 h-4" /> {saving ? 'Saving…' : 'Save Traceability Steps'}
           </button>
         </div>
       </form>
     </div>
   );
 }
+

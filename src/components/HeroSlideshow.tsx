@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
 import { getGalleryItems } from '../services/galleryService';
+import { getHomepageContent } from '../services/homepageService';
 
 interface HeroProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -54,17 +55,16 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   const SLIDE_DURATION = 6000;
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('cardanova_homepage_cms');
+    // Fetch CMS content from Supabase
+    getHomepageContent().then((cms) => {
       let baseHeadline = HERO_SLIDES[0].headline;
       let baseSubtext = HERO_SLIDES[0].sub;
 
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.heroHeadline) baseHeadline = parsed.heroHeadline;
-        if (parsed.heroSubtext) baseSubtext = parsed.heroSubtext;
-        if (parsed.primaryCta) setPrimaryCtaText(parsed.primaryCta);
-        if (parsed.secondaryCta) setSecondaryCtaText(parsed.secondaryCta);
+      if (cms) {
+        if (cms.hero_title) baseHeadline = cms.hero_title;
+        if (cms.hero_subtitle) baseSubtext = cms.hero_subtitle;
+        if (cms.hero_cta_primary_text) setPrimaryCtaText(cms.hero_cta_primary_text);
+        if (cms.hero_cta_secondary_text) setSecondaryCtaText(cms.hero_cta_secondary_text);
       }
 
       // Fetch dynamic hero images from gallery if any
@@ -79,7 +79,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           }));
           setSlides(dynamicSlides);
         } else {
-          // Fallback to default
+          // Fallback to default with CMS overrides
           setSlides([
             {
               image: HERO_SLIDES[0].image,
@@ -95,10 +95,11 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
       }).catch((e) => {
         console.warn('Failed to fetch hero images', e);
       });
-    } catch (e) {
-      console.warn('Failed to parse homepage cms settings', e);
-    }
+    }).catch((e) => {
+      console.warn('Failed to fetch homepage CMS content', e);
+    });
   }, []);
+
 
   const { scrollY } = useScroll();
   const imgY = useTransform(scrollY, [0, 600], [0, 80]);

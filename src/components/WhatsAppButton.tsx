@@ -1,12 +1,26 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { getContactInfo } from '../services/contactService';
 
 export default function WhatsAppButton() {
+  const [waNumber, setWaNumber] = useState('919656866090');
+
+  useEffect(() => {
+    getContactInfo().then((info) => {
+      if (info?.whatsapp || info?.phone) {
+        const clean = (info.whatsapp || info.phone || '').replace(/\D/g, '');
+        if (clean) setWaNumber(clean);
+      }
+    }).catch(() => {});
+  }, []);
+
   const handleClick = () => {
     window.open(
-      'https://wa.me/919656866090?text=Hello%20Cardanova%20Spices%2C%20I%20am%20interested%20in%20requesting%20a%20cardamom%20export%20quote.',
+      `https://wa.me/${waNumber}?text=Hello%20Cardanova%20Spices%2C%20I%20am%20interested%20in%20requesting%20a%20cardamom%20export%20quote.`,
       '_blank'
     );
   };
+
 
   return (
     <motion.button

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import MagneticButton from './MagneticButton';
+import { getContactInfo } from '../services/contactService';
 
 interface FooterProps {
   setActiveTab: (tab: 'home' | 'about' | 'products' | 'origin' | 'admin') => void;
@@ -15,18 +16,17 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
   const [phone, setPhone] = useState('+91 96568 66090');
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('cardanova_contact_cms');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.address) setAddress(parsed.address);
-        if (parsed.emailSales) setEmail(parsed.emailSales);
-        if (parsed.phonePrimary || parsed.whatsAppNumber) setPhone(parsed.phonePrimary || parsed.whatsAppNumber);
+    getContactInfo().then((cms) => {
+      if (cms) {
+        if (cms.address) setAddress(cms.address);
+        if (cms.email || cms.inquiry_email) setEmail(cms.email || cms.inquiry_email || '');
+        if (cms.phone || cms.whatsapp) setPhone(cms.phone || cms.whatsapp || '');
       }
-    } catch (e) {
-      console.warn('Failed to parse footer contact cms', e);
-    }
+    }).catch((e) => {
+      console.warn('Failed to fetch contact info', e);
+    });
   }, []);
+
 
   return (
     <footer
