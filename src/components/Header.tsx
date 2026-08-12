@@ -123,13 +123,13 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           {onOpenCart && (
             <button
               onClick={onOpenCart}
-              aria-label={`Open Sourcing Cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
+              aria-label={`Open Cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
               className="ml-2 relative flex items-center gap-2 rounded-full border border-[#C5A046]/40 bg-[#112D15]/60 px-4 py-2 label-caps text-[#FAF8F5] hover:border-[#C5A046] hover:bg-[#112D15] transition-all cursor-pointer"
             >
               <svg className="w-4 h-4 text-[#C5A046]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span>Sourcing Cart</span>
+              <span>Cart</span>
               {cartCount > 0 && (
                 <span
                   className="flex h-5 w-5 items-center justify-center rounded-full gold-gradient-bg text-[10px] font-bold text-[#071309]"
@@ -159,7 +159,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
             <button
               onClick={onOpenCart}
               className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C5A046]/40 bg-[#112D15]/60 text-[#FAF8F5] hover:border-[#C5A046] transition-all cursor-pointer text-xs"
-              aria-label={`Open Sourcing Cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
+              aria-label={`Open Cart${cartCount > 0 ? ` — ${cartCount} item${cartCount !== 1 ? 's' : ''}` : ''}`}
             >
               <svg className="w-4 h-4 text-[#C5A046]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />

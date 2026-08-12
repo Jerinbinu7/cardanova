@@ -15,7 +15,7 @@ export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CT
   };
 
   return (
-    <section className="relative overflow-hidden" style={{ height: '85vh', minHeight: '560px' }}>
+    <section className="relative overflow-hidden" style={{ minHeight: '560px', height: 'auto' }}>
       {/* Full-bleed background */}
       <img
         src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop"
@@ -73,7 +73,7 @@ export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CT
               Partner directly with Cardanova Spices LLP — guaranteed high-grade green cardamom, competitive FOB/CIF pricing, and on-time global delivery.
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4">
               <MagneticButton
                 as="button"
                 onClick={() => onOpenQuoteModal()}
@@ -102,6 +102,7 @@ export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CT
               </MagneticButton>
             </div>
           </motion.div>
+          <div className="py-12 sm:py-0" />
         </div>
       </div>
 

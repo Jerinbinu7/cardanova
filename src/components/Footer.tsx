@@ -83,7 +83,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
         <div className="flex flex-col lg:flex-row gap-12 pb-12 border-b border-[#A18637]/15">
 
           {/* Left: Brand + Nav + Grades */}
-          <div className="flex flex-col sm:flex-row gap-10 lg:gap-16 flex-1 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-8 sm:gap-10 lg:gap-16 flex-1 items-start">
 
             {/* Brand */}
             <div className="w-full sm:w-[200px] flex-shrink-0">
@@ -150,7 +150,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
             {/* Grades */}
             <nav className="w-full sm:w-[170px] flex-shrink-0" aria-label="Cardamom grades">
               <h3 className="label-caps text-[#C5A046] mb-4">Cardamom Grades</h3>
-              <ul className="space-y-3 text-xs text-stone-400 font-light whitespace-nowrap">
+              <ul className="space-y-3 text-xs text-stone-400 font-light">
                 {[
                   '8.5 mm Extra Bold',
                   '8.0 mm Premium Bold',
@@ -174,7 +174,7 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
           </div>
 
           {/* Right: Export Operations + Map */}
-          <address className="lg:w-[320px] flex-shrink-0 not-italic">
+          <address className="lg:w-[320px] flex-shrink-0 not-italic mt-4 sm:mt-0">
             <h3 className="label-caps text-[#C5A046] mb-4">Export Operations</h3>
 
             {/* Contact details */}

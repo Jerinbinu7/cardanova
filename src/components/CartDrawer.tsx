@@ -81,7 +81,7 @@ export default function CartDrawer({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            className="fixed top-0 right-0 bottom-0 z-[300] w-full max-w-md bg-[#071309] border-l border-[#C5A046]/30 text-[#FAF8F5] shadow-2xl flex flex-col justify-between"
+            className="fixed top-0 right-0 bottom-0 z-[300] w-full sm:max-w-md bg-[#071309] border-l border-[#C5A046]/30 text-[#FAF8F5] shadow-2xl flex flex-col justify-between"
           >
             {/* Header */}
             <div className="p-6 border-b border-[#A18637]/20 flex items-center justify-between">
@@ -92,7 +92,7 @@ export default function CartDrawer({
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-display text-xl font-light text-[#FAF8F5]">Your Sourcing Cart</h3>
+                  <h3 className="font-display text-xl font-light text-[#FAF8F5]">Your Cart</h3>
                   <span className="label-caps text-[#C5A046]" style={{ fontSize: '0.55rem' }}>
                     {cartItems.length} {cartItems.length === 1 ? 'Grade' : 'Grades'} Selected · {totalKg} kg Total
                   </span>

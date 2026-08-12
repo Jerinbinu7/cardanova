@@ -7,7 +7,7 @@ export type UserRole = 'owner' | 'admin' | 'editor';
 
 export type ProductAvailability = 'in_stock' | 'seasonal' | 'on_request' | 'out_of_stock';
 
-export type GalleryFolder = 'factory' | 'warehouse' | 'products' | 'packaging' | 'certificates' | 'events';
+export type GalleryFolder = 'factory' | 'warehouse' | 'products' | 'packaging' | 'certificates' | 'events' | 'homepage_hero';
 
 export type QuoteStatus = 'pending' | 'contacted' | 'closed';
 

@@ -1,39 +1,40 @@
 import { motion } from 'framer-motion';
+import { Building2, Leaf, ShieldCheck, FileText, Award } from 'lucide-react';
 
 const CERTIFICATIONS = [
   {
     code: 'APEDA',
     fullName: 'Agricultural & Processed Food Export Authority',
     authority: 'Government of India',
-    icon: '🏛️',
+    icon: <Building2 className="w-6 h-6" />,
     badge: 'Verified Exporter',
   },
   {
     code: 'Spices Board',
     fullName: 'Spices Board Registration',
     authority: 'Ministry of Commerce & Industry',
-    icon: '🌿',
+    icon: <Leaf className="w-6 h-6" />,
     badge: 'Govt. Authenticated',
   },
   {
     code: 'FSSAI',
     fullName: 'Food Safety Standards Authority',
     authority: 'FSSAI No. 11322007000342',
-    icon: '🛡️',
+    icon: <ShieldCheck className="w-6 h-6" />,
     badge: 'Food Safety Passed',
   },
   {
     code: 'IEC',
     fullName: 'Import Export Code',
     authority: 'DGFT · Ministry of Commerce',
-    icon: '📜',
+    icon: <FileText className="w-6 h-6" />,
     badge: 'Licensed Trader',
   },
   {
     code: 'ISO / HACCP',
     fullName: 'Hazard Analysis Critical Control Points',
     authority: 'International Standards',
-    icon: '🏅',
+    icon: <Award className="w-6 h-6" />,
     badge: 'ISO Compliant',
   },
 ];
@@ -88,7 +89,7 @@ export default function GlobalStandards() {
               className="group relative rounded-2xl bg-white border border-stone-200 p-6 hover:border-[#C5A046]/40 hover:shadow-xl transition-all duration-400 flex flex-col items-center text-center"
             >
               {/* Icon */}
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#FAF8F5] text-2xl group-hover:border-[#C5A046]/60 group-hover:bg-[#FDF9F0] transition-colors">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#FAF8F5] text-[#A18637] group-hover:border-[#C5A046]/60 group-hover:bg-[#FDF9F0] group-hover:text-[#C5A046] transition-colors">
                 {cert.icon}
               </div>
 

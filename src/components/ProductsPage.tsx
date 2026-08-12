@@ -151,9 +151,7 @@ type CatalogueItem = typeof PRODUCTS_CATALOGUE[0];
 
 const FILTER_TABS = [
   { id: 'all', label: 'All Grades' },
-  { id: 'flagship', label: 'Flagship & Premium' },
   { id: 'standard', label: 'Export & Commercial' },
-  { id: 'industrial', label: 'Milling & Industrial' },
 ];
 
 const SORT_OPTIONS = [
