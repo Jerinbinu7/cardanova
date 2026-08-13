@@ -130,7 +130,7 @@ export default function ExportExperience() {
       {/* Story Banner */}
       <div className="relative h-[70vh] min-h-[500px] overflow-hidden flex items-center justify-center">
         <img
-          src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?q=80&w=2070&auto=format&fit=crop"
+          src="/images/export-experience-bg.jpg"
           alt="Idukki Cardamom Estate"
           className="absolute inset-0 h-full w-full object-cover animate-slow-zoom brightness-[0.35]"
         />

@@ -12,25 +12,25 @@ interface HeroProps {
 
 const HERO_SLIDES = [
   {
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop',
+    image: '/images/cardamom-hero-1.jpg',
     alt: 'Premium green cardamom pods from Idukki, Kerala — Cardanova Spices flagship grade',
     headline: "The World's Finest",
     accent: 'Idukki Green Cardamom',
     sub: 'Single-Origin · High Elevation Estates (1,100m) · Kerala, India',
   },
   {
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=2070&auto=format&fit=crop',
-    alt: 'Farmers handpicking cardamom pods at peak ripeness in Kerala spice estates',
-    headline: 'Handpicked by Local Farmers.',
-    accent: 'Graded for Excellence.',
-    sub: 'Direct partnership with 250+ smallholder farming families',
+    image: '/images/cardamom-hero-2.jpg',
+    alt: 'Macro close-up of 8.5mm extra bold green cardamom pods from Idukki Kerala',
+    headline: '8.5mm Extra Bold Pods.',
+    accent: 'Handpicked for Excellence.',
+    sub: 'Direct partnership with 250+ smallholder cardamom farming families',
   },
   {
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=2070&auto=format&fit=crop',
-    alt: 'Vacuum-sealed cardamom export packaging ready for global shipping via Cochin Port',
-    headline: 'Peak Pod Freshness',
+    image: '/images/cardamom-hero-3.jpg',
+    alt: 'Misty lush cardamom plantation in high-altitude Western Ghats Idukki Kerala',
+    headline: 'Peak Aroma & Freshness',
     accent: 'Exported to 30+ Countries',
-    sub: 'Flue-cured & Vacuum Sealed · FOB/CIF Cochin Port',
+    sub: 'Flue-Cured & Vacuum Sealed · FOB/CIF Cochin Port',
   },
 ];
 
