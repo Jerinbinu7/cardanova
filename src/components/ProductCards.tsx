@@ -26,7 +26,7 @@ const CARDAMOM_GRADES = [
     volatile: '>8.5% V/W',
     pricePerKg: 32,
     defaultQtyKg: 25,
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-8.5mm.jpg',
   },
   {
     id: '8.0mm-premium',
@@ -41,7 +41,7 @@ const CARDAMOM_GRADES = [
     volatile: '>8.0% V/W',
     pricePerKg: 28,
     defaultQtyKg: 50,
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-8.0mm.jpg',
   },
   {
     id: '7.5mm-export',
@@ -56,7 +56,7 @@ const CARDAMOM_GRADES = [
     volatile: '>7.5% V/W',
     pricePerKg: 24,
     defaultQtyKg: 100,
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-7.5mm.jpg',
   },
   {
     id: '7.0mm-bold-std',
@@ -71,7 +71,7 @@ const CARDAMOM_GRADES = [
     volatile: '>7.0% V/W',
     pricePerKg: 20,
     defaultQtyKg: 100,
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-7.0mm.jpg',
   },
   {
     id: 'bleached-half',
@@ -86,7 +86,7 @@ const CARDAMOM_GRADES = [
     volatile: '>7.0% V/W',
     pricePerKg: 22,
     defaultQtyKg: 50,
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-bleached.jpg',
   },
 ];
 

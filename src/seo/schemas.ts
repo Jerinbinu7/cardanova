@@ -5,7 +5,7 @@
 
 const SITE_URL = 'https://cardanovaspices.com';
 const BRAND_NAME = 'Cardanova Spices LLP';
-const OG_IMAGE = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop';
+const OG_IMAGE = '/images/cardamom-hero-1.jpg';
 
 // ── 1. Organization Schema (site-wide) ───────────────────────────────────────
 export const organizationSchema = {
@@ -160,7 +160,7 @@ export const productsListSchema = {
         brand: { '@type': 'Brand', name: 'Cardanova Spices' },
         category: 'Green Cardamom / Spices / Export Grade',
         countryOfOrigin: 'IN',
-        image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
+        image: '/images/cardamom-hero-1.jpg',
         offers: {
           '@type': 'Offer',
           url: `${SITE_URL}/#products`,
