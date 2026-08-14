@@ -377,6 +377,15 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
             const mult = getProductGradeMultiplier(p.name, `${sizeStr} ${sizeVal}`, idx);
             const liveInrPrice = Math.round(liveAvg * mult);
 
+            const nameLower = p.name.toLowerCase();
+            let localImg = '/images/cardamom-mixed.jpg';
+            if (nameLower.includes('8.5')) localImg = '/images/cardamom-8.5mm.jpg';
+            else if (nameLower.includes('8.0') || nameLower.includes('8mm')) localImg = '/images/cardamom-8.0mm.jpg';
+            else if (nameLower.includes('7.5') || nameLower.includes('7.5mm')) localImg = '/images/cardamom-7.5mm.jpg';
+            else if (nameLower.includes('7.0') || nameLower.includes('7mm')) localImg = '/images/cardamom-7.0mm.jpg';
+            else if (nameLower.includes('bleach')) localImg = '/images/cardamom-bleached.jpg';
+            else if (nameLower.includes('seed') || nameLower.includes('extract')) localImg = '/images/cardamom-extraction.jpg';
+
             return {
               id: p.id,
               category: (p.category?.slug === 'flagship' ? 'flagship' : p.category?.slug === 'standard' ? 'standard' : 'industrial') as CatalogueItem['category'],
@@ -393,7 +402,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
               hsCode: p.hs_code || '0908.31.10',
               shelfLife: '24 Months',
               applications: p.short_description || p.long_description || 'High-grade single origin green cardamom from Idukki, Kerala',
-              image: p.main_image_url || p.images?.[0]?.url || PRODUCTS_CATALOGUE[idx % PRODUCTS_CATALOGUE.length].image,
+              image: localImg,
               badge: p.export_grade || sizeStr || (p.featured ? 'Flagship Grade' : 'Export Standard'),
               pricePerKg: liveInrPrice,
               rating: 4.5 + (idx % 4) * 0.1,
@@ -445,19 +454,6 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
       getGalleryItems('products_hero').then((items) => {
         if (items && items.length > 0 && items[0].image_url) {
           setHeroBg(items[0].image_url);
-        }
-      });
-
-      getGalleryItems('products').then((prodItems) => {
-        if (prodItems && prodItems.length > 0) {
-          setCatalogue((prev) =>
-            prev.map((item, idx) => {
-              if (prodItems[idx] && prodItems[idx].image_url) {
-                return { ...item, image: prodItems[idx].image_url };
-              }
-              return item;
-            })
-          );
         }
       });
     }).catch(() => {});
