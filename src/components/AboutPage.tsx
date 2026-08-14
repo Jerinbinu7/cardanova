@@ -12,7 +12,7 @@ const FOUNDERS = [
   {
     name: 'Akhilkumar K A',
     position: 'Co-Founder',
-    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+    photo: '/images/founder-akhilkumar.jpg',
     intro:
       'A passionate entrepreneur dedicated to delivering premium-quality spices while building lasting relationships with customers and farmers. With a strong focus on quality, transparency, and innovation, he believes every shipment represents the trust of the Cardanova brand.',
     quote: '"Every shipment carries the trust of our brand and the hard work of Kerala\'s spice farmers."',
@@ -25,7 +25,7 @@ const FOUNDERS = [
   {
     name: 'Amal Babu',
     position: 'Co-Founder',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
+    photo: '/images/founder-amal.jpg',
     intro:
       'Driven by a vision to connect the finest spices of Kerala with international markets, Amal focuses on customer relationships, business growth, and ensuring every buyer experiences the authenticity and reliability that define Cardanova.',
     quote: '"Building a global brand means ensuring every buyer experiences the pure authenticity of our origin."',
@@ -119,7 +119,7 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
     name: 'Akhilkumar K A',
     title: 'Chief Executive Officer & Founder',
     message: 'At Cardanova Spices, our commitment goes beyond exporting premium green cardamom. We are dedicated to upholding the legacy of Kerala spice farming, fostering sustainable agricultural practices, and building relationships of trust with global trade partners.',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+    imageUrl: '/images/founder-akhilkumar.jpg',
   });
 
   const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop');
@@ -135,28 +135,22 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
             name: cms.ceo_name || 'Akhilkumar K A',
             title: cms.ceo_title || 'Chief Executive Officer',
             message: cms.ceo_message || '',
-            imageUrl: cms.ceo_image_url || '',
+            imageUrl: cms.ceo_image_url || '/images/founder-akhilkumar.jpg',
           });
         }
         if (cms.founders && cms.founders.length > 0) {
-          setFounders(cms.founders.map((f: any, idx: number) => {
-            const founderName = f.name?.trim() ? f.name : (idx === 0 ? 'Akhilkumar K A' : idx === 1 ? 'Amal Babu' : `Founder ${idx + 1}`);
-            const defaultPhoto = idx === 0 
-              ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'
-              : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop';
-            return {
-              name: founderName,
-              position: f.position || 'Co-Founder',
-              photo: f.photo !== undefined ? f.photo : defaultPhoto,
-              intro: f.intro || (idx === 0 ? FOUNDERS[0].intro : FOUNDERS[1].intro),
-              quote: f.quote || (idx === 0 ? FOUNDERS[0].quote : FOUNDERS[1].quote),
-              social: {
-                linkedin: f.linkedin || 'https://linkedin.com',
-                facebook: f.facebook || 'https://facebook.com',
-                email: f.email || (idx === 0 ? 'akhilkumar@cardanovaspices.com' : 'amal@cardanovaspices.com'),
-              },
-            };
-          }));
+          setFounders(cms.founders.map((f: any) => ({
+            name: f.name || '',
+            position: f.position || 'Co-Founder',
+            photo: f.photo || '/images/founder-akhilkumar.jpg',
+            intro: f.intro || '',
+            quote: f.quote || '',
+            social: {
+              linkedin: f.linkedin || 'https://linkedin.com',
+              facebook: f.facebook || 'https://facebook.com',
+              email: f.email || '',
+            },
+          })));
         }
       }
     }).catch((e) => {
@@ -201,7 +195,7 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
       >
         {/* Slow Parallax Plantation Image */}
         <motion.img
-          src={heroBg}
+          src="/images/origin-hero-bg.jpg"
           alt="Misty cardamom plantation hills in Idukki, Kerala — the origin of Cardanova spices"
           width={2070}
           height={1380}
@@ -277,7 +271,7 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
             style={{ height: '440px' }}
           >
             <img
-              src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop"
+              src="/images/cardamom-hero-1.jpg"
               alt="Lush cardamom farm in Idukki high ranges, Kerala — Cardanova single-origin estate"
               width={1200}
               height={800}

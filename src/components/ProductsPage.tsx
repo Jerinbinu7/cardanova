@@ -6,7 +6,7 @@ import { getAuctionPrice } from '../services/auctionPriceService';
 import type { CartItem } from './CartDrawer';
 
 interface ProductsPageProps {
-  onOpenQuoteModal: (grade?: string) => void;
+  onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
   onAddToCart?: (item: CartItem) => void;
 }
 
@@ -27,7 +27,7 @@ const PRODUCTS_CATALOGUE = [
     hsCode: '0908.31.10',
     shelfLife: '24 Months',
     applications: 'Luxury Retail, High-End Gourmet, Middle East Coffee Blends, Premium Export',
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/cardamom-8.5mm.jpg',
     badge: '8.5 mm',
     pricePerKg: 2850,
     rating: 4.8,
@@ -49,7 +49,7 @@ const PRODUCTS_CATALOGUE = [
     hsCode: '0908.31.10',
     shelfLife: '24 Months',
     applications: 'Premium Wholesale, Supermarket Labels, Confectionery & Beverage',
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/cardamom-8.0mm.jpg',
     badge: '8.0 mm',
     pricePerKg: 2550,
     rating: 4.5,
@@ -71,7 +71,7 @@ const PRODUCTS_CATALOGUE = [
     hsCode: '0908.31.20',
     shelfLife: '24 Months',
     applications: 'Export Wholesalers, Culinary Repackers, Bakery & Spice Blenders',
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/cardamom-7.5mm.jpg',
     badge: '7.5 mm',
     pricePerKg: 2250,
     rating: 4.4,
@@ -93,7 +93,7 @@ const PRODUCTS_CATALOGUE = [
     hsCode: '0908.31.20',
     shelfLife: '24 Months',
     applications: 'Commercial Kitchens, Institutional Foodservice, Catering Supply',
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/cardamom-7.0mm.jpg',
     badge: '7.0 mm',
     pricePerKg: 1950,
     rating: 4.2,
@@ -115,7 +115,7 @@ const PRODUCTS_CATALOGUE = [
     hsCode: '0908.31.90',
     shelfLife: '18 Months',
     applications: 'Spice Powder Milling, Garam Masala, Tea & Chai Premixes',
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/cardamom-mixed.jpg',
     badge: '6.5–8 mm',
     pricePerKg: 1650,
     rating: 4.0,
@@ -137,7 +137,7 @@ const PRODUCTS_CATALOGUE = [
     hsCode: '0908.32.00',
     shelfLife: '18 Months',
     applications: 'Essential Oil Distillation, Oleoresin Extraction, Pharmaceutical Processing',
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/cardamom-extraction.jpg',
     badge: 'Rej. Pieces',
     pricePerKg: 950,
     rating: 4.1,
@@ -476,12 +476,23 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
 
   return (
     <div className="bg-[#FAF8F5] text-[#112D15] min-h-screen">
+      {drawerProduct && (
+        <SpecDrawer
+          product={drawerProduct}
+          onClose={() => setDrawerProduct(null)}
+          onQuote={() => {
+            onOpenQuoteModal(`${drawerProduct.gradeNum}${drawerProduct.gradeUnit} ${drawerProduct.gradeName}`, drawerProduct.pricePerKg);
+            setDrawerProduct(null);
+          }}
+        />
+      )}
+
       <section
         className="relative overflow-hidden flex flex-col justify-end pt-28 sm:pt-36 pb-12 sm:pb-16 min-h-[420px] w-full"
         aria-labelledby="products-page-title"
       >
         <img
-          src={heroBg}
+          src="/images/cardamom-hero-1.jpg"
           alt="Cardanova Spices premium green cardamom grades catalogue from Idukki, Kerala"
           width={2070}
           height={1380}
@@ -694,7 +705,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
                   key={product.id}
                   product={product}
                   index={i}
-                  onQuote={() => onOpenQuoteModal(`${product.gradeNum}${product.gradeUnit} ${product.gradeName}`)}
+                  onQuote={() => onOpenQuoteModal(`${product.gradeNum}${product.gradeUnit} ${product.gradeName}`, product.pricePerKg)}
                   onAddToCart={onAddToCart}
                 />
               ))}

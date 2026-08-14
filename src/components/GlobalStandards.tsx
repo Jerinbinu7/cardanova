@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Building2, Leaf, ShieldCheck, FileText, Award } from 'lucide-react';
 import { getCertifications } from '../services/certificationsService';
 
-
 const DEFAULT_CERTIFICATIONS = [
   {
     code: 'APEDA',
@@ -153,7 +152,7 @@ export default function GlobalStandards() {
           style={{ height: '340px' }}
         >
           <img
-            src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=2070&auto=format&fit=crop"
+            src="/images/global-standards-bg.jpg"
             alt="Cardanova Export Processing"
             className="h-full w-full object-cover brightness-[0.45]"
           />

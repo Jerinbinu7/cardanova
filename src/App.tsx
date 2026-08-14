@@ -48,8 +48,7 @@ const PAGE_SEO = {
     description:
       'Cardanova Spices LLP — single-origin premium green cardamom, pepper & turmeric from Idukki, Kerala. APEDA-certified B2B spice exporter to 30+ countries. FOB/CIF Cochin Port.',
     canonical: `${SITE_URL}/`,
-    ogImage:
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
+    ogImage: '/images/cardamom-hero-1.jpg',
     keywords:
       'green cardamom export, Kerala cardamom, Idukki cardamom, cardamom wholesaler, spice exporter India, B2B cardamom supplier, premium cardamom Kerala, cardamom FOB CIF Cochin',
     schema: buildSchemaGraph(organizationSchema, localBusinessSchema, websiteSchema, faqSchema),
@@ -59,8 +58,7 @@ const PAGE_SEO = {
     description:
       'Learn about Cardanova Spices LLP — founded by Akhilkumar K A and Amal Babu in Idukki, Kerala. Discover our mission to deliver authentic premium spices to global buyers with trust and transparency.',
     canonical: `${SITE_URL}/#about`,
-    ogImage:
-      'https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1200&auto=format&fit=crop',
+    ogImage: '/images/origin-hero-bg.jpg',
     keywords:
       'Cardanova Spices about, Kerala spice exporters, Idukki cardamom founders, premium spice company India, B2B spice exporter story',
     schema: buildSchemaGraph(organizationSchema, aboutPageSchema, aboutBreadcrumbSchema),
@@ -70,8 +68,7 @@ const PAGE_SEO = {
     description:
       'Complete B2B trade catalogue of single-origin Idukki green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial. MOQ 500kg. FOB/CIF pricing available.',
     canonical: `${SITE_URL}/#products`,
-    ogImage:
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1200&auto=format&fit=crop',
+    ogImage: '/images/cardamom-hero-1.jpg',
     keywords:
       'green cardamom grades, 8.5mm cardamom, extra bold cardamom, cardamom specifications, cardamom export catalogue, Kerala cardamom wholesale, cardamom MOQ, cardamom HS code',
     schema: buildSchemaGraph(organizationSchema, productsListSchema, productsBreadcrumbSchema),
@@ -81,8 +78,7 @@ const PAGE_SEO = {
     description:
       'Discover how Cardanova cardamom travels from mist-covered Idukki estates to global markets. Six transparent steps: cultivation, hand harvesting, flue curing, grading, vacuum sealing, and export to 30+ countries.',
     canonical: `${SITE_URL}/#origin`,
-    ogImage:
-      'https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1200&auto=format&fit=crop',
+    ogImage: '/images/origin-hero-bg.jpg',
     keywords:
       'Idukki cardamom origin, cardamom farming Kerala, flue cured cardamom, cardamom supply chain, farm to freight spice, Cardanova origin story, cardamom export process',
     schema: buildSchemaGraph(organizationSchema, originBreadcrumbSchema),
@@ -200,9 +196,11 @@ export default function App() {
 
 
   const [isCartCheckout, setIsCartCheckout] = useState(false);
+  const [selectedPricePerKg, setSelectedPricePerKg] = useState<number | undefined>(undefined);
 
-  const handleOpenQuoteModal = (grade?: string) => {
+  const handleOpenQuoteModal = (grade?: string, pricePerKg?: number) => {
     if (grade) setSelectedGrade(grade);
+    setSelectedPricePerKg(pricePerKg);
     setIsCartCheckout(false);
     setIsQuoteOpen(true);
   };
@@ -382,6 +380,7 @@ export default function App() {
             setIsCartCheckout(false);
           }}
           defaultGrade={selectedGrade}
+          defaultPricePerKg={selectedPricePerKg}
           cartItems={isCartCheckout ? cartItems : []}
           onSuccess={() => {
             if (isCartCheckout) {
