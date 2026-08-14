@@ -139,18 +139,24 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
           });
         }
         if (cms.founders && cms.founders.length > 0) {
-          setFounders(cms.founders.map((f: any) => ({
-            name: f.name || '',
-            position: f.position || 'Co-Founder',
-            photo: f.photo || '/images/founder-akhilkumar.jpg',
-            intro: f.intro || '',
-            quote: f.quote || '',
-            social: {
-              linkedin: f.linkedin || 'https://linkedin.com',
-              facebook: f.facebook || 'https://facebook.com',
-              email: f.email || '',
-            },
-          })));
+          setFounders(cms.founders.map((f: any, idx: number) => {
+            const founderName = f.name?.trim() ? f.name : (idx === 0 ? 'Akhilkumar K A' : idx === 1 ? 'Amal Babu' : `Founder ${idx + 1}`);
+            const defaultPhoto = idx === 0 
+              ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'
+              : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop';
+            return {
+              name: founderName,
+              position: f.position || 'Co-Founder',
+              photo: f.photo !== undefined ? f.photo : defaultPhoto,
+              intro: f.intro || (idx === 0 ? FOUNDERS[0].intro : FOUNDERS[1].intro),
+              quote: f.quote || (idx === 0 ? FOUNDERS[0].quote : FOUNDERS[1].quote),
+              social: {
+                linkedin: f.linkedin || 'https://linkedin.com',
+                facebook: f.facebook || 'https://facebook.com',
+                email: f.email || (idx === 0 ? 'akhilkumar@cardanovaspices.com' : 'amal@cardanovaspices.com'),
+              },
+            };
+          }));
         }
       }
     }).catch((e) => {
@@ -195,7 +201,7 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
       >
         {/* Slow Parallax Plantation Image */}
         <motion.img
-          src="/images/origin-hero-bg.jpg"
+          src={heroBg}
           alt="Misty cardamom plantation hills in Idukki, Kerala — the origin of Cardanova spices"
           width={2070}
           height={1380}

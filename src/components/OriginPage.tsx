@@ -258,7 +258,7 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
         aria-labelledby="origin-page-title"
       >
         <motion.img
-          src="/images/origin-hero-bg.jpg"
+          src={heroBg}
           alt="High-altitude cardamom plantations in the mist-covered hills of Idukki, Kerala"
           width={2070}
           height={1380}

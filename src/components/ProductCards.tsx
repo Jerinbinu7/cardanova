@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
-import { getProducts, getFeaturedProducts } from '../services/productsService';
+import { getFeaturedProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
 import { ShoppingCart, ArrowRight } from 'lucide-react';
 
@@ -261,6 +261,15 @@ export default function ProductCards({
         if (prods && prods.length > 0) {
           const mapped = prods.map((p, idx) => {
             const sizeStr = p.grades?.[0]?.size_mm || '';
+            const nameLower = p.name.toLowerCase();
+            let localImg = '/images/cardamom-mixed.jpg';
+            if (nameLower.includes('8.5')) localImg = '/images/cardamom-8.5mm.jpg';
+            else if (nameLower.includes('8.0') || nameLower.includes('8mm')) localImg = '/images/cardamom-8.0mm.jpg';
+            else if (nameLower.includes('7.5') || nameLower.includes('7.5mm')) localImg = '/images/cardamom-7.5mm.jpg';
+            else if (nameLower.includes('7.0') || nameLower.includes('7mm')) localImg = '/images/cardamom-7.0mm.jpg';
+            else if (nameLower.includes('bleach')) localImg = '/images/cardamom-bleached.jpg';
+            else if (nameLower.includes('seed') || nameLower.includes('extract')) localImg = '/images/cardamom-extraction.jpg';
+
             return {
               id: p.id,
               gradeNum: sizeStr ? sizeStr.replace('mm', '') : String(8.5 - idx * 0.5),
@@ -274,7 +283,7 @@ export default function ProductCards({
               volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
               pricePerKg: getGradeInrPrice(p.name, sizeStr, liveAvg),
               defaultQtyKg: 25,
-              image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
+              image: localImg,
             };
           });
           setCards(mapped);
