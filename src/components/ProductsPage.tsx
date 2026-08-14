@@ -8,7 +8,7 @@ import type { GradeComparisonRow } from '../types/database';
 import type { CartItem } from './CartDrawer';
 
 interface ProductsPageProps {
-  onOpenQuoteModal: (grade?: string) => void;
+  onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
   onAddToCart?: (item: CartItem) => void;
 }
 
@@ -588,7 +588,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
           product={drawerProduct}
           onClose={() => setDrawerProduct(null)}
           onQuote={() => {
-            onOpenQuoteModal(`${drawerProduct.gradeNum}${drawerProduct.gradeUnit} ${drawerProduct.gradeName}`);
+            onOpenQuoteModal(`${drawerProduct.gradeNum}${drawerProduct.gradeUnit} ${drawerProduct.gradeName}`, drawerProduct.pricePerKg);
             setDrawerProduct(null);
           }}
         />
@@ -813,7 +813,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
                   key={product.id}
                   product={product}
                   index={i}
-                  onQuote={() => onOpenQuoteModal(`${product.gradeNum}${product.gradeUnit} ${product.gradeName}`)}
+                  onQuote={() => onOpenQuoteModal(`${product.gradeNum}${product.gradeUnit} ${product.gradeName}`, product.pricePerKg)}
                   onAddToCart={onAddToCart}
                   onOpenSpecs={() => setDrawerProduct(product)}
                 />

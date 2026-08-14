@@ -196,9 +196,11 @@ export default function App() {
 
 
   const [isCartCheckout, setIsCartCheckout] = useState(false);
+  const [selectedPricePerKg, setSelectedPricePerKg] = useState<number | undefined>(undefined);
 
-  const handleOpenQuoteModal = (grade?: string) => {
+  const handleOpenQuoteModal = (grade?: string, pricePerKg?: number) => {
     if (grade) setSelectedGrade(grade);
+    setSelectedPricePerKg(pricePerKg);
     setIsCartCheckout(false);
     setIsQuoteOpen(true);
   };
@@ -378,6 +380,7 @@ export default function App() {
             setIsCartCheckout(false);
           }}
           defaultGrade={selectedGrade}
+          defaultPricePerKg={selectedPricePerKg}
           cartItems={isCartCheckout ? cartItems : []}
           onSuccess={() => {
             if (isCartCheckout) {

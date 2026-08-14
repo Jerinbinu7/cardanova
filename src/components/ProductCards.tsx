@@ -7,7 +7,7 @@ import { getAuctionPrice } from '../services/auctionPriceService';
 import { ShoppingCart, ArrowRight } from 'lucide-react';
 
 interface ProductCardsProps {
-  onOpenQuoteModal: (grade?: string) => void;
+  onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
   onNavigateToProducts: () => void;
   onAddToCart?: (item: CartItem) => void;
 }
@@ -98,7 +98,7 @@ function GradeCard({
 }: {
   item: typeof CARDAMOM_GRADES[0];
   index: number;
-  onOpenQuoteModal: (g?: string) => void;
+  onOpenQuoteModal: (g?: string, pricePerKg?: number) => void;
   onAddToCart?: (item: CartItem) => void;
 }) {
   const [qtyKg, setQtyKg] = useState(item.defaultQtyKg);
@@ -236,7 +236,7 @@ function GradeCard({
             Cart
           </button>
           <button
-            onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`)}
+            onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`, item.pricePerKg)}
             className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             RFQ

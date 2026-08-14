@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
-import { getGalleryItems } from '../services/galleryService';
 import { getHomepageContent } from '../services/homepageService';
 
 interface HeroProps {
@@ -46,7 +45,7 @@ const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
 export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }: HeroProps) {
   const [slide, setSlide] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [slides, setSlides] = useState(HERO_SLIDES);
+  const slides = HERO_SLIDES;
   const [primaryCtaText, setPrimaryCtaText] = useState('Request a Quote →');
   const [secondaryCtaText, setSecondaryCtaText] = useState('View Catalogue ↓');
 
@@ -55,56 +54,28 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   const SLIDE_DURATION = 6000;
 
   useEffect(() => {
-    // Fetch CMS content from Supabase
+    // Fetch CMS CTA text overrides if set
     getHomepageContent().then((cms) => {
-      let baseHeadline = HERO_SLIDES[0].headline;
-      let baseSubtext = HERO_SLIDES[0].sub;
-
       if (cms) {
-        if (cms.hero_title) baseHeadline = cms.hero_title;
-        if (cms.hero_subtitle) baseSubtext = cms.hero_subtitle;
         if (cms.hero_cta_primary_text) setPrimaryCtaText(cms.hero_cta_primary_text);
         if (cms.hero_cta_secondary_text) setSecondaryCtaText(cms.hero_cta_secondary_text);
       }
-
-      // Fetch dynamic hero images from gallery if any
-      getGalleryItems('homepage_hero').then((galleryData) => {
-        if (galleryData && galleryData.length > 0) {
-          const dynamicSlides = galleryData.map((item, index) => ({
-            image: item.image_url,
-            alt: item.title,
-            headline: index === 0 ? baseHeadline : item.title,
-            accent: index === 0 ? 'Single-Origin Kerala Spices' : '',
-            sub: index === 0 ? baseSubtext : 'Cardanova Spices',
-          }));
-          setSlides(dynamicSlides);
-        } else {
-          // Fallback to default with CMS overrides
-          setSlides([
-            {
-              image: HERO_SLIDES[0].image,
-              alt: HERO_SLIDES[0].alt,
-              headline: baseHeadline,
-              accent: 'Single-Origin Kerala Spices',
-              sub: baseSubtext,
-            },
-            HERO_SLIDES[1],
-            HERO_SLIDES[2],
-          ]);
-        }
-      }).catch((e) => {
-        console.warn('Failed to fetch hero images', e);
-      });
     }).catch((e) => {
       console.warn('Failed to fetch homepage CMS content', e);
     });
   }, []);
 
 
+  const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
   const { scrollY } = useScroll();
-  const imgY = useTransform(scrollY, [0, 600], [0, 80]);
-  const contentY = useTransform(scrollY, [0, 400], [0, -60]);
-  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const rawImgY = useTransform(scrollY, [0, 600], [0, 80]);
+  const rawContentY = useTransform(scrollY, [0, 400], [0, -60]);
+  const rawOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+
+  const imgY = isTouch ? 0 : rawImgY;
+  const contentY = isTouch ? 0 : rawContentY;
+  const opacity = isTouch ? 1 : rawOpacity;
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -235,8 +206,8 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
               transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <h1
-                className="font-display font-light leading-[0.92] tracking-[-0.02em] text-[#FAF8F5]"
-                style={{ fontSize: 'clamp(2.6rem, 8vw, 8rem)' }}
+                className="font-display font-light leading-[0.95] tracking-[-0.02em] text-[#FAF8F5]"
+                style={{ fontSize: 'clamp(2.5rem, 6.5vw, 6.4rem)' }}
               >
                 {slides[slide]?.headline || HERO_SLIDES[0].headline}
                 <br />
