@@ -15,7 +15,7 @@ const PROCESS_STEPS = [
     subtitle: 'Idukki High Ranges · 1,100m Elevation',
     body: `Cardanova's cardamom originates from the misty high-altitude estates of Idukki, Kerala — one of the world's most biodiverse spice-growing regions. At elevations exceeding 1,100 metres, cool temperatures, consistent rainfall, and mineral-rich volcanic soil create the perfect conditions for premium-grade green cardamom with naturally intense volatile oil content exceeding 8.5% V/W.`,
     detail: 'Our 120+ acres of estate land are intercropped with shade trees — maintaining soil health and natural biodiversity without synthetic inputs.',
-    image: 'https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1400&auto=format&fit=crop',
+    image: '/images/origin-hero-bg.jpg',
     accent: '#4A7C59',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30,7 +30,7 @@ const PROCESS_STEPS = [
     subtitle: 'September – December · Harvest Season',
     body: `Every cardamom pod is harvested by hand — individually plucked at the precise moment of peak maturity, when volatile oil concentration and pod colour are at their optimal. Our network of 250+ trusted smallholder farming families follows strict harvesting protocols: only pods that pass a visual ripeness check are collected per plant, preventing any premature or over-mature pods from entering the supply chain.`,
     detail: 'Harvesting by hand ensures zero mechanical damage to the pod skin — critical for preserving the essential oils locked within.',
-    image: 'https://images.unsplash.com/photo-1529693662653-9d480530a697?q=80&w=1400&auto=format&fit=crop',
+    image: '/images/origin-harvesting.jpg',
     accent: '#C5A046',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +45,7 @@ const PROCESS_STEPS = [
     subtitle: 'Controlled Temperature · 40–55°C',
     body: `Immediately after harvest, pods undergo our proprietary flue-curing process — a temperature-controlled curing method that maintains the vibrant natural green colour characteristic of top-grade cardamom. Unlike sun-drying (which bleaches pods and degrades oils), flue-curing at 40–55°C preserves the natural chlorophyll pigment and locks in volatile oil concentrations above international export benchmarks.`,
     detail: 'Pods are spread on raised bamboo curing beds inside curing chambers — ensuring uniform airflow and consistent moisture reduction to under 9.5%.',
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1400&auto=format&fit=crop',
+    image: '/images/cardamom-hero-1.jpg',
     accent: '#A18637',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,7 +61,7 @@ const PROCESS_STEPS = [
     subtitle: 'Sieve-Graded · 7.0mm – 8.5mm+',
     body: `Post-curing, every batch passes through our multi-stage grading facility. Pods are first mechanically sieved into size classifications (8.5mm, 8.0mm, 7.5mm, 7.0mm), then optically sorted to remove any discoloured, broken, or off-grade pods. Moisture content is independently verified to remain below 9.5% — meeting EU, US, and GCC food safety import standards. Each grade is batch-coded and traceable to its source farm.`,
     detail: 'Independent lab testing of volatile oil content (>7.5% V/W), moisture levels, and microbial counts is conducted on every export batch.',
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1400&auto=format&fit=crop',
+    image: '/images/export-processing.jpg',
     accent: '#C5A046',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,7 +76,7 @@ const PROCESS_STEPS = [
     subtitle: 'Multi-Layer Foil · 5kg – 25kg Packs',
     body: `Graded cardamom is immediately transferred to our food-grade vacuum packaging line — preventing any post-grade oxidation or moisture absorption. Each unit is sealed using multi-layer aluminium foil vacuum packs that maintain an airtight, oxygen-free environment, preserving volatile oil content (>7.5% V/W) and vibrant green colour for up to 24 months from the packing date. Pack sizes range from 5 kg retail-ready pouches to 25 kg bulk jute-lined bags.`,
     detail: 'All packaging materials are food-grade certified. Each pack is labelled with batch number, grade, weight, origin, and packing date for full traceability.',
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1400&auto=format&fit=crop',
+    image: '/images/cardamom-8.5mm.jpg',
     accent: '#4A7C59',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,7 +91,7 @@ const PROCESS_STEPS = [
     subtitle: 'FCL / LCL · FOB & CIF · Cochin Port',
     body: `Cardanova exports containerized shipments via Cochin International Container Transshipment Terminal — one of India's busiest and most efficient ports for spice exports. We offer both FCL (Full Container Load) and LCL (Less than Container Load) options, with FOB and CIF pricing available. Every shipment is accompanied by a complete documentation package: Phytosanitary Certificate, Certificate of Origin, FSSAI compliance, Health Certificate, and all regulatory paperwork required for EU, US, GCC, and Asian import clearance.`,
     detail: 'Our in-house trade documentation team coordinates with freight forwarders, customs brokers, and inspection agencies to ensure zero shipment delays.',
-    image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=1400&auto=format&fit=crop',
+    image: '/images/global-standards-bg.jpg',
     accent: '#C5A046',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

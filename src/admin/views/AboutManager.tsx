@@ -23,7 +23,7 @@ export default function AboutManager() {
             {
               name: 'Akhilkumar K A',
               position: 'Co-Founder',
-              photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+              photo: '/images/founder-akhilkumar.jpg',
               intro: 'A passionate entrepreneur dedicated to delivering premium-quality spices while building lasting relationships with customers and farmers. With a strong focus on quality, transparency, and innovation, he believes every shipment represents the trust of the Cardanova brand.',
               quote: '"Every shipment carries the trust of our brand and the hard work of Kerala\'s spice farmers."',
               linkedin: 'https://linkedin.com',
@@ -33,7 +33,7 @@ export default function AboutManager() {
             {
               name: 'Amal Babu',
               position: 'Co-Founder',
-              photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
+              photo: '/images/founder-amal.jpg',
               intro: 'Driven by a vision to connect the finest spices of Kerala with international markets, Amal focuses on customer relationships, business growth, and ensuring every buyer experiences the authenticity and reliability that define Cardanova.',
               quote: '"Building a global brand means ensuring every buyer experiences the pure authenticity of our origin."',
               linkedin: 'https://linkedin.com',

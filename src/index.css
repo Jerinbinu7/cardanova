@@ -41,6 +41,16 @@ html {
   }
 }
 
+/* Mobile Hardware Acceleration & Anti-Flicker */
+@media (max-width: 1024px) {
+  header, section, img, .card-luxury {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
 /* Native cursor configuration */
 a, button, [role="button"], input, select, textarea {
   cursor: pointer;

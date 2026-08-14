@@ -25,7 +25,7 @@ export default function About() {
         style={reducedMotion ? {} : { y: bgY }}
       >
         <img
-          src="https://images.pexels.com/photos/32262495/pexels-photo-32262495.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600"
+          src="/images/about-parallax-bg.jpg"
           alt=""
           className="h-[120%] w-full object-cover"
           loading="lazy"
@@ -38,7 +38,7 @@ export default function About() {
           <ScrollReveal direction="left" distance={40}>
             <div className="gallery-image group relative overflow-hidden rounded-2xl shadow-2xl" data-cursor="View">
               <img
-                src="https://images.pexels.com/photos/32313269/pexels-photo-32313269.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=700&w=900"
+                src="/images/about-plantation.jpg"
                 alt="Misty spice plantations in Idukki hills"
                 className="h-[400px] w-full object-cover transition-transform duration-700 group-hover:scale-105 lg:h-[500px]"
                 loading="lazy"

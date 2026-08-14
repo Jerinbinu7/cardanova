@@ -56,7 +56,7 @@ export default function Testimonial() {
           <div className="mt-10 flex flex-col items-center gap-4">
             <div className="h-14 w-14 overflow-hidden rounded-full bg-emerald-800 ring-2 ring-emerald-500/30">
               <img
-                src="https://images.pexels.com/photos/20344341/pexels-photo-20344341.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=200&w=200"
+                src="/images/founder-rajeev.jpg"
                 alt="Founder portrait"
                 className="h-full w-full object-cover"
                 loading="lazy"

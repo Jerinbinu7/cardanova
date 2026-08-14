@@ -32,7 +32,7 @@ export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CT
     <section className="relative overflow-hidden" style={{ minHeight: '560px', height: 'auto' }}>
       {/* Full-bleed background */}
       <img
-        src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2070&auto=format&fit=crop"
+        src="/images/cardamom-hero-1.jpg"
         alt="Cardamom"
         className="absolute inset-0 h-full w-full object-cover animate-slow-zoom brightness-[0.3]"
       />

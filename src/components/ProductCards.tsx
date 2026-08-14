@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
-import { getProducts, getFeaturedProducts } from '../services/productsService';
+import { getFeaturedProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
 import { ShoppingCart, ArrowRight } from 'lucide-react';
 
 interface ProductCardsProps {
-  onOpenQuoteModal: (grade?: string) => void;
+  onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
   onNavigateToProducts: () => void;
   onAddToCart?: (item: CartItem) => void;
 }
@@ -26,7 +26,7 @@ const CARDAMOM_GRADES = [
     volatile: '>8.5% V/W',
     pricePerKg: 3500,
     defaultQtyKg: 25,
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-8.5mm.jpg',
   },
   {
     id: '8.0mm-premium',
@@ -41,7 +41,7 @@ const CARDAMOM_GRADES = [
     volatile: '>8.0% V/W',
     pricePerKg: 3200,
     defaultQtyKg: 50,
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-8.0mm.jpg',
   },
   {
     id: '7.5mm-export',
@@ -56,7 +56,7 @@ const CARDAMOM_GRADES = [
     volatile: '>7.5% V/W',
     pricePerKg: 2900,
     defaultQtyKg: 100,
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-7.5mm.jpg',
   },
   {
     id: '7.0mm-bold-std',
@@ -71,7 +71,7 @@ const CARDAMOM_GRADES = [
     volatile: '>7.0% V/W',
     pricePerKg: 2600,
     defaultQtyKg: 100,
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-7.0mm.jpg',
   },
   {
     id: 'bleached-half',
@@ -86,7 +86,7 @@ const CARDAMOM_GRADES = [
     volatile: '>7.0% V/W',
     pricePerKg: 2200,
     defaultQtyKg: 50,
-    image: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1000&auto=format&fit=crop',
+    image: '/images/cardamom-bleached.jpg',
   },
 ];
 
@@ -98,7 +98,7 @@ function GradeCard({
 }: {
   item: typeof CARDAMOM_GRADES[0];
   index: number;
-  onOpenQuoteModal: (g?: string) => void;
+  onOpenQuoteModal: (g?: string, pricePerKg?: number) => void;
   onAddToCart?: (item: CartItem) => void;
 }) {
   const [qtyKg, setQtyKg] = useState(item.defaultQtyKg);
@@ -211,8 +211,8 @@ function GradeCard({
             Cart
           </button>
           <button
-            onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`)}
-            className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5 font-semibold"
+            onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`, item.pricePerKg)}
+            className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             RFQ
             <ArrowRight className="w-3.5 h-3.5" />
