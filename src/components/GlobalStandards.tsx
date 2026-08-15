@@ -119,7 +119,7 @@ export default function GlobalStandards() {
               </div>
 
               {/* Code */}
-              <span className="label-caps text-[#A18637] mb-1">{cert.code}</span>
+              <span translate="no" className="notranslate label-caps text-[#A18637] mb-1">{cert.code}</span>
 
               {/* Full name */}
               <h3 className="font-display text-base font-light text-[#112D15] leading-snug">
@@ -127,7 +127,7 @@ export default function GlobalStandards() {
               </h3>
 
               {/* Authority */}
-              <p className="mt-2 text-[10px] text-stone-400 font-light">{cert.authority}</p>
+              <p translate="no" className="notranslate mt-2 text-[10px] text-stone-400 font-light">{cert.authority}</p>
 
               {/* Verified badge */}
               <div className="mt-4 flex items-center gap-1.5 rounded-full border border-[#A18637]/30 bg-[#FAF8F5] px-3 py-1">

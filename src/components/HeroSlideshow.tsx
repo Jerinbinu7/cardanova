@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
 import { getHomepageContent } from '../services/homepageService';
+import { getGalleryItems } from '../services/galleryService';
 
 interface HeroProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -45,13 +46,19 @@ const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
 export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }: HeroProps) {
   const [slide, setSlide] = useState(0);
   const [progress, setProgress] = useState(0);
-  const slides = HERO_SLIDES;
+  const [slides, setSlides] = useState(HERO_SLIDES);
   const [primaryCtaText, setPrimaryCtaText] = useState('Request a Quote →');
   const [secondaryCtaText, setSecondaryCtaText] = useState('View Catalogue ↓');
 
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
   const SLIDE_DURATION = 6000;
+
+  // When Google Translate is active, freeze the hero on slide 0.
+  // AnimatePresence unmount/remount cycles replace translated DOM nodes with
+  // fresh English text — freezing prevents the translation from being lost.
+  const isTranslationActive = typeof document !== 'undefined' &&
+    document.cookie.includes('googtrans=/en/');
 
   useEffect(() => {
     // Fetch CMS CTA text overrides if set
@@ -62,6 +69,25 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
       }
     }).catch((e) => {
       console.warn('Failed to fetch homepage CMS content', e);
+    });
+
+    // Fetch dynamic hero images from gallery while preserving design copy
+    getGalleryItems('homepage_hero').then((galleryData) => {
+      if (galleryData && galleryData.length > 0) {
+        const dynamicSlides = galleryData.map((item, index) => {
+          const originalSlide = HERO_SLIDES[index % HERO_SLIDES.length];
+          return {
+            image: item.image_url,
+            alt: item.title || originalSlide.alt,
+            headline: originalSlide.headline,
+            accent: originalSlide.accent,
+            sub: originalSlide.sub,
+          };
+        });
+        setSlides(dynamicSlides);
+      }
+    }).catch((e) => {
+      console.warn('Failed to fetch hero images', e);
     });
   }, []);
 
@@ -78,7 +104,9 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   const opacity = isTouch ? 1 : rawOpacity;
 
   useEffect(() => {
-    if (reducedMotion) return;
+    // Don't cycle slides when: reduced motion OR translation is active
+    // (cycling unmounts/remounts nodes, losing Google Translate mutations)
+    if (reducedMotion || isTranslationActive) return;
 
     let startTime: number;
     let raf: number;
@@ -109,7 +137,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
       clearInterval(progressInterval);
       cancelAnimationFrame(raf);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, isTranslationActive]);
 
   useEffect(() => {
     setProgress(0);

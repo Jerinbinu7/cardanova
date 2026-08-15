@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from './hooks/useReducedMotion';
@@ -32,12 +32,12 @@ import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import QuoteModal from './components/QuoteModal';
 import CartDrawer, { CartItem } from './components/CartDrawer';
-// Admin Routes (lazy-friendly imports)
-import AdminPortal from './admin/AdminPortal';
-import AdminLayout from './admin/AdminLayout';
-import AdminLogin from './admin/AdminLogin';
-import AdminForgotPassword from './admin/AdminForgotPassword';
-import AdminResetPassword from './admin/AdminResetPassword';
+// Admin Routes — lazy-loaded so public visitors never download admin JS
+const AdminPortal         = lazy(() => import('./admin/AdminPortal'));
+const AdminLayout         = lazy(() => import('./admin/AdminLayout'));
+const AdminLogin          = lazy(() => import('./admin/AdminLogin'));
+const AdminForgotPassword = lazy(() => import('./admin/AdminForgotPassword'));
+const AdminResetPassword  = lazy(() => import('./admin/AdminResetPassword'));
 
 const SITE_URL = 'https://cardanovaspices.com';
 
@@ -250,13 +250,38 @@ export default function App() {
   return (
     <Routes>
       {/* ── Admin Routes — all under /admin ── */}
-      <Route path="/admin/*" element={<AdminPortal />}>
-        <Route index element={<AdminLayout />} />
-        <Route path="*" element={<AdminLayout />} />
+      {/* Suspense boundary: admin JS chunk loads only when these routes are visited */}
+      <Route path="/admin/*" element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminPortal />
+        </Suspense>
+      }>
+        <Route index element={
+          <Suspense fallback={<PageLoader />}>
+            <AdminLayout />
+          </Suspense>
+        } />
+        <Route path="*" element={
+          <Suspense fallback={<PageLoader />}>
+            <AdminLayout />
+          </Suspense>
+        } />
       </Route>
-      <Route path="/admin/login"            element={<AdminLogin />} />
-      <Route path="/admin/forgot-password"  element={<AdminForgotPassword />} />
-      <Route path="/admin/reset-password"   element={<AdminResetPassword />} />
+      <Route path="/admin/login" element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminLogin />
+        </Suspense>
+      } />
+      <Route path="/admin/forgot-password" element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminForgotPassword />
+        </Suspense>
+      } />
+      <Route path="/admin/reset-password" element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminResetPassword />
+        </Suspense>
+      } />
 
       {/* ── Public Site — all other routes ── */}
       <Route path="*" element={<>

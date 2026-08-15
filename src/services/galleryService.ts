@@ -3,7 +3,7 @@ import type { GalleryItemRow, GalleryFolder } from '../types/database';
 import { uploadFile, deleteFile } from './storageService';
 
 const SUBSECTION_FOLDER_MAP: Record<string, GalleryFolder> = {
-  homepage_hero: 'homepage_hero',
+  homepage_hero: 'events',
   homepage_why_us: 'events',
   about_hero: 'factory',
   about_founders: 'factory',

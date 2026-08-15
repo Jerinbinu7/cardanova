@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Eye, EyeOff, Star, X, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, EyeOff, Star, X, Search, ChevronUp, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   getProducts, createProduct, updateProduct, deleteProduct,
@@ -118,6 +118,35 @@ export default function ProductManager() {
     catch (e: any) { toast.error(e.message); }
   };
 
+  const handleMovePosition = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= filtered.length) return;
+
+    const itemA = filtered[index];
+    const itemB = filtered[targetIndex];
+
+    const orderA = itemA.display_order ?? (index + 1);
+    const orderB = itemB.display_order ?? (targetIndex + 1);
+
+    let newOrderA = orderB;
+    let newOrderB = orderA;
+    if (newOrderA === newOrderB) {
+      newOrderA = direction === 'up' ? orderB - 1 : orderB + 1;
+      newOrderB = orderA;
+    }
+
+    try {
+      await Promise.all([
+        updateProduct(itemA.id, { display_order: newOrderA }),
+        updateProduct(itemB.id, { display_order: newOrderB }),
+      ]);
+      toast.success('Product position updated!');
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   const handleUploadImage = async (files: File[]) => {
     if (!editing?.id) { toast.error('Save the product first to upload images.'); return; }
     setUploadProgress(10);
@@ -213,6 +242,7 @@ export default function ProductManager() {
           <table className="w-full text-left text-sm text-[#FAF8F5]">
             <thead className="bg-[#071309]/80 text-[#C5A046] uppercase text-[11px] tracking-wider border-b border-[#C5A046]/20">
               <tr>
+                <th className="p-4 text-center">Pos</th>
                 <th className="p-4">Product</th>
                 <th className="p-4 hidden md:table-cell">Category</th>
                 <th className="p-4 hidden lg:table-cell">Grades</th>
@@ -223,11 +253,38 @@ export default function ProductManager() {
             </thead>
             <tbody className="divide-y divide-[#C5A046]/10">
               {loading
-                ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} cols={6} />)
+                ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} cols={7} />)
                 : filtered.length === 0
-                  ? <tr><td colSpan={6} className="text-center py-12 text-gray-400 text-sm">No products found.</td></tr>
-                  : filtered.map((p) => (
+                  ? <tr><td colSpan={7} className="text-center py-12 text-gray-400 text-sm">No products found.</td></tr>
+                  : filtered.map((p, index) => (
                     <tr key={p.id} className="hover:bg-[#C5A046]/5 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center justify-center gap-1">
+                          <span translate="no" className="w-6 h-6 flex items-center justify-center font-mono text-xs text-[#C5A046] font-bold bg-[#C5A046]/10 rounded border border-[#C5A046]/30 shrink-0">
+                            {index + 1}
+                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => handleMovePosition(index, 'up')}
+                              className="p-0.5 rounded bg-[#071309] hover:bg-[#C5A046]/20 text-[#C5A046] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                              title="Move position up"
+                            >
+                              <ChevronUp className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === filtered.length - 1}
+                              onClick={() => handleMovePosition(index, 'down')}
+                              className="p-0.5 rounded bg-[#071309] hover:bg-[#C5A046]/20 text-[#C5A046] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                              title="Move position down"
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           {(p.main_image_url || p.images?.[0]?.url)

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
+import TranslateHint from './TranslateHint';
 
 interface HeaderProps {
   activeTab: 'home' | 'about' | 'products' | 'origin';
@@ -14,31 +15,9 @@ interface HeaderProps {
 export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cartCount = 0, onOpenCart }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [initialVisible, setInitialVisible] = useState(true);
-  const [tabSwitchVisible, setTabSwitchVisible] = useState(false);
-  const [scrollUpVisible, setScrollUpVisible] = useState(true);
-  const [atTop, setAtTop] = useState(true);
-
   const reducedMotion = useReducedMotion();
-  const lastScrollY = useRef(0);
-  const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-
-  // Reveal header menu bar for 4s whenever switching active tabs
-  useEffect(() => {
-    setTabSwitchVisible(true);
-    const timer = setTimeout(() => {
-      setTabSwitchVisible(false);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [activeTab]);
 
   useEffect(() => {
-    // Show menu bar on site entrance for 4 seconds
-    const entranceTimer = setTimeout(() => {
-      setInitialVisible(false);
-    }, 4000);
-
     let ticking = false;
     const onScroll = () => {
       if (!ticking) {
@@ -46,49 +25,15 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           const currentY = window.scrollY;
           const isScrolledNow = currentY > 60;
           setScrolled((prev) => (prev !== isScrolledNow ? isScrolledNow : prev));
-
-          if (currentY < 100) {
-            setAtTop((prev) => (!prev ? true : prev));
-            setScrollUpVisible((prev) => (!prev ? true : prev));
-          } else {
-            setAtTop((prev) => (prev ? false : prev));
-            const diff = currentY - lastScrollY.current;
-            if (diff < -8) {
-              setScrollUpVisible((prev) => (!prev ? true : prev));
-            } else if (diff > 14) {
-              setScrollUpVisible((prev) => (prev ? false : prev));
-            }
-          }
-          lastScrollY.current = currentY;
           ticking = false;
         });
         ticking = true;
       }
     };
 
-    const onMouseMove = (e: MouseEvent) => {
-      if (e.clientY <= 70) {
-        setIsHovered(true);
-      } else if (e.clientY > 110 && !mobileOpen) {
-        setIsHovered(false);
-      }
-    };
-
     window.addEventListener('scroll', onScroll, { passive: true });
-    if (!isTouch) {
-      window.addEventListener('mousemove', onMouseMove, { passive: true });
-    }
-
-    return () => {
-      clearTimeout(entranceTimer);
-      window.removeEventListener('scroll', onScroll);
-      if (!isTouch) {
-        window.removeEventListener('mousemove', onMouseMove);
-      }
-    };
-  }, [mobileOpen, isTouch]);
-
-  const showHeader = initialVisible || tabSwitchVisible || isHovered || atTop || scrollUpVisible || mobileOpen || isTouch;
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const handleNavClick = (tab: 'home' | 'about' | 'products' | 'origin', hash?: string) => {
     setActiveTab(tab);
@@ -118,22 +63,17 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
 
   return (
     <motion.header
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-        className="fixed top-0 right-0 left-0 z-[100] transition-opacity duration-500"
-        style={{ pointerEvents: showHeader ? 'auto' : 'none' }}
-        animate={{
-          opacity: showHeader ? 1 : 0,
-          y: showHeader ? 0 : -8,
-          backgroundColor: scrolled ? 'rgba(7, 19, 9, 0.97)' : 'rgba(7, 19, 9, 0.25)',
-          backdropFilter: scrolled ? 'blur(24px)' : 'blur(12px)',
-          borderBottom: scrolled
-            ? '1px solid rgba(197, 160, 70, 0.2)'
-            : '1px solid rgba(255,255,255,0.08)',
-          boxShadow: scrolled ? '0 8px 40px rgba(0,0,0,0.4)' : '0 0 0 transparent',
-        }}
-        transition={reducedMotion ? { duration: 0 } : { duration: 0.4, ease: 'easeInOut' }}
-      >
+      className="fixed top-0 right-0 left-0 z-[100]"
+      animate={{
+        backgroundColor: scrolled ? 'rgba(7, 19, 9, 0.97)' : 'rgba(7, 19, 9, 0.25)',
+        backdropFilter: scrolled ? 'blur(24px)' : 'blur(12px)',
+        borderBottom: scrolled
+          ? '1px solid rgba(197, 160, 70, 0.2)'
+          : '1px solid rgba(255,255,255,0.08)',
+        boxShadow: scrolled ? '0 8px 40px rgba(0,0,0,0.4)' : '0 0 0 transparent',
+      }}
+      transition={reducedMotion ? { duration: 0 } : { duration: 0.4, ease: 'easeInOut' }}
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-4 lg:px-10">
 
         {/* Brand Logo — Official Emblem & Wordmark */}
@@ -214,6 +154,9 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
             </button>
           )}
 
+          {/* Translate hint */}
+          <TranslateHint />
+
           {/* CTA */}
           <MagneticButton
             as="button"
@@ -226,7 +169,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           </MagneticButton>
         </nav>
 
-        {/* Mobile right side: cart + hamburger */}
+        {/* Mobile right side: translate + cart + hamburger */}
         <div className="flex items-center gap-2 xl:hidden">
           {onOpenCart && (
             <button
@@ -248,6 +191,9 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
               )}
             </button>
           )}
+
+          {/* Translate hint — mobile */}
+          <TranslateHint />
 
           <button
             className="flex h-10 w-10 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#112D15]/60 backdrop-blur-sm text-[#FAF8F5] transition-colors hover:border-[#C5A046]/60 cursor-pointer active:scale-95"

@@ -283,7 +283,7 @@ const DEFAULT_SUBSECTION_PHOTOS: Record<string, Partial<GalleryItemRow>[]> = {
 };
 
 const DB_FOLDER_MAP: Record<string, GalleryFolder> = {
-  homepage_hero: 'homepage_hero',
+  homepage_hero: 'events',
   homepage_why_us: 'events',
   about_hero: 'factory',
   about_founders: 'factory',

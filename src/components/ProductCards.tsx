@@ -174,8 +174,8 @@ function GradeCard({
         <div className="flex items-baseline justify-between pt-1">
           <div>
             <span className="text-xs text-stone-400 font-light">Price: </span>
-            <span className="font-display text-xl font-light gold-gradient-text">₹{item.pricePerKg.toLocaleString('en-IN')}</span>
-            <span className="text-xs text-stone-400 font-light"> / kg</span>
+            <span translate="no" className="notranslate font-display text-xl font-light gold-gradient-text">₹{item.pricePerKg.toLocaleString('en-IN')}</span>
+            <span translate="no" className="notranslate text-xs text-stone-400 font-light"> / kg</span>
           </div>
         </div>
 
@@ -189,7 +189,7 @@ function GradeCard({
             >
               −
             </button>
-            <span className="font-mono text-xs text-[#FAF8F5] min-w-[50px] text-center font-medium">
+            <span translate="no" className="notranslate font-mono text-xs text-[#FAF8F5] min-w-[50px] text-center font-medium">
               {qtyKg} kg
             </span>
             <button
@@ -261,15 +261,6 @@ export default function ProductCards({
         if (prods && prods.length > 0) {
           const mapped = prods.map((p, idx) => {
             const sizeStr = p.grades?.[0]?.size_mm || '';
-            const nameLower = p.name.toLowerCase();
-            let localImg = '/images/cardamom-mixed.jpg';
-            if (nameLower.includes('8.5')) localImg = '/images/cardamom-8.5mm.jpg';
-            else if (nameLower.includes('8.0') || nameLower.includes('8mm')) localImg = '/images/cardamom-8.0mm.jpg';
-            else if (nameLower.includes('7.5') || nameLower.includes('7.5mm')) localImg = '/images/cardamom-7.5mm.jpg';
-            else if (nameLower.includes('7.0') || nameLower.includes('7mm')) localImg = '/images/cardamom-7.0mm.jpg';
-            else if (nameLower.includes('bleach')) localImg = '/images/cardamom-bleached.jpg';
-            else if (nameLower.includes('seed') || nameLower.includes('extract')) localImg = '/images/cardamom-extraction.jpg';
-
             return {
               id: p.id,
               gradeNum: sizeStr ? sizeStr.replace('mm', '') : String(8.5 - idx * 0.5),
@@ -283,7 +274,7 @@ export default function ProductCards({
               volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
               pricePerKg: getGradeInrPrice(p.name, sizeStr, liveAvg),
               defaultQtyKg: 25,
-              image: localImg,
+              image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
             };
           });
           setCards(mapped);

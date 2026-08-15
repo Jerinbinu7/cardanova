@@ -41,9 +41,8 @@ export default defineConfig({
         // - framer-motion is large → separate chunk
         // - other vendor code in its own chunk
         manualChunks: {
-          "react-vendor": ["react", "react-dom"],
-          "motion-vendor": ["framer-motion"],
-          "ui-vendor": ["lucide-react", "clsx", "tailwind-merge"],
+          "motion-vendor":   ["framer-motion"],
+          "ui-vendor":       ["lucide-react", "clsx", "tailwind-merge"],
           "supabase-vendor": ["@supabase/supabase-js", "react-router-dom"],
         },
         // Readable chunk names in production
@@ -56,8 +55,8 @@ export default defineConfig({
     // Report compressed size (set false for faster CI builds if needed)
     reportCompressedSize: true,
 
-    // Chunk size warning threshold (increased from default 500kb since we split)
-    chunkSizeWarningLimit: 600,
+    // Chunk size warning threshold (lowered now that admin is code-split)
+    chunkSizeWarningLimit: 500,
   },
 
   // Pre-bundle these for faster dev server startup

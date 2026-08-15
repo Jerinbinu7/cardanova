@@ -102,20 +102,20 @@ function TickerSlide({ data, sourceUrl }: { data: AuctionRecord; sourceUrl: stri
 
       {/* Max Price — gold highlight */}
       <span className="inline-flex items-center gap-1.5">
-        <span style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           Max
         </span>
-        <span style={{ color: '#E2BF63', fontWeight: 600, fontSize: '0.8rem' }}>
+        <span translate="no" style={{ color: '#E2BF63', fontWeight: 600, fontSize: '0.8rem' }}>
           ₹{data.maxPrice}/kg
         </span>
       </span>
 
       {/* Avg Price */}
       <span className="inline-flex items-center gap-1.5">
-        <span style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           Avg
         </span>
-        <span style={{ color: '#C5A046', fontWeight: 600, fontSize: '0.8rem' }}>
+        <span translate="no" style={{ color: '#C5A046', fontWeight: 600, fontSize: '0.8rem' }}>
           ₹{data.avgPrice}/kg
         </span>
       </span>
@@ -125,26 +125,26 @@ function TickerSlide({ data, sourceUrl }: { data: AuctionRecord; sourceUrl: stri
 
       {/* Lots */}
       <span className="inline-flex items-center gap-1.5">
-        <span style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           Lots
         </span>
-        <span style={{ color: '#d1d5db' }}>{data.lots}</span>
+        <span translate="no" style={{ color: '#d1d5db' }}>{data.lots}</span>
       </span>
 
       {/* Arrived */}
       <span className="inline-flex items-center gap-1.5">
-        <span style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           Arrived
         </span>
-        <span style={{ color: '#d1d5db' }}>{data.qtyArrived}</span>
+        <span translate="no" style={{ color: '#d1d5db' }}>{data.qtyArrived}</span>
       </span>
 
       {/* Sold */}
       <span className="inline-flex items-center gap-1.5">
-        <span style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           Sold
         </span>
-        <span style={{ color: '#d1d5db' }}>{data.qtySold}</span>
+        <span translate="no" style={{ color: '#d1d5db' }}>{data.qtySold}</span>
       </span>
 
       {/* Divider */}
