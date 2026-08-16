@@ -25,7 +25,12 @@ export default function AdminLogin() {
       toast.success('Welcome back!');
       navigate(ADMIN_BASE_PATH);
     } catch (err: any) {
-      setError(err?.message ?? 'Authentication failed. Please check your credentials.');
+      const msg = err?.message || '';
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
+        setError('Connection Error: Unable to reach authentication server. Please check your internet connection, disable AdBlockers/VPN, or verify Supabase environment variables on your host deployment.');
+      } else {
+        setError(msg || 'Authentication failed. Please check your credentials.');
+      }
     } finally {
       setIsSubmitting(false);
     }

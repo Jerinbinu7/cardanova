@@ -19,7 +19,12 @@ export default function AdminForgotPassword() {
       await sendPasswordResetEmail(email.trim());
       setSent(true);
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to send reset email. Please try again.');
+      const msg = err?.message || '';
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
+        setError('Connection Error: Unable to reach authentication server. Please check your network or Supabase settings.');
+      } else {
+        setError(msg || 'Failed to send reset email. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
