@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown, X, SlidersHorizontal, Star, Plus, Minus } from 'lucide-react';
 import { getProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
+import { triggerGoogleTranslateSync } from '../utils/translation';
 import type { CartItem } from './CartDrawer';
 
 interface ProductsPageProps {
@@ -414,6 +415,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
           }));
           setCatalogue(mapped);
         }
+        triggerGoogleTranslateSync(400);
       } catch (e) {
         console.error(e);
         const mapped = PRODUCTS_CATALOGUE.map((item, idx) => ({
@@ -421,6 +423,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
           pricePerKg: Math.round(liveAvg * getProductGradeMultiplier(item.gradeName, item.size, idx)),
         }));
         setCatalogue(mapped);
+        triggerGoogleTranslateSync(400);
       }
     }
     load();

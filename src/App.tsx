@@ -33,6 +33,7 @@ import WhatsAppButton from './components/WhatsAppButton';
 import QuoteModal from './components/QuoteModal';
 import CartDrawer, { CartItem } from './components/CartDrawer';
 import { ADMIN_BASE_PATH } from './admin/adminConstants';
+import { triggerGoogleTranslateSync } from './utils/translation';
 // Admin Routes — lazy-loaded so public visitors never download admin JS
 const AdminPortal         = lazy(() => import('./admin/AdminPortal'));
 const AdminLayout         = lazy(() => import('./admin/AdminLayout'));
@@ -194,6 +195,7 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    triggerGoogleTranslateSync(350);
   }, [activeTab]);
 
   const handleSelectTab = (tab: string) => {
