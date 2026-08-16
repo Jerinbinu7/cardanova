@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { getPendingQuotesCount } from '../services/quoteService';
 import toast from 'react-hot-toast';
+import { ADMIN_BASE_PATH } from './adminConstants';
 
 import DashboardOverview    from './views/DashboardOverview';
 import ProductManager       from './views/ProductManager';
@@ -18,7 +19,7 @@ import GradeComparisonManager from './views/GradeComparisonManager';
 import GalleryManager       from './views/GalleryManager';
 import HomepageManager      from './views/HomepageManager';
 import AboutManager         from './views/AboutManager';
-import FarmToExportManager  from './views/FarmToExportManager';
+import OriginManager        from './views/OriginManager';
 import CertificationsManager from './views/CertificationsManager';
 import TestimonialsManager  from './views/TestimonialsManager';
 import ContactInfoManager   from './views/ContactInfoManager';
@@ -41,7 +42,7 @@ const NAV_ITEMS = [
   { id: 'gradeComparison',label: 'Grade Comparison',   icon: Layers,              roles: ['owner','admin','editor'] },
   { id: 'homepage',       label: 'Homepage',           icon: Home,                roles: ['owner','admin','editor'] },
   { id: 'about',          label: 'About Page',         icon: Info,                roles: ['owner','admin','editor'] },
-  { id: 'farmToExport',   label: 'Farm to Export',     icon: MapPinIcon,          roles: ['owner','admin','editor'] },
+  { id: 'origin',          label: 'Our Origin',         icon: OriginIcon,          roles: ['owner','admin','editor'] },
   { id: 'gallery',        label: 'Gallery',            icon: ImageIcon,           roles: ['owner','admin','editor'] },
   { id: 'certifications', label: 'Certifications',     icon: Award,               roles: ['owner','admin','editor'] },
   { id: 'testimonials',   label: 'Testimonials',       icon: Star,                roles: ['owner','admin','editor'] },
@@ -53,12 +54,12 @@ const NAV_ITEMS = [
   { id: 'settings',       label: 'Settings',           icon: Settings,            roles: ['owner','admin']          },
 ];
 
-// Lucide doesn't export MapPin alias here, use inline
-function MapPinIcon({ className }: { className?: string }) {
+// Custom leaf icon for Our Origin page
+function OriginIcon({ className }: { className?: string }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-4-4-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 8-8 12z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 13V7m-3 3l3-3 3 3" />
     </svg>
   );
 }
@@ -109,7 +110,7 @@ export default function AdminLayout() {
   const handleLogout = async () => {
     await signOut();
     toast.success('Signed out successfully.');
-    navigate('/admin/login');
+    navigate(`${ADMIN_BASE_PATH}/login`);
   };
 
   const handleSelectTab = (id: string) => {
@@ -129,7 +130,7 @@ export default function AdminLayout() {
       case 'gallery':        return <GalleryManager />;
       case 'homepage':       return <HomepageManager />;
       case 'about':          return <AboutManager />;
-      case 'farmToExport':   return <FarmToExportManager />;
+      case 'origin':         return <OriginManager />;
       case 'certifications': return <CertificationsManager />;
       case 'testimonials':   return <TestimonialsManager />;
       case 'contact':        return <ContactInfoManager />;

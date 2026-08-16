@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Leaf, ShieldCheck, FileText, Award } from 'lucide-react';
 import { getCertifications } from '../services/certificationsService';
-import type { CertificationRow } from '../types/database';
 
 const DEFAULT_CERTIFICATIONS = [
   {
@@ -99,8 +98,10 @@ export default function GlobalStandards() {
           </p>
         </motion.div>
 
-        {/* Certification Cards — horizontal trust bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Certification Cards — auto-balanced grid */}
+        <div
+          className="flex flex-wrap justify-center gap-4"
+        >
           {certifications.map((cert, i) => (
             <motion.div
               key={i}
@@ -110,6 +111,7 @@ export default function GlobalStandards() {
               transition={{ duration: 0.6, delay: i * 0.1 }}
               whileHover={{ y: -6, transition: { duration: 0.25 } }}
               className="group relative rounded-2xl bg-white border border-stone-200 p-6 hover:border-[#C5A046]/40 hover:shadow-xl transition-all duration-400 flex flex-col items-center text-center"
+              style={{ flex: '1 1 180px', maxWidth: '220px', minWidth: '160px' }}
             >
               {/* Icon */}
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#FAF8F5] text-[#A18637] group-hover:border-[#C5A046]/60 group-hover:bg-[#FDF9F0] group-hover:text-[#C5A046] transition-colors">
@@ -117,7 +119,7 @@ export default function GlobalStandards() {
               </div>
 
               {/* Code */}
-              <span className="label-caps text-[#A18637] mb-1">{cert.code}</span>
+              <span translate="no" className="notranslate label-caps text-[#A18637] mb-1">{cert.code}</span>
 
               {/* Full name */}
               <h3 className="font-display text-base font-light text-[#112D15] leading-snug">
@@ -125,7 +127,7 @@ export default function GlobalStandards() {
               </h3>
 
               {/* Authority */}
-              <p className="mt-2 text-[10px] text-stone-400 font-light">{cert.authority}</p>
+              <p translate="no" className="notranslate mt-2 text-[10px] text-stone-400 font-light">{cert.authority}</p>
 
               {/* Verified badge */}
               <div className="mt-4 flex items-center gap-1.5 rounded-full border border-[#A18637]/30 bg-[#FAF8F5] px-3 py-1">

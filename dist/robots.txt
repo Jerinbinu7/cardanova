@@ -3,15 +3,27 @@
 
 User-agent: *
 Allow: /
+Disallow: /cardanova-manage-x89
+Disallow: /cardanova-manage-x89/*
+Disallow: /admin
+Disallow: /admin/*
 Disallow: /#admin
 
-# Block admin hash-route from all crawlers
+# Block admin routes from all crawlers
 User-agent: Googlebot
 Allow: /
+Disallow: /cardanova-manage-x89
+Disallow: /cardanova-manage-x89/*
+Disallow: /admin
+Disallow: /admin/*
 Disallow: /#admin
 
 User-agent: Bingbot
 Allow: /
+Disallow: /cardanova-manage-x89
+Disallow: /cardanova-manage-x89/*
+Disallow: /admin
+Disallow: /admin/*
 Disallow: /#admin
 
 # Sitemap

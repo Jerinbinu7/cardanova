@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
+import TranslateHint from './TranslateHint';
 
 interface HeaderProps {
   activeTab: 'home' | 'about' | 'products' | 'origin';
@@ -17,7 +18,19 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          const isScrolledNow = currentY > 60;
+          setScrolled((prev) => (prev !== isScrolledNow ? isScrolledNow : prev));
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -52,11 +65,11 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
     <motion.header
       className="fixed top-0 right-0 left-0 z-[100]"
       animate={{
-        backgroundColor: scrolled ? 'rgba(7, 19, 9, 0.97)' : 'rgba(7, 19, 9, 0.15)',
-        backdropFilter: scrolled ? 'blur(24px)' : 'blur(8px)',
+        backgroundColor: scrolled ? 'rgba(7, 19, 9, 0.97)' : 'rgba(7, 19, 9, 0.25)',
+        backdropFilter: scrolled ? 'blur(24px)' : 'blur(12px)',
         borderBottom: scrolled
           ? '1px solid rgba(197, 160, 70, 0.2)'
-          : '1px solid rgba(255,255,255,0.06)',
+          : '1px solid rgba(255,255,255,0.08)',
         boxShadow: scrolled ? '0 8px 40px rgba(0,0,0,0.4)' : '0 0 0 transparent',
       }}
       transition={reducedMotion ? { duration: 0 } : { duration: 0.4, ease: 'easeInOut' }}
@@ -76,7 +89,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
               alt="Cardanova Spices emblem"
               width={538}
               height={470}
-              className="h-10 sm:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-8 sm:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </div>
           <div className="flex items-center">
@@ -85,7 +98,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
               alt="Cardanova Spices — Exporting Nature's Finest"
               width={944}
               height={232}
-              className="h-8 sm:h-9 w-auto object-contain"
+              className="h-6 sm:h-9 w-auto object-contain"
             />
           </div>
         </button>
@@ -141,6 +154,9 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
             </button>
           )}
 
+          {/* Translate hint */}
+          <TranslateHint />
+
           {/* CTA */}
           <MagneticButton
             as="button"
@@ -153,7 +169,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           </MagneticButton>
         </nav>
 
-        {/* Mobile right side: cart + hamburger */}
+        {/* Mobile right side: translate + cart + hamburger */}
         <div className="flex items-center gap-2 xl:hidden">
           {onOpenCart && (
             <button
@@ -176,8 +192,11 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
             </button>
           )}
 
+          {/* Translate hint — mobile */}
+          <TranslateHint />
+
           <button
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#112D15]/60 backdrop-blur-sm text-[#FAF8F5] transition-colors hover:border-[#C5A046]/60"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#A18637]/30 bg-[#112D15]/60 backdrop-blur-sm text-[#FAF8F5] transition-colors hover:border-[#C5A046]/60 cursor-pointer active:scale-95"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileOpen}
@@ -185,7 +204,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           >
             <motion.span
               animate={{ rotate: mobileOpen ? 45 : 0 }}
-              className="block text-sm"
+              className="block text-base font-semibold"
               aria-hidden="true"
             >
               {mobileOpen ? '✕' : '☰'}

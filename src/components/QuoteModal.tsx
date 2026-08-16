@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { submitQuoteRequest } from '../services/quoteService';
 import { getAuctionPrice, type AuctionRecord } from '../services/auctionPriceService';
 import { validateEmail } from '../utils/emailValidator';
+import { getActiveLangCode } from '../utils/translation';
 import type { CartItem } from './CartDrawer';
 
 export type CurrencyCode = 'USD' | 'AED' | 'INR';
@@ -17,28 +18,48 @@ interface QuoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultGrade?: string;
+  defaultPricePerKg?: number;
   cartItems?: CartItem[];
   onSuccess?: () => void;
 }
 
 function getGradeMultiplier(gradeName: string): number {
   const g = gradeName.toLowerCase();
-  if (g.includes('8.5') || g.includes('extra bold')) return 1.15;
-  if (g.includes('8') || g.includes('premium')) return 1.05;
+  if (g.includes('8.5') || g.includes('extra bold') || g.includes('ageb')) return 1.15;
+  if (g.includes('8.0') || g.includes('8 mm') || g.includes('8mm') || g.includes('bold') || g.includes('agb')) return 1.05;
   if (g.includes('7.5') || g.includes('export')) return 0.95;
-  if (g.includes('7') || g.includes('commercial')) return 0.85;
+  if (g.includes('7.0') || g.includes('7 mm') || g.includes('7mm') || g.includes('commercial')) return 0.85;
   if (g.includes('mix')) return 0.75;
-  if (g.includes('rej') || g.includes('oil')) return 0.50;
+  if (g.includes('rej') || g.includes('oil') || g.includes('split')) return 0.50;
   return 1.0;
 }
 
-function parseQuantityKg(qtyStr: string): number {
-  const num = parseFloat(qtyStr.replace(/[^0-9.]/g, ''));
-  if (isNaN(num) || num <= 0) return 1000;
-  if (qtyStr.toLowerCase().includes('mt') || qtyStr.toLowerCase().includes('ton')) {
-    return num * 1000;
+function parseQuantityKg(qtyStr: string): { kg: number; formatted: string } {
+  if (!qtyStr || !qtyStr.trim()) return { kg: 1000, formatted: '1,000 kg (1 MT)' };
+
+  const cleanStr = qtyStr.toLowerCase().replace(/,/g, '');
+  const num = parseFloat(cleanStr.replace(/[^0-9.]/g, ''));
+
+  if (isNaN(num) || num <= 0) {
+    return { kg: 1000, formatted: '1,000 kg (1 MT)' };
   }
-  return num;
+
+  let kg = num;
+  if (cleanStr.includes('mt') || cleanStr.includes('ton')) {
+    kg = num * 1000;
+  } else if (cleanStr.includes('g') && !cleanStr.includes('kg')) {
+    kg = num / 1000;
+  } else if (!cleanStr.includes('kg') && num <= 20) {
+    // If user enters a small number like 1, 2, 5 without unit, treat as MT for B2B export
+    kg = num * 1000;
+  }
+
+  const mt = kg / 1000;
+  const formatted = mt >= 1
+    ? `${Math.round(kg).toLocaleString('en-US')} kg (${mt % 1 === 0 ? mt : mt.toFixed(2)} MT)`
+    : `${Math.round(kg).toLocaleString('en-US')} kg`;
+
+  return { kg, formatted };
 }
 
 function formatCurrencyVal(amountInr: number, curr: CurrencyCode): string {
@@ -47,18 +68,30 @@ function formatCurrencyVal(amountInr: number, curr: CurrencyCode): string {
   return `${cfg.symbol}${converted.toLocaleString()}`;
 }
 
+export const EXPORT_GRADES_LIST = [
+  { label: '8.5 mm Extra Bold Green (AGEB)', shortLabel: '8.5mm Extra Bold' },
+  { label: '8.0 mm Premium Bold Green (AGB)', shortLabel: '8.0mm Premium Bold' },
+  { label: '7.5 mm Export Standard Green (AGS)', shortLabel: '7.5mm Export Grade' },
+  { label: '7.0 mm Commercial Green (AGS-1)', shortLabel: '7.0mm Commercial' },
+  { label: 'Mixed Export Grades / Split Green', shortLabel: 'Mixed Grades' },
+  { label: 'Cardamom Seeds / Volatile Oil Extract Grade', shortLabel: 'Seeds / Oil Extract' },
+];
+
 export default function QuoteModal({
   isOpen,
   onClose,
-  defaultGrade = '8.5 mm Extra Bold',
+  defaultGrade = '8.5 mm Extra Bold Green (AGEB)',
+  defaultPricePerKg,
   cartItems = [],
   onSuccess,
 }: QuoteModalProps) {
   const isBulkCart = cartItems.length > 0;
   const totalCartKg = cartItems.reduce((sum, item) => sum + item.quantityKg, 0);
-  const totalCartPrice = cartItems.reduce((sum, item) => sum + item.quantityKg * item.pricePerKg, 0);
 
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useState<CurrencyCode>(() => {
+    return getActiveLangCode() === 'ar' ? 'AED' : 'USD';
+  });
+  const [overridePricePerKg, setOverridePricePerKg] = useState<number | undefined>(defaultPricePerKg);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -85,6 +118,7 @@ export default function QuoteModal({
   useEffect(() => {
     if (isOpen) {
       setSubmitError(null);
+      setOverridePricePerKg(defaultPricePerKg);
       getAuctionPrice('small_cardamom')
         .then((res) => {
           setAuctionData(res.data);
@@ -108,7 +142,12 @@ export default function QuoteModal({
         }));
       }
     }
-  }, [isOpen, defaultGrade, isBulkCart, cartItems, totalCartKg]);
+  }, [isOpen, defaultGrade, defaultPricePerKg, isBulkCart, cartItems, totalCartKg]);
+
+  const handleSelectGrade = (gradeName: string) => {
+    setFormData((prev) => ({ ...prev, grade: gradeName }));
+    setOverridePricePerKg(undefined);
+  };
 
   const handleEmailChange = (val: string) => {
     setFormData((prev) => ({ ...prev, email: val }));
@@ -127,18 +166,36 @@ export default function QuoteModal({
     }
   };
 
-  // Indian Spice Market Auction calculations
+  // Indian Spice Market Auction calculations & product pricing
   const rawAvgInr = auctionData ? parseFloat(auctionData.avgPrice.replace(/,/g, '')) || 3049 : 3049;
   const rawMaxInr = auctionData ? parseFloat(auctionData.maxPrice.replace(/,/g, '')) || 4243 : 4243;
   
-  const parsedQtyKg = isBulkCart ? totalCartKg : parseQuantityKg(formData.quantity);
-  const multiplier = isBulkCart ? 1.0 : getGradeMultiplier(formData.grade);
-  const estRateInrPerKg = Math.round(rawAvgInr * multiplier);
+  // Determine base INR rate for single grade:
+  // If an explicit defaultPricePerKg was passed (e.g. $32/kg or ₹2850/kg), use it as baseline
+  let baseInrRate = rawAvgInr;
+  if (overridePricePerKg && overridePricePerKg > 0) {
+    baseInrRate = overridePricePerKg > 200 ? overridePricePerKg : Math.round(overridePricePerKg * 83.5);
+  }
 
-  const estimatedTradeInr = Math.round(estRateInrPerKg * parsedQtyKg);
+  const parsedQtyInfo = isBulkCart
+    ? { kg: totalCartKg, formatted: `${totalCartKg} kg (${(totalCartKg / 1000).toFixed(2)} MT)` }
+    : parseQuantityKg(formData.quantity);
+  
+  const parsedQtyKg = parsedQtyInfo.kg;
+  const multiplier = isBulkCart ? 1.0 : getGradeMultiplier(formData.grade);
+  const estRateInrPerKg = Math.round(baseInrRate * (overridePricePerKg ? 1.0 : multiplier));
+
+  // Bulk cart total in INR calculated directly from individual cart item rates
+  const totalCartInr = cartItems.reduce((sum, item) => {
+    const itemInrRate = item.pricePerKg > 200 ? item.pricePerKg : Math.round(item.pricePerKg * 83.5);
+    return sum + item.quantityKg * itemInrRate;
+  }, 0);
+
+  const estimatedTradeInr = isBulkCart ? totalCartInr : Math.round(estRateInrPerKg * parsedQtyKg);
 
   const activeCfg = CURRENCY_CONFIG[currency];
-  const rateInActiveCurrency = (rawAvgInr / activeCfg.toInrFactor).toFixed(2);
+  const unitRateInActiveCurrency = (estRateInrPerKg / activeCfg.toInrFactor).toFixed(2);
+  const rawAuctionAvgInActiveCurrency = (rawAvgInr / activeCfg.toInrFactor).toFixed(2);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,17 +215,19 @@ export default function QuoteModal({
 • Preferred Trade Currency: ${currency}
 • Daily Auction Date: ${auctionData?.date || 'Latest Available'}
 • Official Auctioneer: ${auctionData?.auctioneer || 'Spices Board India'}
-• Daily Avg Market Rate: ₹${rawAvgInr.toLocaleString('en-IN')}/kg (${activeCfg.symbol}${rateInActiveCurrency}/kg)
+• Daily Avg Market Rate: ₹${rawAvgInr.toLocaleString('en-IN')}/kg (${activeCfg.symbol}${rawAuctionAvgInActiveCurrency}/kg)
+• Selected Grade Rate: ₹${estRateInrPerKg.toLocaleString('en-IN')}/kg (${activeCfg.symbol}${unitRateInActiveCurrency}/kg)
 • Peak Max Auction Rate: ₹${rawMaxInr.toLocaleString('en-IN')}/kg
-• Est. Market Sourcing Value (${parsedQtyKg} kg): ${formatCurrencyVal(estimatedTradeInr, currency)} (₹${estimatedTradeInr.toLocaleString('en-IN')} INR / ${formatCurrencyVal(estimatedTradeInr, 'USD')} USD / ${formatCurrencyVal(estimatedTradeInr, 'AED')} AED FOB)`;
+• Est. Market Sourcing Value (${parsedQtyInfo.formatted}): ${formatCurrencyVal(estimatedTradeInr, currency)} (₹${estimatedTradeInr.toLocaleString('en-IN')} INR / ${formatCurrencyVal(estimatedTradeInr, 'USD')} USD / ${formatCurrencyVal(estimatedTradeInr, 'AED')} AED FOB)`;
 
     if (isBulkCart) {
-      const breakdownLines = cartItems.map(
-        (i) => `• ${i.gradeName} (${i.gradeNum}${i.gradeUnit}): ${i.quantityKg}kg @ ~${formatCurrencyVal(i.pricePerKg * 83.5, currency)}/kg (${i.packaging})`
-      );
+      const breakdownLines = cartItems.map((i) => {
+        const itemInr = i.pricePerKg > 200 ? i.pricePerKg : Math.round(i.pricePerKg * 83.5);
+        return `• ${i.gradeName} (${i.gradeNum}${i.gradeUnit}): ${i.quantityKg}kg @ ~${formatCurrencyVal(itemInr, currency)}/kg (${i.packaging})`;
+      });
       const cartHeader = `--- BULK CART ORDER BREAKDOWN (${cartItems.length} ITEMS) ---\n${breakdownLines.join(
         '\n'
-      )}\nEst. Catalogue Value: ~$${totalCartPrice.toLocaleString()} USD | Total Weight: ${totalCartKg} kg`;
+      )}\nEst. Order Value: ${formatCurrencyVal(totalCartInr, currency)} (${currency}) | Total Weight: ${totalCartKg} kg`;
 
       finalMessage = `${cartHeader}\n\n${marketBenchmarkBlock}${
         finalMessage ? `\n\nAdditional Requirements:\n${finalMessage}` : ''
@@ -219,14 +278,14 @@ export default function QuoteModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[300] flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-[300] flex items-center justify-center py-6 px-3 sm:px-6 overflow-y-auto">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-[#071309]/60 backdrop-blur-sm"
+          className="fixed inset-0 bg-[#071309]/75 backdrop-blur-sm"
         />
 
         {/* Modal Container */}
@@ -234,17 +293,17 @@ export default function QuoteModal({
           initial={{ opacity: 0, scale: 0.97, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.97, y: 0 }}
-          className="relative w-[95%] sm:w-full max-w-2xl rounded-2xl overflow-hidden border border-[#C5A046]/20 bg-[#0D2410] text-[#FAF8F5] shadow-[0_32px_80px_rgba(0,0,0,0.55)] z-10 my-4 sm:my-8"
+          className="relative w-full max-w-2xl rounded-2xl overflow-hidden border border-[#C5A046]/30 bg-[#0D2410] text-[#FAF8F5] shadow-[0_32px_80px_rgba(0,0,0,0.7)] z-10 my-auto max-h-[90vh] flex flex-col"
         >
           {/* Premium header band */}
-          <div className="relative px-5 sm:px-7 pt-5 pb-4 border-b border-[#C5A046]/15"
+          <div className="relative px-6 sm:px-8 pt-6 pb-5 border-b border-[#C5A046]/20 shrink-0"
             style={{ background: 'linear-gradient(135deg, #0a1f0c 0%, #112D15 60%, #0f2512 100%)' }}>
             {/* Subtle corner ornament */}
             <div className="absolute top-0 right-0 w-32 h-32 opacity-5 pointer-events-none"
               style={{ background: 'radial-gradient(circle at top right, #C5A046 0%, transparent 70%)' }} />
 
             {/* Top row: logo + currency + close */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-3">
                 <img
                   src="/images/cardanova-wordmark-light.png"
@@ -299,7 +358,7 @@ export default function QuoteModal({
           </div>
 
           {/* Form body */}
-          <div className="px-5 sm:px-7 py-4" style={{ background: '#0D2410' }}>
+          <div className="px-5 sm:px-7 py-5 overflow-y-auto" style={{ background: '#0D2410' }}>
 
           {submitted ? (
             <motion.div
@@ -329,15 +388,21 @@ export default function QuoteModal({
                           Spices Board India Market Benchmark ({auctionData.date})
                         </span>
                         <span className="text-[#FAF8F5]/50 font-light text-[11px]">
-                          Daily Avg: <strong className="text-[#FAF8F5]/80 font-medium">₹{auctionData.avgPrice}/kg</strong> ({activeCfg.symbol}{rateInActiveCurrency}/kg) · Max: ₹{auctionData.maxPrice}/kg
+                          Daily Avg: <strong className="text-[#FAF8F5]/80 font-medium">₹{auctionData.avgPrice}/kg</strong> ({activeCfg.symbol}{rawAuctionAvgInActiveCurrency}/kg)
+                          {!isBulkCart && (
+                            <> · Selected Grade Rate: <strong className="text-[#C5A046] font-semibold">{activeCfg.symbol}{unitRateInActiveCurrency}/kg</strong></>
+                          )}
                         </span>
                       </div>
                     </div>
                   </div>
 
                   {estimatedTradeInr > 0 && (
-                    <div className="flex items-center justify-between pt-2 border-t border-[#C5A046]/15 text-xs">
-                      <span className="text-[11px] text-[#FAF8F5]/40">Est. Sourcing Benchmark ({parsedQtyKg} kg):</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-2 border-t border-[#C5A046]/15 text-xs gap-1">
+                      <span className="text-[11px] text-[#FAF8F5]/50 flex items-center gap-1.5">
+                        <span>Est. Sourcing Benchmark:</span>
+                        <strong className="text-[#FAF8F5]/80 font-mono font-normal">({parsedQtyInfo.formatted})</strong>
+                      </span>
                       <span className="font-mono text-sm font-semibold text-[#C5A046]">
                         {formatCurrencyVal(estimatedTradeInr, currency)}
                         <span className="text-[10px] text-[#FAF8F5]/30 ml-1.5 font-sans font-normal font-mono">
@@ -361,20 +426,24 @@ export default function QuoteModal({
                     </span>
                   </div>
                   <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center text-xs text-[#FAF8F5]/60 bg-white/5 p-2 rounded-lg border border-white/8">
-                        <div className="truncate max-w-[70%]">
-                          <span className="font-medium text-[#FAF8F5]/85">{item.gradeName}</span>
-                          <span className="text-[10px] text-[#FAF8F5]/35 block">{item.packaging}</span>
+                    {cartItems.map((item) => {
+                      const itemInrRate = item.pricePerKg > 200 ? item.pricePerKg : Math.round(item.pricePerKg * 83.5);
+                      const itemTotalInr = item.quantityKg * itemInrRate;
+                      return (
+                        <div key={item.id} className="flex justify-between items-center text-xs text-[#FAF8F5]/60 bg-white/5 p-2 rounded-lg border border-white/8">
+                          <div className="truncate max-w-[65%]">
+                            <span className="font-medium text-[#FAF8F5]/85">{item.gradeName}</span>
+                            <span className="text-[10px] text-[#FAF8F5]/35 block">{item.packaging}</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="font-mono text-[#C5A046] font-semibold">{item.quantityKg} kg</span>
+                            <span className="text-[10px] text-[#FAF8F5]/50 block font-mono">
+                              ~{formatCurrencyVal(itemTotalInr, currency)} ({formatCurrencyVal(itemInrRate, currency)}/kg)
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <span className="font-mono text-[#C5A046] font-semibold">{item.quantityKg} kg</span>
-                          <span className="text-[10px] text-[#FAF8F5]/35 block">
-                            ~{formatCurrencyVal(item.quantityKg * item.pricePerKg * 83.5, currency)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -478,27 +547,99 @@ export default function QuoteModal({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="sm:col-span-2">
-                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Cardamom Grades / Products</label>
-                    <input
-                      type="text"
-                      value={formData.grade}
-                      onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                      className="w-full rounded-lg border border-white/10 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
-                      style={{ background: 'rgba(255,255,255,0.05)' }}
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start">
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70">
+                      Cardamom Grade / Product *
+                    </label>
+
+                    {isBulkCart ? (
+                      <input
+                        type="text"
+                        readOnly
+                        value={formData.grade}
+                        className="w-full rounded-lg border border-[#C5A046]/30 px-3 py-2 text-xs text-[#C5A046] font-medium bg-[#112D15]/80 cursor-not-allowed"
+                      />
+                    ) : (
+                      <>
+                        <select
+                          value={
+                            EXPORT_GRADES_LIST.some((g) => g.label === formData.grade)
+                              ? formData.grade
+                              : 'Custom Specification'
+                          }
+                          onChange={(e) => {
+                            if (e.target.value !== 'Custom Specification') {
+                              handleSelectGrade(e.target.value);
+                            } else {
+                              handleSelectGrade('Custom Specification');
+                            }
+                          }}
+                          className="w-full rounded-lg border border-white/15 px-3 py-2 text-xs text-[#FAF8F5] focus:border-[#C5A046]/70 focus:outline-none transition-colors cursor-pointer"
+                          style={{ background: '#112D15' }}
+                        >
+                          {EXPORT_GRADES_LIST.map((g) => (
+                            <option key={g.label} value={g.label} style={{ background: '#0D2410', color: '#FAF8F5' }}>
+                              {g.label}
+                            </option>
+                          ))}
+                          <option value="Custom Specification" style={{ background: '#0D2410', color: '#FAF8F5' }}>
+                            ✏️ Custom Grade / Specification...
+                          </option>
+                        </select>
+
+                        {/* Quick Selection Pills */}
+                        <div className="flex flex-wrap items-center gap-1 pt-1">
+                          <span className="text-[9px] text-[#FAF8F5]/35 font-medium mr-0.5">Quick Pick:</span>
+                          {EXPORT_GRADES_LIST.map((g) => {
+                            const isSelected = formData.grade === g.label;
+                            return (
+                              <button
+                                key={g.label}
+                                type="button"
+                                onClick={() => handleSelectGrade(g.label)}
+                                className={`px-2 py-0.5 rounded text-[9px] font-semibold transition-all cursor-pointer border ${
+                                  isSelected
+                                    ? 'gold-gradient-bg text-[#071309] border-[#C5A046]'
+                                    : 'bg-white/5 text-[#FAF8F5]/50 border-white/10 hover:border-[#C5A046]/40 hover:text-[#FAF8F5]'
+                                }`}
+                              >
+                                {g.shortLabel}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Custom Grade input field if custom specification selected */}
+                        {(!EXPORT_GRADES_LIST.some((g) => g.label === formData.grade) || formData.grade === 'Custom Specification') && (
+                          <input
+                            type="text"
+                            placeholder="Type custom grade name (e.g. 8.5mm AGEB, Black Pepper...)"
+                            value={formData.grade}
+                            onChange={(e) => handleSelectGrade(e.target.value)}
+                            className="w-full mt-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/30 focus:border-[#C5A046] focus:outline-none transition-colors"
+                            style={{ background: 'rgba(255,255,255,0.05)' }}
+                          />
+                        )}
+                      </>
+                    )}
                   </div>
+
                   <div>
-                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">Total Quantity</label>
+                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70 mb-1">
+                      Total Quantity *
+                    </label>
                     <input
                       type="text"
-                      placeholder="e.g. 2 MT"
+                      placeholder="e.g. 2 MT or 500 kg"
                       value={formData.quantity}
                       onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                       className="w-full rounded-lg border border-white/10 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"
                       style={{ background: 'rgba(255,255,255,0.05)' }}
                     />
+                    <span className="text-[9px] text-[#FAF8F5]/35 mt-1 block font-mono">
+                      Parsed: {parsedQtyInfo.formatted}
+                    </span>
                   </div>
                 </div>
 

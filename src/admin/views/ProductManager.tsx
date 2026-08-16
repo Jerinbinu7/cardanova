@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Eye, EyeOff, Star, X, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, EyeOff, Star, X, Search, ChevronUp, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   getProducts, createProduct, updateProduct, deleteProduct,
@@ -118,6 +118,35 @@ export default function ProductManager() {
     catch (e: any) { toast.error(e.message); }
   };
 
+  const handleMovePosition = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= filtered.length) return;
+
+    const itemA = filtered[index];
+    const itemB = filtered[targetIndex];
+
+    const orderA = itemA.display_order ?? (index + 1);
+    const orderB = itemB.display_order ?? (targetIndex + 1);
+
+    let newOrderA = orderB;
+    let newOrderB = orderA;
+    if (newOrderA === newOrderB) {
+      newOrderA = direction === 'up' ? orderB - 1 : orderB + 1;
+      newOrderB = orderA;
+    }
+
+    try {
+      await Promise.all([
+        updateProduct(itemA.id, { display_order: newOrderA }),
+        updateProduct(itemB.id, { display_order: newOrderB }),
+      ]);
+      toast.success('Product position updated!');
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   const handleUploadImage = async (files: File[]) => {
     if (!editing?.id) { toast.error('Save the product first to upload images.'); return; }
     setUploadProgress(10);
@@ -213,6 +242,7 @@ export default function ProductManager() {
           <table className="w-full text-left text-sm text-[#FAF8F5]">
             <thead className="bg-[#071309]/80 text-[#C5A046] uppercase text-[11px] tracking-wider border-b border-[#C5A046]/20">
               <tr>
+                <th className="p-4 text-center">Pos</th>
                 <th className="p-4">Product</th>
                 <th className="p-4 hidden md:table-cell">Category</th>
                 <th className="p-4 hidden lg:table-cell">Grades</th>
@@ -223,11 +253,38 @@ export default function ProductManager() {
             </thead>
             <tbody className="divide-y divide-[#C5A046]/10">
               {loading
-                ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} cols={6} />)
+                ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} cols={7} />)
                 : filtered.length === 0
-                  ? <tr><td colSpan={6} className="text-center py-12 text-gray-400 text-sm">No products found.</td></tr>
-                  : filtered.map((p) => (
+                  ? <tr><td colSpan={7} className="text-center py-12 text-gray-400 text-sm">No products found.</td></tr>
+                  : filtered.map((p, index) => (
                     <tr key={p.id} className="hover:bg-[#C5A046]/5 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center justify-center gap-1">
+                          <span translate="no" className="w-6 h-6 flex items-center justify-center font-mono text-xs text-[#C5A046] font-bold bg-[#C5A046]/10 rounded border border-[#C5A046]/30 shrink-0">
+                            {index + 1}
+                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => handleMovePosition(index, 'up')}
+                              className="p-0.5 rounded bg-[#071309] hover:bg-[#C5A046]/20 text-[#C5A046] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                              title="Move position up"
+                            >
+                              <ChevronUp className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === filtered.length - 1}
+                              onClick={() => handleMovePosition(index, 'down')}
+                              className="p-0.5 rounded bg-[#071309] hover:bg-[#C5A046]/20 text-[#C5A046] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                              title="Move position down"
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           {(p.main_image_url || p.images?.[0]?.url)
@@ -245,12 +302,24 @@ export default function ProductManager() {
                       </td>
                       <td className="p-4 hidden lg:table-cell text-xs text-gray-400">{p.grades?.length ?? 0} grades</td>
                       <td className="p-4">
-                        {p.featured
-                          ? <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-950/60 px-2.5 py-1 rounded-full border border-amber-500/30">
-                              <Star className="w-3 h-3 fill-amber-400" /> Featured
-                            </span>
-                          : <span className="text-xs text-gray-500">—</span>
-                        }
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updateProduct(p.id, { featured: !p.featured });
+                              toast.success(p.featured ? 'Removed from Main Page' : 'Featured on Main Page (Max 4 displayed)');
+                              load();
+                            } catch (e: any) { toast.error(e.message); }
+                          }}
+                          title="Toggle Main Page Visibility"
+                          className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border cursor-pointer transition-all ${
+                            p.featured
+                              ? 'bg-amber-950/70 text-amber-300 border-amber-500/40 shadow-sm hover:bg-amber-900/80'
+                              : 'bg-gray-900/80 text-gray-400 border-gray-750 hover:border-gray-600 hover:text-gray-300'
+                          }`}
+                        >
+                          <Star className={`w-3.5 h-3.5 ${p.featured ? 'fill-amber-400 text-amber-400' : ''}`} />
+                          {p.featured ? 'Main Page' : 'Catalogue Only'}
+                        </button>
                       </td>
                       <td className="p-4">
                         <button onClick={() => handleTogglePublish(p)}
@@ -334,7 +403,7 @@ export default function ProductManager() {
                     {textarea('Full Description', editing.long_description ?? '', (v) => setEditing((p) => ({ ...p, long_description: v })), 5)}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {input('Origin', editing.origin ?? '', (v) => setEditing((p) => ({ ...p, origin: v })), 'Idukki, Kerala, India')}
-                      {input('Export Grade', editing.export_grade ?? '', (v) => setEditing((p) => ({ ...p, export_grade: v })), 'e.g. AGEB')}
+                      {input('Golden Label / Badge', editing.export_grade ?? '', (v) => setEditing((p) => ({ ...p, export_grade: v })), 'e.g. 8.5 mm / Extra Bold / Flagship')}
                       {input('HS Code', editing.hs_code ?? '', (v) => setEditing((p) => ({ ...p, hs_code: v })), 'e.g. 0908.31')}
                     </div>
                     {textarea('Packaging Information', editing.packaging_info ?? '', (v) => setEditing((p) => ({ ...p, packaging_info: v })), 2)}
@@ -342,11 +411,11 @@ export default function ProductManager() {
                       {input('Display Order', String(editing.display_order ?? 0), (v) => setEditing((p) => ({ ...p, display_order: parseInt(v) || 0 })), '0', false, 'number')}
                     </div>
                     <div className="flex items-center gap-6 pt-1">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase font-medium">
                         <input type="checkbox" checked={editing.featured ?? false} onChange={(e) => setEditing((p) => ({ ...p, featured: e.target.checked }))} className="accent-[#C5A046]" />
-                        Featured
+                        Show on Main Page (Featured)
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 uppercase font-medium">
                         <input type="checkbox" checked={editing.published ?? true} onChange={(e) => setEditing((p) => ({ ...p, published: e.target.checked }))} className="accent-[#C5A046]" />
                         Published
                       </label>

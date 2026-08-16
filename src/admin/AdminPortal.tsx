@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ADMIN_BASE_PATH } from './adminConstants';
 
 /**
- * Wraps admin routes — redirects to /admin/login if not authenticated.
+ * Wraps admin routes — redirects to secret login if not authenticated.
  * Also restores normal cursor for admin interactions.
  */
 export default function AdminPortal() {
@@ -28,7 +29,7 @@ export default function AdminPortal() {
     );
   }
 
-  if (!user) return <Navigate to="/admin/login" replace />;
+  if (!user) return <Navigate to={`${ADMIN_BASE_PATH}/login`} replace />;
 
   return <Outlet />;
 }

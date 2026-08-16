@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Lock, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { updatePassword } from '../lib/auth';
+import { ADMIN_BASE_PATH } from './adminConstants';
 import toast from 'react-hot-toast';
 
 export default function AdminResetPassword() {
@@ -34,7 +35,7 @@ export default function AdminResetPassword() {
       await updatePassword(password);
       setDone(true);
       toast.success('Password updated successfully!');
-      setTimeout(() => navigate('/admin/login'), 2500);
+      setTimeout(() => navigate(`${ADMIN_BASE_PATH}/login`), 2500);
     } catch (err: any) {
       setError(err?.message ?? 'Failed to update password.');
     } finally {
@@ -68,7 +69,7 @@ export default function AdminResetPassword() {
           <div className="py-6 text-center">
             <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
             <p className="text-sm text-gray-300 mb-4">Invalid or expired reset link.</p>
-            <Link to="/admin/forgot-password" className="text-xs text-[#C5A046] hover:underline">
+            <Link to={`${ADMIN_BASE_PATH}/forgot-password`} className="text-xs text-[#C5A046] hover:underline">
               Request a new link
             </Link>
           </div>

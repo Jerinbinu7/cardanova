@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Minus } from 'lucide-react';
+import { getActiveLangCode } from '../utils/translation';
 
 export type CurrencyCode = 'USD' | 'AED' | 'INR';
 
@@ -54,7 +56,9 @@ export default function CartDrawer({
   onRemoveItem,
   onCheckoutRFQ,
 }: CartDrawerProps) {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useState<CurrencyCode>(() => {
+    return getActiveLangCode() === 'ar' ? 'AED' : 'USD';
+  });
 
   const totalKg = cartItems.reduce((acc, item) => acc + item.quantityKg, 0);
   const totalUsdPrice = cartItems.reduce((acc, item) => {
@@ -185,31 +189,35 @@ export default function CartDrawer({
 
                         <div className="mt-3 flex items-center justify-between">
                           {/* Quantity Buttons */}
-                          <div className="flex items-center rounded-lg border border-[#A18637]/30 bg-[#071309] p-1">
+                          <div translate="no" className="notranslate flex items-center rounded-lg border border-[#A18637]/30 bg-[#071309] p-1">
                             <button
+                              type="button"
                               onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantityKg <= 5 ? item.quantityKg - 1 : item.quantityKg - 5))}
-                              className="w-6 h-6 flex items-center justify-center text-xs text-[#C5A046] hover:bg-[#112D15] rounded transition-colors cursor-pointer"
+                              className="w-6 h-6 flex items-center justify-center text-xs text-[#C5A046] hover:bg-[#112D15] rounded transition-colors cursor-pointer active:scale-95 select-none"
                               title="Decrease quantity (min 1 kg)"
+                              aria-label="Decrease quantity"
                             >
-                              -
+                              <Minus className="w-3 h-3 pointer-events-none" />
                             </button>
-                            <span className="px-2 text-xs font-medium text-[#FAF8F5]">
+                            <span translate="no" className="notranslate px-2 text-xs font-medium text-[#FAF8F5] select-none">
                               {item.quantityKg} kg
                             </span>
                             <button
+                              type="button"
                               onClick={() => onUpdateQuantity(item.id, item.quantityKg + (item.quantityKg < 5 ? 1 : 5))}
-                              className="w-6 h-6 flex items-center justify-center text-xs text-[#C5A046] hover:bg-[#112D15] rounded transition-colors cursor-pointer"
+                              className="w-6 h-6 flex items-center justify-center text-xs text-[#C5A046] hover:bg-[#112D15] rounded transition-colors cursor-pointer active:scale-95 select-none"
                               title="Increase quantity"
+                              aria-label="Increase quantity"
                             >
-                              +
+                              <Plus className="w-3 h-3 pointer-events-none" />
                             </button>
                           </div>
 
                           <div className="text-right">
-                            <span className="text-xs text-[#C5A046] font-medium">
+                            <span translate="no" className="notranslate text-xs text-[#C5A046] font-medium">
                               {formatTotalPrice(itemUsdTotal, currency)}
                             </span>
-                            <span className="block text-[9px] text-stone-500">
+                            <span translate="no" className="notranslate block text-[9px] text-stone-500">
                               ({formatItemPrice(item.pricePerKg, currency)}/kg)
                             </span>
                           </div>

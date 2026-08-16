@@ -2,17 +2,69 @@ import { supabase } from '../lib/supabase';
 import type { GalleryItemRow, GalleryFolder } from '../types/database';
 import { uploadFile, deleteFile } from './storageService';
 
-export async function getGalleryItems(folder?: GalleryFolder): Promise<GalleryItemRow[]> {
+const SUBSECTION_FOLDER_MAP: Record<string, GalleryFolder> = {
+  homepage_hero: 'events',
+  homepage_why_us: 'events',
+  about_hero: 'factory',
+  about_beginning: 'factory',
+  about_founders: 'factory',
+  factory: 'factory',
+  warehouse: 'warehouse',
+  origin_hero: 'factory',
+  origin_step_1: 'factory',
+  origin_step_2: 'factory',
+  origin_step_3: 'factory',
+  origin_step_4: 'factory',
+  origin_step_5: 'packaging',
+  origin_step_6: 'events',
+  products_hero: 'products',
+  products: 'products',
+  packaging: 'packaging',
+  certificates: 'certificates',
+  events: 'events',
+};
+
+export async function getGalleryItems(folderOrSubkey?: string): Promise<GalleryItemRow[]> {
   let query = supabase
     .from('gallery_items')
     .select('*')
     .order('display_order', { ascending: true });
 
-  if (folder) query = query.eq('folder', folder);
+  if (!folderOrSubkey) {
+    const { data, error } = await query;
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  const targetFolder = SUBSECTION_FOLDER_MAP[folderOrSubkey] || (folderOrSubkey as GalleryFolder);
+  query = query.eq('folder', targetFolder);
 
   const { data, error } = await query;
   if (error) throw error;
-  return data ?? [];
+  const rows = data ?? [];
+
+  if (folderOrSubkey.startsWith('origin_step_')) {
+    const stepNum = folderOrSubkey.replace('origin_step_', '');
+    const filtered = rows.filter(
+      (r) => r.title?.includes(`[${folderOrSubkey}]`) || r.title?.toLowerCase().includes(`step ${stepNum}`)
+    );
+    return filtered;
+  }
+
+  if (folderOrSubkey.endsWith('_hero')) {
+    const exactTagged = rows.filter((r) => r.title?.includes(`[${folderOrSubkey}]`));
+    if (exactTagged.length > 0) return exactTagged;
+    const nameMatch = rows.filter((r) => r.title?.toLowerCase().includes(folderOrSubkey.replace('_', ' ')));
+    if (nameMatch.length > 0) return nameMatch;
+    return [];
+  }
+
+  if (folderOrSubkey.startsWith('about_') || folderOrSubkey.startsWith('origin_') || folderOrSubkey.startsWith('homepage_') || folderOrSubkey.startsWith('products_')) {
+    const exactTagged = rows.filter((r) => r.title?.includes(`[${folderOrSubkey}]`));
+    if (exactTagged.length > 0) return exactTagged;
+  }
+
+  return rows;
 }
 
 export async function createGalleryItem(item: Omit<GalleryItemRow, 'id' | 'created_at' | 'updated_at'>): Promise<GalleryItemRow> {

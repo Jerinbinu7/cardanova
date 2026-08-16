@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import type { UserRole } from '../types/database';
+import { ADMIN_BASE_PATH } from '../admin/adminConstants';
 
 // ─── Sign In ───────────────────────────────────────────────────────────────────
 export async function signIn(email: string, password: string) {
@@ -24,7 +25,7 @@ export async function getSession() {
 // ─── Send Password Reset Email ────────────────────────────────────────────────
 export async function sendPasswordResetEmail(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/admin/reset-password`,
+    redirectTo: `${window.location.origin}${ADMIN_BASE_PATH}/reset-password`,
   });
   if (error) throw error;
 }

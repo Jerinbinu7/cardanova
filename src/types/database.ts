@@ -154,6 +154,10 @@ export interface FarmToExportStep {
   title: string;
   loc: string;
   desc: string;
+  phase?: string;
+  body?: string;
+  detail?: string;
+  image?: string;
 }
 
 export interface StatItem {
@@ -162,8 +166,11 @@ export interface StatItem {
 }
 
 export interface WhyChooseUsFeature {
-  icon: string;
+  icon?: string;
+  tag?: string;
   title: string;
+  stat?: string;
+  statLabel?: string;
   description: string;
 }
 

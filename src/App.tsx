@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from './hooks/useReducedMotion';
@@ -32,12 +32,14 @@ import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import QuoteModal from './components/QuoteModal';
 import CartDrawer, { CartItem } from './components/CartDrawer';
-// Admin Routes (lazy-friendly imports)
-import AdminPortal from './admin/AdminPortal';
-import AdminLayout from './admin/AdminLayout';
-import AdminLogin from './admin/AdminLogin';
-import AdminForgotPassword from './admin/AdminForgotPassword';
-import AdminResetPassword from './admin/AdminResetPassword';
+import { ADMIN_BASE_PATH } from './admin/adminConstants';
+import { triggerGoogleTranslateSync } from './utils/translation';
+// Admin Routes — lazy-loaded so public visitors never download admin JS
+const AdminPortal         = lazy(() => import('./admin/AdminPortal'));
+const AdminLayout         = lazy(() => import('./admin/AdminLayout'));
+const AdminLogin          = lazy(() => import('./admin/AdminLogin'));
+const AdminForgotPassword = lazy(() => import('./admin/AdminForgotPassword'));
+const AdminResetPassword  = lazy(() => import('./admin/AdminResetPassword'));
 
 const SITE_URL = 'https://cardanovaspices.com';
 
@@ -166,10 +168,21 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Redirect hash #admin or /admin to real router route
+    // Redirect hash #admin to secret admin route
     if (window.location.hash === '#admin') {
-      navigate('/admin');
+      navigate(ADMIN_BASE_PATH);
     }
+
+    // Secret Admin Shortcut: Press Ctrl + Shift + A (or Cmd + Shift + A) to open admin portal
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        navigate(ADMIN_BASE_PATH);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [navigate]);
 
   useEffect(() => {
@@ -182,11 +195,12 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    triggerGoogleTranslateSync(350);
   }, [activeTab]);
 
   const handleSelectTab = (tab: string) => {
     if (tab === 'admin') {
-      navigate('/admin');
+      navigate(ADMIN_BASE_PATH);
       return;
     }
     setActiveTab(tab as any);
@@ -196,9 +210,11 @@ export default function App() {
 
 
   const [isCartCheckout, setIsCartCheckout] = useState(false);
+  const [selectedPricePerKg, setSelectedPricePerKg] = useState<number | undefined>(undefined);
 
-  const handleOpenQuoteModal = (grade?: string) => {
+  const handleOpenQuoteModal = (grade?: string, pricePerKg?: number) => {
     if (grade) setSelectedGrade(grade);
+    setSelectedPricePerKg(pricePerKg);
     setIsCartCheckout(false);
     setIsQuoteOpen(true);
   };
@@ -240,21 +256,44 @@ export default function App() {
     setIsQuoteOpen(true);
   };
 
-  // Admin routing handled below via React Router Routes
-
   // Determine current page SEO config
   const currentSEO = PAGE_SEO[activeTab as keyof typeof PAGE_SEO] ?? PAGE_SEO.home;
 
   return (
     <Routes>
-      {/* ── Admin Routes — all under /admin ── */}
-      <Route path="/admin/*" element={<AdminPortal />}>
-        <Route index element={<AdminLayout />} />
-        <Route path="*" element={<AdminLayout />} />
+      {/* ── Secret Admin Routes — under ADMIN_BASE_PATH ── */}
+      {/* Suspense boundary: admin JS chunk loads only when these secret routes are visited */}
+      <Route path={`${ADMIN_BASE_PATH}/*`} element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminPortal />
+        </Suspense>
+      }>
+        <Route index element={
+          <Suspense fallback={<PageLoader />}>
+            <AdminLayout />
+          </Suspense>
+        } />
+        <Route path="*" element={
+          <Suspense fallback={<PageLoader />}>
+            <AdminLayout />
+          </Suspense>
+        } />
       </Route>
-      <Route path="/admin/login"            element={<AdminLogin />} />
-      <Route path="/admin/forgot-password"  element={<AdminForgotPassword />} />
-      <Route path="/admin/reset-password"   element={<AdminResetPassword />} />
+      <Route path={`${ADMIN_BASE_PATH}/login`} element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminLogin />
+        </Suspense>
+      } />
+      <Route path={`${ADMIN_BASE_PATH}/forgot-password`} element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminForgotPassword />
+        </Suspense>
+      } />
+      <Route path={`${ADMIN_BASE_PATH}/reset-password`} element={
+        <Suspense fallback={<PageLoader />}>
+          <AdminResetPassword />
+        </Suspense>
+      } />
 
       {/* ── Public Site — all other routes ── */}
       <Route path="*" element={<>
@@ -378,6 +417,7 @@ export default function App() {
             setIsCartCheckout(false);
           }}
           defaultGrade={selectedGrade}
+          defaultPricePerKg={selectedPricePerKg}
           cartItems={isCartCheckout ? cartItems : []}
           onSuccess={() => {
             if (isCartCheckout) {

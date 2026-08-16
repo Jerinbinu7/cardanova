@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
-import { getGalleryItems } from '../services/galleryService';
 import { getHomepageContent } from '../services/homepageService';
+import { getGalleryItems } from '../services/galleryService';
 
 interface HeroProps {
   onOpenQuoteModal: (grade?: string) => void;
@@ -16,7 +16,7 @@ const HERO_SLIDES = [
     alt: 'Premium green cardamom pods from Idukki, Kerala — Cardanova Spices flagship grade',
     headline: "The World's Finest",
     accent: 'Idukki Green Cardamom',
-    sub: 'Single-Origin · High Elevation Estates (1,100m) · Kerala, India',
+    sub: 'SINGLE-ORIGIN · HIGH-ELEVATION ESTATES (1,100M) · KERALA, INDIA',
   },
   {
     image: '/images/cardamom-hero-2.jpg',
@@ -54,60 +54,59 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   const heroRef = useRef<HTMLElement>(null);
   const SLIDE_DURATION = 6000;
 
-  useEffect(() => {
-    // Fetch CMS content from Supabase
-    getHomepageContent().then((cms) => {
-      let baseHeadline = HERO_SLIDES[0].headline;
-      let baseSubtext = HERO_SLIDES[0].sub;
+  // When Google Translate is active, freeze the hero on slide 0.
+  // AnimatePresence unmount/remount cycles replace translated DOM nodes with
+  // fresh English text — freezing prevents the translation from being lost.
+  const isTranslationActive = typeof document !== 'undefined' &&
+    document.cookie.includes('googtrans=/en/');
 
+  useEffect(() => {
+    // Fetch CMS CTA text overrides if set
+    getHomepageContent().then((cms) => {
       if (cms) {
-        if (cms.hero_title) baseHeadline = cms.hero_title;
-        if (cms.hero_subtitle) baseSubtext = cms.hero_subtitle;
         if (cms.hero_cta_primary_text) setPrimaryCtaText(cms.hero_cta_primary_text);
         if (cms.hero_cta_secondary_text) setSecondaryCtaText(cms.hero_cta_secondary_text);
       }
-
-      // Fetch dynamic hero images from gallery if any
-      getGalleryItems('homepage_hero').then((galleryData) => {
-        if (galleryData && galleryData.length > 0) {
-          const dynamicSlides = galleryData.map((item, index) => ({
-            image: item.image_url,
-            alt: item.title,
-            headline: index === 0 ? baseHeadline : item.title,
-            accent: index === 0 ? 'Single-Origin Kerala Spices' : '',
-            sub: index === 0 ? baseSubtext : 'Cardanova Spices',
-          }));
-          setSlides(dynamicSlides);
-        } else {
-          // Fallback to default with CMS overrides
-          setSlides([
-            {
-              image: HERO_SLIDES[0].image,
-              alt: HERO_SLIDES[0].alt,
-              headline: baseHeadline,
-              accent: 'Single-Origin Kerala Spices',
-              sub: baseSubtext,
-            },
-            HERO_SLIDES[1],
-            HERO_SLIDES[2],
-          ]);
-        }
-      }).catch((e) => {
-        console.warn('Failed to fetch hero images', e);
-      });
     }).catch((e) => {
       console.warn('Failed to fetch homepage CMS content', e);
+    });
+
+    // Fetch dynamic hero images from gallery while preserving design copy
+    getGalleryItems('homepage_hero').then((galleryData) => {
+      if (galleryData && galleryData.length > 0) {
+        const dynamicSlides = galleryData.map((item, index) => {
+          const originalSlide = HERO_SLIDES[index % HERO_SLIDES.length];
+          return {
+            image: item.image_url,
+            alt: item.title || originalSlide.alt,
+            headline: originalSlide.headline,
+            accent: originalSlide.accent,
+            sub: originalSlide.sub,
+          };
+        });
+        setSlides(dynamicSlides);
+      }
+    }).catch((e) => {
+      console.warn('Failed to fetch hero images', e);
     });
   }, []);
 
 
+  const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
   const { scrollY } = useScroll();
-  const imgY = useTransform(scrollY, [0, 600], [0, 80]);
-  const contentY = useTransform(scrollY, [0, 400], [0, -60]);
-  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const rawImgY = useTransform(scrollY, [0, 600], [0, 80]);
+  const rawContentY = useTransform(scrollY, [0, 400], [0, -60]);
+  const rawOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+
+  const imgY = isTouch ? 0 : rawImgY;
+  const contentY = isTouch ? 0 : rawContentY;
+  const opacity = isTouch ? 1 : rawOpacity;
 
   useEffect(() => {
-    if (reducedMotion) return;
+    // Don't cycle slides when: reduced motion OR translation is active
+    // (cycling unmounts/remounts nodes, losing Google Translate mutations)
+    if (reducedMotion || isTranslationActive) return;
 
     let startTime: number;
     let raf: number;
@@ -138,7 +137,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
       clearInterval(progressInterval);
       cancelAnimationFrame(raf);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, isTranslationActive]);
 
   useEffect(() => {
     setProgress(0);
@@ -147,11 +146,11 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   return (
     <section
       ref={heroRef}
-      className="relative h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-end"
-      style={{ minHeight: '100svh' }}
+      className="relative min-h-screen sm:h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-center sm:justify-end pt-20 sm:pt-24 pb-12 sm:pb-24 lg:pb-28"
       aria-label="Hero slideshow — Premium Cardanova Spices"
     >
       {/* ── Background Slideshow ─────────────────────────── */}
+
       <div className="absolute inset-0 z-0" aria-hidden="true">
         <AnimatePresence mode="wait">
           <motion.div
@@ -221,7 +220,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Main Hero Content ────────────────────────────── */}
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-10 pb-28 sm:pb-36 lg:pb-40"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 translate-y-[60px] sm:translate-y-0"
         style={{ y: contentY, opacity }}
       >
         {/* Headline */}
@@ -229,14 +228,14 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           <AnimatePresence mode="wait">
             <motion.div
               key={slide}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <h1
-                className="font-display font-light leading-[0.92] tracking-[-0.02em] text-[#FAF8F5]"
-                style={{ fontSize: 'clamp(2.6rem, 8vw, 8rem)' }}
+                className="font-display font-light leading-[0.95] tracking-[-0.02em] text-[#FAF8F5]"
+                style={{ fontSize: 'clamp(2.5rem, 6.5vw, 6.4rem)' }}
               >
                 {slides[slide]?.headline || HERO_SLIDES[0].headline}
                 <br />
@@ -249,7 +248,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="mt-5 label-caps text-stone-300/80"
+                className="mt-3 sm:mt-5 label-caps text-xs sm:text-sm text-stone-300/90 tracking-widest"
               >
                 {slides[slide]?.sub || HERO_SLIDES[0].sub}
               </motion.p>
@@ -261,17 +260,17 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4"
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="mt-10 sm:mt-16 lg:mt-20 flex flex-col sm:flex-row items-stretch sm:items-start gap-3.5 sm:gap-5"
         >
           <MagneticButton
             as="button"
             onClick={() => onOpenQuoteModal()}
             cursorLabel="Quote"
             aria-label="Request a cardamom trade quote"
-            className="rounded-full gold-gradient-bg px-8 py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow text-center"
+            className="rounded-full gold-gradient-bg px-7 py-3.5 sm:px-8 sm:py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow text-center text-xs font-semibold"
           >
-            {primaryCtaText}
+            {primaryCtaText} →
           </MagneticButton>
 
           <MagneticButton
@@ -279,12 +278,32 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             onClick={onNavigateToProducts}
             cursorLabel="Catalogue"
             aria-label="View our cardamom product catalogue"
-            className="rounded-full border border-[#FAF8F5]/20 bg-white/5 backdrop-blur-md px-8 py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/50 hover:bg-white/10 transition-all cursor-pointer text-center"
+            className="rounded-full border border-[#FAF8F5]/25 bg-white/5 backdrop-blur-md px-7 py-3.5 sm:px-8 sm:py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/60 hover:bg-white/10 transition-all cursor-pointer text-center text-xs font-semibold"
           >
-            {secondaryCtaText}
+            {secondaryCtaText} →
           </MagneticButton>
         </motion.div>
       </motion.div>
+
+      {/* ── Mobile Slide Dots ───────────────────────────── */}
+      <div
+        className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex lg:hidden items-center gap-2"
+        role="tablist"
+        aria-label="Mobile slideshow navigation"
+      >
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setSlide(i)}
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+              slide === i ? 'w-7 bg-[#C5A046]' : 'w-2 bg-white/30'
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+            aria-selected={slide === i}
+            role="tab"
+          />
+        ))}
+      </div>
 
       {/* ── Slide Progress — vertical right side ────────── */}
       <div

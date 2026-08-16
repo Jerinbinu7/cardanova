@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, KeyRound, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { ADMIN_BASE_PATH } from './adminConstants';
 import toast from 'react-hot-toast';
 
 export default function AdminLogin() {
@@ -22,9 +23,14 @@ export default function AdminLogin() {
     try {
       await signIn(email.trim(), password);
       toast.success('Welcome back!');
-      navigate('/admin');
+      navigate(ADMIN_BASE_PATH);
     } catch (err: any) {
-      setError(err?.message ?? 'Authentication failed. Please check your credentials.');
+      const msg = err?.message || '';
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
+        setError('Connection Error: Unable to reach authentication server. Please check your internet connection, disable AdBlockers/VPN, or verify Supabase environment variables on your host deployment.');
+      } else {
+        setError(msg || 'Authentication failed. Please check your credentials.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +112,7 @@ export default function AdminLogin() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs uppercase tracking-wider text-[#C5A046] font-medium">Password</label>
-              <Link to="/admin/forgot-password" className="text-[11px] text-[#C5A046]/70 hover:text-[#C5A046] transition-colors">
+              <Link to={`${ADMIN_BASE_PATH}/forgot-password`} className="text-[11px] text-[#C5A046]/70 hover:text-[#C5A046] transition-colors">
                 Forgot password?
               </Link>
             </div>

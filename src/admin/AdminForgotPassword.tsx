@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { sendPasswordResetEmail } from '../lib/auth';
+import { ADMIN_BASE_PATH } from './adminConstants';
 
 export default function AdminForgotPassword() {
   const [email, setEmail]     = useState('');
@@ -18,7 +19,12 @@ export default function AdminForgotPassword() {
       await sendPasswordResetEmail(email.trim());
       setSent(true);
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to send reset email. Please try again.');
+      const msg = err?.message || '';
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
+        setError('Connection Error: Unable to reach authentication server. Please check your network or Supabase settings.');
+      } else {
+        setError(msg || 'Failed to send reset email. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -34,7 +40,7 @@ export default function AdminForgotPassword() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-[#0D2012]/90 border border-[#C5A046]/30 rounded-2xl p-8 backdrop-blur-xl shadow-2xl"
       >
-        <Link to="/admin/login" className="flex items-center gap-2 text-xs text-[#C5A046] mb-6 hover:underline">
+        <Link to={`${ADMIN_BASE_PATH}/login`} className="flex items-center gap-2 text-xs text-[#C5A046] mb-6 hover:underline">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Login
         </Link>
 
@@ -54,7 +60,7 @@ export default function AdminForgotPassword() {
                 A password reset link has been sent to <span className="text-[#C5A046]">{email}</span>.
               </p>
             </div>
-            <Link to="/admin/login" className="text-xs text-[#C5A046] hover:underline mt-2">
+            <Link to={`${ADMIN_BASE_PATH}/login`} className="text-xs text-[#C5A046] hover:underline mt-2">
               Return to Login
             </Link>
           </div>

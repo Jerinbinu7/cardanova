@@ -188,26 +188,59 @@ function ProcessStep({ step, index }: { step: typeof PROCESS_STEPS[0]; index: nu
 export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const [steps, setSteps] = useState(PROCESS_STEPS);
+  const [heroBg, setHeroBg] = useState('/images/origin-hero-bg.jpg');
 
   useEffect(() => {
+    // Load homepage content first (text data for steps)
     getHomepageContent().then((data) => {
       if (data?.farm_to_export_steps && data.farm_to_export_steps.length > 0) {
-        const mapped = data.farm_to_export_steps.map((st: any, idx: number) => ({
-          step: String(st.step || idx + 1).padStart(2, '0'),
-          phase: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].phase,
-          title: st.title || PROCESS_STEPS[idx % PROCESS_STEPS.length].title,
-          subtitle: st.loc || PROCESS_STEPS[idx % PROCESS_STEPS.length].subtitle,
-          body: st.desc || PROCESS_STEPS[idx % PROCESS_STEPS.length].body,
-          detail: st.loc ? `Location: ${st.loc}` : PROCESS_STEPS[idx % PROCESS_STEPS.length].detail,
-          image: PROCESS_STEPS[idx % PROCESS_STEPS.length].image,
-          accent: PROCESS_STEPS[idx % PROCESS_STEPS.length].accent,
-          icon: PROCESS_STEPS[idx % PROCESS_STEPS.length].icon,
-        }));
+        const mapped = data.farm_to_export_steps.map((st: any, idx: number) => {
+          const def = PROCESS_STEPS[idx % PROCESS_STEPS.length];
+          return {
+            step: String(st.step || idx + 1).padStart(2, '0'),
+            phase: st.phase || st.title || def.phase,
+            title: st.title || def.title,
+            subtitle: st.loc || def.subtitle,
+            body: st.body || st.desc || def.body,
+            detail: st.detail || def.detail,
+            image: st.image || def.image,
+            accent: def.accent,
+            icon: def.icon,
+          };
+        });
         setSteps(mapped);
       }
-    }).catch((e) => {
-      console.warn('Failed to load origin steps from Supabase', e);
-    });
+    }).catch(() => {});
+
+    // Load gallery images — these always override step images
+    import('../services/galleryService').then(({ getGalleryItems }) => {
+      getGalleryItems('origin_hero').then((items) => {
+        if (items && items.length > 0 && items[0].image_url) {
+          setHeroBg(items[0].image_url);
+        }
+      });
+
+      const stepKeys = ['origin_step_1', 'origin_step_2', 'origin_step_3', 'origin_step_4', 'origin_step_5', 'origin_step_6'];
+      Promise.all(stepKeys.map((key) => getGalleryItems(key))).then((results) => {
+        const galleryImagesMap: Record<number, string> = {};
+        results.forEach((res, idx) => {
+          if (res && res.length > 0 && res[0].image_url) {
+            galleryImagesMap[idx] = res[0].image_url;
+          }
+        });
+
+        if (Object.keys(galleryImagesMap).length > 0) {
+          setSteps((prev) =>
+            prev.map((step, idx) => {
+              if (galleryImagesMap[idx]) {
+                return { ...step, image: galleryImagesMap[idx] };
+              }
+              return step;
+            })
+          );
+        }
+      }).catch(() => {});
+    }).catch(() => {});
   }, []);
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -225,7 +258,7 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
         aria-labelledby="origin-page-title"
       >
         <motion.img
-          src="/images/origin-hero-bg.jpg"
+          src={heroBg}
           alt="High-altitude cardamom plantations in the mist-covered hills of Idukki, Kerala"
           width={2070}
           height={1380}
