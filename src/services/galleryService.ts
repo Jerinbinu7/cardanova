@@ -6,6 +6,7 @@ const SUBSECTION_FOLDER_MAP: Record<string, GalleryFolder> = {
   homepage_hero: 'events',
   homepage_why_us: 'events',
   about_hero: 'factory',
+  about_beginning: 'factory',
   about_founders: 'factory',
   factory: 'factory',
   warehouse: 'warehouse',
@@ -51,10 +52,16 @@ export async function getGalleryItems(folderOrSubkey?: string): Promise<GalleryI
   }
 
   if (folderOrSubkey.endsWith('_hero')) {
-    const filtered = rows.filter(
-      (r) => r.title?.includes(`[${folderOrSubkey}]`) || r.title?.toLowerCase().includes('hero')
-    );
-    return filtered;
+    const exactTagged = rows.filter((r) => r.title?.includes(`[${folderOrSubkey}]`));
+    if (exactTagged.length > 0) return exactTagged;
+    const nameMatch = rows.filter((r) => r.title?.toLowerCase().includes(folderOrSubkey.replace('_', ' ')));
+    if (nameMatch.length > 0) return nameMatch;
+    return [];
+  }
+
+  if (folderOrSubkey.startsWith('about_') || folderOrSubkey.startsWith('origin_') || folderOrSubkey.startsWith('homepage_') || folderOrSubkey.startsWith('products_')) {
+    const exactTagged = rows.filter((r) => r.title?.includes(`[${folderOrSubkey}]`));
+    if (exactTagged.length > 0) return exactTagged;
   }
 
   return rows;

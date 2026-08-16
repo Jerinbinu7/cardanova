@@ -110,19 +110,9 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
   const [story, setStory] = useState('Cardanova was founded by two passionate entrepreneurs who grew up surrounded by the rich spice heritage of Idukki, Kerala. Inspired by the quality of locally grown cardamom and the dedication of hardworking farmers, they shared a vision of bringing authentic Indian spices to buyers across the world.');
   const [vision, setVision] = useState('Our vision is to become one of India\'s most trusted spice exporters by combining authentic sourcing, uncompromising quality, and exceptional customer relationships.');
   const [founders, setFounders] = useState(FOUNDERS);
-  const [ceoData, setCeoData] = useState<{
-    name: string;
-    title: string;
-    message: string;
-    imageUrl: string;
-  } | null>({
-    name: 'Akhilkumar K A',
-    title: 'Chief Executive Officer & Founder',
-    message: 'At Cardanova Spices, our commitment goes beyond exporting premium green cardamom. We are dedicated to upholding the legacy of Kerala spice farming, fostering sustainable agricultural practices, and building relationships of trust with global trade partners.',
-    imageUrl: '/images/founder-akhilkumar.jpg',
-  });
 
-  const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop');
+  const [heroBg, setHeroBg] = useState('/images/about-hero.jpg');
+  const [beginningImage, setBeginningImage] = useState('/images/cardamom-hero-1.jpg');
 
   useEffect(() => {
     getAboutContent().then((cms) => {
@@ -130,14 +120,6 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
         if (cms.company_story) setStory(cms.company_story);
         if (cms.vision) setVision(cms.vision);
         if (cms.history && cms.history.startsWith('http')) setHeroBg(cms.history);
-        if (cms.ceo_message || cms.ceo_name) {
-          setCeoData({
-            name: cms.ceo_name || 'Akhilkumar K A',
-            title: cms.ceo_title || 'Chief Executive Officer',
-            message: cms.ceo_message || '',
-            imageUrl: cms.ceo_image_url || '/images/founder-akhilkumar.jpg',
-          });
-        }
         if (cms.founders && cms.founders.length > 0) {
           setFounders(cms.founders.map((f: any, idx: number) => {
             const founderName = f.name?.trim() ? f.name : (idx === 0 ? 'Akhilkumar K A' : idx === 1 ? 'Amal Babu' : `Founder ${idx + 1}`);
@@ -167,6 +149,11 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
       getGalleryItems('about_hero').then((items) => {
         if (items && items.length > 0 && items[0].image_url) {
           setHeroBg(items[0].image_url);
+        }
+      });
+      getGalleryItems('about_beginning').then((items) => {
+        if (items && items.length > 0 && items[0].image_url) {
+          setBeginningImage(items[0].image_url);
         }
       });
     }).catch(() => {});
@@ -277,7 +264,7 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
             style={{ height: '440px' }}
           >
             <img
-              src="/images/cardamom-hero-1.jpg"
+              src={beginningImage}
               alt="Lush cardamom farm in Idukki high ranges, Kerala — Cardanova single-origin estate"
               width={1200}
               height={800}
@@ -421,60 +408,6 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
           </div>
         </div>
       </section>
-
-      {/* ── CEO MESSAGE SECTION ─────────────────────────────────── */}
-      {ceoData && ceoData.message && (
-        <section className="py-24 px-6 lg:px-10 bg-[#071309] text-[#FAF8F5] border-t border-[#C5A046]/20">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              {ceoData.imageUrl && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  className="lg:col-span-4 relative rounded-3xl overflow-hidden shadow-2xl border border-[#C5A046]/30 aspect-[3/4]"
-                >
-                  <img
-                    src={ceoData.imageUrl}
-                    alt={ceoData.name}
-                    className="w-full h-full object-cover object-top"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-transparent to-transparent" />
-                </motion.div>
-              )}
-
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className={ceoData.imageUrl ? 'lg:col-span-8' : 'lg:col-span-12 text-center'}
-              >
-                <span className="label-caps text-[#C5A046]">Leadership Message</span>
-                <h2
-                  className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.95]"
-                  style={{ fontSize: 'clamp(2rem, 4vw, 3.8rem)' }}
-                >
-                  Message from the <em className="animate-shimmer not-italic">CEO</em>
-                </h2>
-                <div className={`mt-5 luxury-divider w-20 ${!ceoData.imageUrl ? 'mx-auto' : ''}`} />
-
-                <blockquote className="font-display italic text-stone-200 text-lg sm:text-2xl mt-8 font-light leading-relaxed border-l-2 border-[#C5A046] pl-6">
-                  "{ceoData.message}"
-                </blockquote>
-
-                <div className="mt-8">
-                  <h4 className="font-display text-2xl font-light text-[#FAF8F5]">{ceoData.name}</h4>
-                  <span className="label-caps text-[#C5A046] mt-1 block" style={{ fontSize: '0.58rem' }}>
-                    {ceoData.title}
-                  </span>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-      )}
 
 
       {/* ── 4. OUR VISION ────────────────────────────────────── */}

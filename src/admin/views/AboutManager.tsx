@@ -2,22 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { Save, Plus, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getAboutContent, updateAboutContent, uploadAboutImage, deleteAboutImage } from '../../services/aboutService';
+import { getGalleryItems, createGalleryItem, deleteGalleryItem, uploadGalleryImage } from '../../services/galleryService';
 import type { AboutContentRow } from '../../types/database';
 import FileUpload from '../components/FileUpload';
 import { SkeletonText } from '../components/Skeleton';
 
 export default function AboutManager() {
   const [content, setContent] = useState<Partial<AboutContentRow>>({});
+  const [beginningImage, setBeginningImage] = useState<string>('/images/cardamom-hero-1.jpg');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [activeTab, setActiveTab] = useState<'story' | 'founders' | 'ceo' | 'images' | 'timeline'>('story');
   const [uploadingFactory, setUploadingFactory] = useState(0);
   const [uploadingWarehouse, setUploadingWarehouse] = useState(0);
   const [uploadingFounder, setUploadingFounder] = useState<number | null>(null);
+  const [uploadingBeginning, setUploadingBeginning] = useState(0);
+  const [uploadingHero, setUploadingHero] = useState(0);
 
   useEffect(() => {
-    getAboutContent().then((d) => {
+    Promise.all([
+      getAboutContent(),
+      getGalleryItems('about_hero'),
+      getGalleryItems('about_beginning'),
+    ]).then(([d, heroItems, beginningItems]) => {
       if (d) {
+        if (heroItems && heroItems.length > 0 && heroItems[0].image_url) {
+          d.history = heroItems[0].image_url;
+        }
         if (!d.founders || d.founders.length === 0) {
           d.founders = [
             {
@@ -43,6 +54,9 @@ export default function AboutManager() {
           ];
         }
         setContent(d);
+      }
+      if (beginningItems && beginningItems.length > 0 && beginningItems[0].image_url) {
+        setBeginningImage(beginningItems[0].image_url);
       }
     }).finally(() => setLoading(false));
   }, []);
@@ -83,6 +97,88 @@ export default function AboutManager() {
   const removeWarehouseImage = async (url: string) => {
     await deleteAboutImage(url).catch(() => {});
     setContent((c) => ({ ...c, warehouse_images: (c.warehouse_images ?? []).filter((u) => u !== url) }));
+  };
+
+  const handleHeroUpload = async (files: File[]) => {
+    if (!files.length) return;
+    setUploadingHero(10);
+    try {
+      const url = await uploadGalleryImage('factory', files[0], (p) => setUploadingHero(p));
+      setContent((c) => ({ ...c, history: url }));
+      const existing = await getGalleryItems('about_hero');
+      if (existing) {
+        for (const item of existing) {
+          await deleteGalleryItem(item);
+        }
+      }
+      await createGalleryItem({
+        title: '[about_hero] About Page Hero Background',
+        image_url: url,
+        folder: 'factory',
+        display_order: 0,
+      });
+      toast.success('About hero background uploaded!');
+    } catch (e: any) {
+      toast.error(e.message || 'Upload failed');
+    } finally {
+      setTimeout(() => setUploadingHero(0), 1000);
+    }
+  };
+
+  const handleHeroRemove = async () => {
+    try {
+      setContent((c) => ({ ...c, history: null }));
+      const existing = await getGalleryItems('about_hero');
+      if (existing) {
+        for (const item of existing) {
+          await deleteGalleryItem(item);
+        }
+      }
+      toast.success('Hero image removed');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to remove');
+    }
+  };
+
+  const handleBeginningUpload = async (files: File[]) => {
+    if (!files.length) return;
+    setUploadingBeginning(10);
+    try {
+      const url = await uploadGalleryImage('factory', files[0], (p) => setUploadingBeginning(p));
+      const existing = await getGalleryItems('about_beginning');
+      if (existing) {
+        for (const item of existing) {
+          await deleteGalleryItem(item);
+        }
+      }
+      await createGalleryItem({
+        title: '[about_beginning] Born in the Hills of Idukki Image',
+        image_url: url,
+        folder: 'factory',
+        display_order: 0,
+      });
+      setBeginningImage(url);
+      toast.success('Born in the Hills of Idukki image updated!');
+    } catch (e: any) {
+      toast.error(e.message || 'Upload failed');
+    } finally {
+      setTimeout(() => setUploadingBeginning(0), 1000);
+    }
+  };
+
+  const handleBeginningRemove = async () => {
+    try {
+      const existing = await getGalleryItems('about_beginning');
+      if (existing) {
+        for (const item of existing) {
+          await deleteGalleryItem(item);
+        }
+      }
+      setBeginningImage('/images/cardamom-hero-1.jpg');
+      toast.success('Image reset to default');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to remove');
+    }
   };
 
   if (loading) return <SkeletonText lines={10} />;
@@ -191,8 +287,26 @@ export default function AboutManager() {
         {activeTab === 'story' && (
           <div className="space-y-5">
             <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">
-              <label className={labelClass}>Company Story</label>
+              <label className={labelClass}>Company Story (The Beginning)</label>
               <textarea rows={5} value={content.company_story ?? ''} onChange={(e) => setContent((c) => ({ ...c, company_story: e.target.value }))} className={textareaClass} />
+            </div>
+
+            <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">
+              <div>
+                <h4 className="text-sm text-[#C5A046] font-medium">Born in the Hills of Idukki Image</h4>
+                <p className="text-xs text-gray-400 mt-1">
+                  Upload or replace the cardamom estate image shown in "The Beginning" section on the About page.
+                </p>
+              </div>
+              <FileUpload
+                label="Born in the Hills of Idukki Image"
+                currentUrl={beginningImage}
+                accept="image"
+                defaultAspect="4:3"
+                onFiles={handleBeginningUpload}
+                onRemove={handleBeginningRemove}
+                progress={uploadingBeginning}
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-2">
@@ -310,20 +424,38 @@ export default function AboutManager() {
         {activeTab === 'images' && (
           <div className="space-y-5">
             <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">
-              <h4 className="text-sm text-[#C5A046] font-medium">About Page Top Hero Background Image</h4>
+              <div>
+                <h4 className="text-sm text-[#C5A046] font-medium">About Page Top Hero Background Image</h4>
+                <p className="text-xs text-gray-400 mt-1">
+                  Parallax hero banner image at the top of the About page.
+                </p>
+              </div>
               <FileUpload
                 label="Hero Background Banner Image"
-                currentUrl={content.history}
+                currentUrl={content.history || '/images/about-hero.jpg'}
                 accept="image"
                 defaultAspect="16:9"
-                onFiles={async (files) => {
-                  try {
-                    const url = await uploadAboutImage('factory', files[0]);
-                    setContent((c) => ({ ...c, history: url }));
-                    toast.success('Hero banner uploaded!');
-                  } catch (e: any) { toast.error(e.message); }
-                }}
-                onRemove={() => setContent((c) => ({ ...c, history: null }))}
+                onFiles={handleHeroUpload}
+                onRemove={handleHeroRemove}
+                progress={uploadingHero}
+              />
+            </div>
+
+            <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">
+              <div>
+                <h4 className="text-sm text-[#C5A046] font-medium">Born in the Hills of Idukki Image (The Beginning Section)</h4>
+                <p className="text-xs text-gray-400 mt-1">
+                  Cardamom estate photo featured next to "Born in the Hills of Idukki" on the About page.
+                </p>
+              </div>
+              <FileUpload
+                label="The Beginning Section Image"
+                currentUrl={beginningImage}
+                accept="image"
+                defaultAspect="4:3"
+                onFiles={handleBeginningUpload}
+                onRemove={handleBeginningRemove}
+                progress={uploadingBeginning}
               />
             </div>
             <div className="bg-[#0D2012]/80 p-5 rounded-2xl border border-[#C5A046]/20 space-y-4">

@@ -188,7 +188,7 @@ function ProcessStep({ step, index }: { step: typeof PROCESS_STEPS[0]; index: nu
 export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const [steps, setSteps] = useState(PROCESS_STEPS);
-  const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop');
+  const [heroBg, setHeroBg] = useState('/images/origin-hero-bg.jpg');
 
   useEffect(() => {
     // Load homepage content first (text data for steps)
