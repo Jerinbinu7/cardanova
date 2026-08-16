@@ -176,7 +176,7 @@ function CardamomCard({
         <div className="flex items-baseline justify-between pt-1">
           <div>
             <span className="text-xs text-stone-400 font-light">Price: </span>
-            <span translate="no" className="notranslate font-display text-xl font-light gold-gradient-text">{priceInfo.amountStr}</span>
+            <span translate="no" className="notranslate font-sans text-sm sm:text-base font-normal text-stone-200">{priceInfo.amountStr}</span>
             <span className="text-xs text-stone-400 font-light"> / kg</span>
           </div>
         </div>

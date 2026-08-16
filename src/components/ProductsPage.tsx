@@ -269,7 +269,7 @@ function ProductCard({
 
         <div className="mt-4 mb-4 flex items-baseline justify-between">
           <div>
-            <span translate="no" className="notranslate font-display gold-gradient-text font-light leading-none" style={{ fontSize: '1.6rem' }}>
+            <span translate="no" className="notranslate font-sans text-base sm:text-lg font-normal text-stone-700 leading-none">
               {priceInfo.amountStr}
             </span>
             <span className="text-xs text-stone-400 ml-1.5 font-light">/ kg</span>
