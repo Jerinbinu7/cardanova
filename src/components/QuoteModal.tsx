@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { submitQuoteRequest } from '../services/quoteService';
 import { getAuctionPrice, type AuctionRecord } from '../services/auctionPriceService';
 import { validateEmail } from '../utils/emailValidator';
+import { getActiveLangCode } from '../utils/translation';
 import type { CartItem } from './CartDrawer';
 
 export type CurrencyCode = 'USD' | 'AED' | 'INR';
@@ -87,7 +88,9 @@ export default function QuoteModal({
   const isBulkCart = cartItems.length > 0;
   const totalCartKg = cartItems.reduce((sum, item) => sum + item.quantityKg, 0);
 
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useState<CurrencyCode>(() => {
+    return getActiveLangCode() === 'ar' ? 'AED' : 'USD';
+  });
   const [overridePricePerKg, setOverridePricePerKg] = useState<number | undefined>(defaultPricePerKg);
 
   const [formData, setFormData] = useState({

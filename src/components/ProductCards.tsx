@@ -5,6 +5,7 @@ import { CartItem } from './CartDrawer';
 import { getFeaturedProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
 import { ShoppingCart, ArrowRight, Plus, Minus } from 'lucide-react';
+import { formatDisplayPrice } from '../utils/translation';
 
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
@@ -103,6 +104,7 @@ function CardamomCard({
 }) {
   const [qtyKg, setQtyKg] = useState(item.defaultQtyKg);
   const [addedToast, setAddedToast] = useState(false);
+  const priceInfo = formatDisplayPrice(item.pricePerKg);
 
   const handleAddToCart = () => {
     if (onAddToCart) {
@@ -174,8 +176,8 @@ function CardamomCard({
         <div className="flex items-baseline justify-between pt-1">
           <div>
             <span className="text-xs text-stone-400 font-light">Price: </span>
-            <span translate="no" className="notranslate font-display text-xl font-light gold-gradient-text">₹{item.pricePerKg.toLocaleString('en-IN')}</span>
-            <span translate="no" className="notranslate text-xs text-stone-400 font-light"> / kg</span>
+            <span translate="no" className="notranslate font-display text-xl font-light gold-gradient-text">{priceInfo.amountStr}</span>
+            <span className="text-xs text-stone-400 font-light"> / kg</span>
           </div>
         </div>
 

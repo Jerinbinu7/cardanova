@@ -20,6 +20,7 @@ import {
   type AuctionResult,
   getAuctionPrice,
 } from '../services/auctionPriceService';
+import { formatDisplayPrice } from '../utils/translation';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,11 @@ function TickerSkeleton() {
 /** One full "slide" of ticker data — rendered twice for seamless loop */
 /** One full "slide" of ticker data — rendered multiple times for seamless loop */
 function TickerSlide({ data, sourceUrl }: { data: AuctionRecord; sourceUrl: string }) {
+  const maxNum = parseFloat((data.maxPrice || '0').replace(/,/g, ''));
+  const avgNum = parseFloat((data.avgPrice || '0').replace(/,/g, ''));
+  const formattedMax = formatDisplayPrice(maxNum);
+  const formattedAvg = formatDisplayPrice(avgNum);
+
   return (
     <span className="inline-flex items-center gap-6 text-[0.75rem] flex-shrink-0">
 
@@ -103,21 +109,21 @@ function TickerSlide({ data, sourceUrl }: { data: AuctionRecord; sourceUrl: stri
 
       {/* Max Price — gold highlight */}
       <span className="inline-flex items-center gap-1.5">
-        <span translate="no" className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
+        <span className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
           Max
         </span>
-        <span translate="no" className="text-[#F3D785] font-bold text-[0.82rem]">
-          ₹{data.maxPrice}/kg
+        <span translate="no" className="notranslate text-[#F3D785] font-bold text-[0.82rem]">
+          {formattedMax.amountStr}/kg
         </span>
       </span>
 
       {/* Avg Price */}
       <span className="inline-flex items-center gap-1.5">
-        <span translate="no" className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
+        <span className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
           Avg
         </span>
-        <span translate="no" className="text-[#E2BF63] font-semibold text-[0.82rem]">
-          ₹{data.avgPrice}/kg
+        <span translate="no" className="notranslate text-[#E2BF63] font-semibold text-[0.82rem]">
+          {formattedAvg.amountStr}/kg
         </span>
       </span>
 

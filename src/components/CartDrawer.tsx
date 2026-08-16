@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
+import { getActiveLangCode } from '../utils/translation';
 
 export type CurrencyCode = 'USD' | 'AED' | 'INR';
 
@@ -55,7 +56,9 @@ export default function CartDrawer({
   onRemoveItem,
   onCheckoutRFQ,
 }: CartDrawerProps) {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useState<CurrencyCode>(() => {
+    return getActiveLangCode() === 'ar' ? 'AED' : 'USD';
+  });
 
   const totalKg = cartItems.reduce((acc, item) => acc + item.quantityKg, 0);
   const totalUsdPrice = cartItems.reduce((acc, item) => {
