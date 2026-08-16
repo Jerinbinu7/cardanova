@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { getPendingQuotesCount } from '../services/quoteService';
 import toast from 'react-hot-toast';
+import { ADMIN_BASE_PATH } from './adminConstants';
 
 import DashboardOverview    from './views/DashboardOverview';
 import ProductManager       from './views/ProductManager';
@@ -109,7 +110,7 @@ export default function AdminLayout() {
   const handleLogout = async () => {
     await signOut();
     toast.success('Signed out successfully.');
-    navigate('/admin/login');
+    navigate(`${ADMIN_BASE_PATH}/login`);
   };
 
   const handleSelectTab = (id: string) => {

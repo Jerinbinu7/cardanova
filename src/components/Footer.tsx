@@ -254,13 +254,6 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
           <nav aria-label="Legal navigation" className="flex items-center gap-6 text-xs text-stone-600">
             <span className="hover:text-[#C5A046] transition-colors cursor-pointer">Terms of Trade</span>
             <span className="hover:text-[#C5A046] transition-colors cursor-pointer">Privacy Policy</span>
-            <button
-              onClick={() => setActiveTab('admin')}
-              className="hover:text-[#C5A046] transition-colors cursor-pointer font-medium text-[#C5A046]/80 flex items-center gap-1"
-              aria-label="Access admin portal"
-            >
-              Admin Portal 🔒
-            </button>
           </nav>
         </div>
       </div>

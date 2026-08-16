@@ -86,69 +86,70 @@ function TickerSkeleton() {
 }
 
 /** One full "slide" of ticker data — rendered twice for seamless loop */
+/** One full "slide" of ticker data — rendered multiple times for seamless loop */
 function TickerSlide({ data, sourceUrl }: { data: AuctionRecord; sourceUrl: string }) {
   return (
-    <span className="inline-flex items-center gap-8 text-[0.72rem] flex-shrink-0">
+    <span className="inline-flex items-center gap-6 text-[0.75rem] flex-shrink-0">
 
       {/* Spice + Date */}
       <span className="inline-flex items-center gap-2">
-        <span style={{ color: '#C5A046', fontWeight: 500 }}>{data.spiceName}</span>
-        <span style={{ color: 'rgba(197,160,70,0.3)' }}>·</span>
-        <span style={{ color: '#9ca3af' }}>{data.date}</span>
+        <span className="font-semibold text-[#E2BF63]">{data.spiceName}</span>
+        <span className="text-[#C5A046]/40">·</span>
+        <span className="text-stone-300 font-medium">{data.date}</span>
       </span>
 
       {/* Divider */}
-      <span style={{ color: 'rgba(197,160,70,0.18)', fontSize: '1rem' }}>│</span>
+      <span className="text-[#C5A046]/30 text-sm select-none">│</span>
 
       {/* Max Price — gold highlight */}
       <span className="inline-flex items-center gap-1.5">
-        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
           Max
         </span>
-        <span translate="no" style={{ color: '#E2BF63', fontWeight: 600, fontSize: '0.8rem' }}>
+        <span translate="no" className="text-[#F3D785] font-bold text-[0.82rem]">
           ₹{data.maxPrice}/kg
         </span>
       </span>
 
       {/* Avg Price */}
       <span className="inline-flex items-center gap-1.5">
-        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
           Avg
         </span>
-        <span translate="no" style={{ color: '#C5A046', fontWeight: 600, fontSize: '0.8rem' }}>
+        <span translate="no" className="text-[#E2BF63] font-semibold text-[0.82rem]">
           ₹{data.avgPrice}/kg
         </span>
       </span>
 
       {/* Divider */}
-      <span style={{ color: 'rgba(197,160,70,0.18)', fontSize: '1rem' }}>│</span>
+      <span className="text-[#C5A046]/30 text-sm select-none">│</span>
 
       {/* Lots */}
       <span className="inline-flex items-center gap-1.5">
-        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
           Lots
         </span>
-        <span translate="no" style={{ color: '#d1d5db' }}>{data.lots}</span>
+        <span translate="no" className="text-stone-200 font-medium">{data.lots}</span>
       </span>
 
       {/* Arrived */}
       <span className="inline-flex items-center gap-1.5">
-        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
           Arrived
         </span>
-        <span translate="no" style={{ color: '#d1d5db' }}>{data.qtyArrived}</span>
+        <span translate="no" className="text-stone-200 font-medium">{data.qtyArrived}</span>
       </span>
 
       {/* Sold */}
       <span className="inline-flex items-center gap-1.5">
-        <span translate="no" style={{ color: '#6b7280', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <span translate="no" className="text-stone-400 text-[0.62rem] uppercase tracking-wider font-medium">
           Sold
         </span>
-        <span translate="no" style={{ color: '#d1d5db' }}>{data.qtySold}</span>
+        <span translate="no" className="text-stone-200 font-medium">{data.qtySold}</span>
       </span>
 
       {/* Divider */}
-      <span style={{ color: 'rgba(197,160,70,0.18)', fontSize: '1rem' }}>│</span>
+      <span className="text-[#C5A046]/30 text-sm select-none">│</span>
 
       {/* Source link */}
       <a
@@ -156,21 +157,13 @@ function TickerSlide({ data, sourceUrl }: { data: AuctionRecord; sourceUrl: stri
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          color: 'rgba(197,160,70,0.45)',
-          fontSize: '0.62rem',
-          letterSpacing: '0.06em',
-          textDecoration: 'none',
-          transition: 'color 0.2s',
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = '#C5A046')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(197,160,70,0.45)')}
+        className="text-[#C5A046]/60 text-[0.65rem] tracking-wider hover:text-[#E2BF63] transition-colors"
       >
         Spices Board India ↗
       </a>
 
-      {/* Wide spacer so the two copies don't visually merge */}
-      <span style={{ display: 'inline-block', width: 80 }} />
+      {/* Spacer between slides */}
+      <span className="inline-block w-12" />
     </span>
   );
 }
@@ -217,7 +210,7 @@ export default function AuctionPriceTicker({ spiceId = 'small_cardamom' }: Ticke
           100% { transform: translateX(-50%); }
         }
         .cardanova-ticker-track {
-          animation: cardanova-ticker 40s linear infinite;
+          animation: cardanova-ticker 35s linear infinite;
           will-change: transform;
         }
         .cardanova-ticker-track:hover {
@@ -228,20 +221,19 @@ export default function AuctionPriceTicker({ spiceId = 'small_cardamom' }: Ticke
       <div
         role="marquee"
         aria-label="Live cardamom auction prices from Spices Board India"
-        className="relative flex items-stretch overflow-hidden"
+        className="relative flex items-stretch overflow-hidden select-none"
         style={{
-          background: 'linear-gradient(90deg, #060f08 0%, #0d1d0f 50%, #060f08 100%)',
-          borderBottom: '1px solid rgba(197,160,70,0.18)',
-          minHeight: 38,
+          background: 'linear-gradient(90deg, #071309 0%, #0d2012 50%, #071309 100%)',
+          borderBottom: '1px solid rgba(197,160,70,0.2)',
+          minHeight: 40,
         }}
       >
         {/* ── Left pill: status + label ─────────────────────────────────── */}
         <div
-          className="flex-shrink-0 flex items-center gap-2.5 px-4"
+          className="flex-shrink-0 flex items-center gap-2.5 px-4 z-20 shadow-md"
           style={{
-            borderRight: '1px solid rgba(197,160,70,0.18)',
-            background: 'rgba(197,160,70,0.055)',
-            minWidth: 140,
+            borderRight: '1px solid rgba(197,160,70,0.25)',
+            background: '#071309',
           }}
         >
           <StatusDot color={dotColor} />
@@ -249,10 +241,10 @@ export default function AuctionPriceTicker({ spiceId = 'small_cardamom' }: Ticke
             <span
               style={{
                 color,
-                fontSize: '0.55rem',
-                letterSpacing: '0.2em',
+                fontSize: '0.58rem',
+                letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                fontWeight: 600,
+                fontWeight: 700,
               }}
             >
               {label}
@@ -260,10 +252,10 @@ export default function AuctionPriceTicker({ spiceId = 'small_cardamom' }: Ticke
             {updatedAt && (
               <span
                 style={{
-                  color: 'rgba(156,163,175,0.55)',
-                  fontSize: '0.5rem',
+                  color: 'rgba(212,212,216,0.6)',
+                  fontSize: '0.52rem',
                   marginTop: 2,
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.04em',
                 }}
               >
                 Updated {formatTime(updatedAt)} IST
@@ -274,7 +266,7 @@ export default function AuctionPriceTicker({ spiceId = 'small_cardamom' }: Ticke
 
         {/* ── Right: scrolling ticker ───────────────────────────────────── */}
         <div
-          className="overflow-hidden flex-1 flex items-center"
+          className="overflow-hidden flex-1 flex items-center relative z-10"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -283,32 +275,27 @@ export default function AuctionPriceTicker({ spiceId = 'small_cardamom' }: Ticke
             <TickerSkeleton />
           ) : result ? (
             /*
-             * Rendered TWICE side-by-side.
-             * The animation moves left by exactly 50% of the total width,
-             * which equals the width of one copy — creating a seamless loop.
+             * Rendered 4 times side-by-side.
+             * The animation moves left by exactly 50% of the total track width,
+             * creating a seamless, infinite wrap on all viewport sizes.
              */
             <div
               ref={tickerRef}
-              className="cardanova-ticker-track inline-flex items-center whitespace-nowrap"
+              className="cardanova-ticker-track inline-flex items-center dry-run whitespace-nowrap pl-4"
             >
               <TickerSlide data={result.data} sourceUrl={result.data.sourceUrl} />
-              {/* Duplicate for seamless wrap */}
+              <TickerSlide data={result.data} sourceUrl={result.data.sourceUrl} />
+              <TickerSlide data={result.data} sourceUrl={result.data.sourceUrl} />
               <TickerSlide data={result.data} sourceUrl={result.data.sourceUrl} />
             </div>
           ) : null}
         </div>
 
-        {/* ── Fade-out edges ────────────────────────────────────────────── */}
+        {/* ── Fade-out right edge ────────────────────────────────────────────── */}
         <div
-          className="absolute inset-y-0 left-[140px] w-8 pointer-events-none"
+          className="absolute inset-y-0 right-0 w-16 pointer-events-none z-20"
           style={{
-            background: 'linear-gradient(to right, #060f08, transparent)',
-          }}
-        />
-        <div
-          className="absolute inset-y-0 right-0 w-12 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to left, #060f08, transparent)',
+            background: 'linear-gradient(to left, #071309, transparent)',
           }}
         />
       </div>
