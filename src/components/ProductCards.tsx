@@ -4,7 +4,7 @@ import MagneticButton from './MagneticButton';
 import { CartItem } from './CartDrawer';
 import { getFeaturedProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
-import { ShoppingCart, ArrowRight } from 'lucide-react';
+import { ShoppingCart, ArrowRight, Plus, Minus } from 'lucide-react';
 
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
@@ -59,18 +59,18 @@ const CARDAMOM_GRADES = [
     image: '/images/cardamom-7.5mm.jpg',
   },
   {
-    id: '7.0mm-bold-std',
+    id: '7.0mm-commercial',
     gradeNum: '7.0',
     gradeUnit: 'mm',
-    gradeName: 'Bold Standard Green',
-    badge: 'Economy Export',
+    gradeName: 'Commercial Grade Green',
+    badge: 'Commercial Grade',
     badgePrimary: false,
-    origin: 'Kerala Smallholder Network',
-    packaging: '25 kg Jute + PE Liner',
-    moq: '100 kg',
+    origin: 'Direct Estate Harvest',
+    packaging: '25 kg HDPE Woven Bags',
+    moq: '250 kg',
     volatile: '>7.0% V/W',
     pricePerKg: 2600,
-    defaultQtyKg: 100,
+    defaultQtyKg: 250,
     image: '/images/cardamom-7.0mm.jpg',
   },
   {
@@ -90,7 +90,7 @@ const CARDAMOM_GRADES = [
   },
 ];
 
-function GradeCard({
+function CardamomCard({
   item,
   index,
   onOpenQuoteModal,
@@ -182,21 +182,25 @@ function GradeCard({
         {/* Quantity selector */}
         <div className="flex items-center justify-between rounded-xl bg-white/[0.03] p-2.5 border border-white/[0.06]">
           <span className="text-xs text-stone-400 font-light">Quantity</span>
-          <div className="flex items-center gap-2">
+          <div translate="no" className="notranslate flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setQtyKg((q) => Math.max(1, q <= 5 ? q - 1 : q - 5))}
-              className="w-7 h-7 rounded-lg border border-[#C5A046]/30 bg-transparent text-[#C5A046] hover:bg-[#C5A046]/10 transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
+              className="w-7 h-7 rounded-lg border border-[#C5A046]/30 bg-transparent text-[#C5A046] hover:bg-[#C5A046]/10 transition-colors cursor-pointer text-sm font-bold flex items-center justify-center active:scale-95 select-none"
+              aria-label="Decrease quantity"
             >
-              −
+              <Minus className="w-3.5 h-3.5 pointer-events-none" />
             </button>
-            <span translate="no" className="notranslate font-mono text-xs text-[#FAF8F5] min-w-[50px] text-center font-medium">
+            <span translate="no" className="notranslate font-mono text-xs text-[#FAF8F5] min-w-[50px] text-center font-medium select-none">
               {qtyKg} kg
             </span>
             <button
+              type="button"
               onClick={() => setQtyKg((q) => q + (q < 5 ? 1 : 5))}
-              className="w-7 h-7 rounded-lg border border-[#C5A046]/30 bg-transparent text-[#C5A046] hover:bg-[#C5A046]/10 transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
+              className="w-7 h-7 rounded-lg border border-[#C5A046]/30 bg-transparent text-[#C5A046] hover:bg-[#C5A046]/10 transition-colors cursor-pointer text-sm font-bold flex items-center justify-center active:scale-95 select-none"
+              aria-label="Increase quantity"
             >
-              +
+              <Plus className="w-3.5 h-3.5 pointer-events-none" />
             </button>
           </div>
         </div>
@@ -204,18 +208,20 @@ function GradeCard({
         {/* Action buttons */}
         <div className="grid grid-cols-2 gap-2.5 mt-auto pt-1">
           <button
+            type="button"
             onClick={handleAddToCart}
-            className="w-full rounded-xl border border-[#C5A046]/30 bg-white/[0.03] py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/10 hover:border-[#C5A046]/50 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full rounded-xl border border-[#C5A046]/30 bg-white/[0.03] py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/10 hover:border-[#C5A046]/50 transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
           >
-            <ShoppingCart className="w-3.5 h-3.5" />
-            Cart
+            <ShoppingCart className="w-3.5 h-3.5 pointer-events-none" />
+            <span>Cart</span>
           </button>
           <button
+            type="button"
             onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`, item.pricePerKg)}
-            className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full rounded-xl gold-gradient-bg py-2.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
           >
-            RFQ
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>RFQ</span>
+            <ArrowRight className="w-3.5 h-3.5 pointer-events-none" />
           </button>
         </div>
       </div>
@@ -223,15 +229,20 @@ function GradeCard({
   );
 }
 
-function getGradeInrPrice(name: string, sizeMm?: string, liveAvgInr: number = 3049): number {
+function getGradeInrPrice(name: string, sizeMm?: string, liveAvgInr: number = 3049, idx: number = 0): number {
   const str = `${name} ${sizeMm || ''}`.toLowerCase();
   let mult = 1.0;
+
   if (str.includes('8.5') || str.includes('extra bold')) mult = 1.15;
-  else if (str.includes('8.0') || str.includes('8mm') || str.includes('premium')) mult = 1.05;
-  else if (str.includes('7.5') || str.includes('export')) mult = 0.95;
-  else if (str.includes('7.0') || str.includes('7mm') || str.includes('commercial')) mult = 0.85;
+  else if (str.includes('8.0') || str.includes('8.0mm') || str.includes('premium bold') || str.includes('8mm')) mult = 1.05;
+  else if (str.includes('7.5') || str.includes('7.5mm') || str.includes('export')) mult = 0.95;
+  else if (str.includes('7.0') || str.includes('7.0mm') || str.includes('7mm') || str.includes('commercial')) mult = 0.85;
   else if (str.includes('6.5') || str.includes('mix') || str.includes('ageb')) mult = 0.70;
   else if (str.includes('rej') || str.includes('oil') || str.includes('extract')) mult = 0.50;
+  else {
+    const fallbackMults = [1.15, 1.05, 0.95, 0.85, 0.70, 0.50];
+    mult = fallbackMults[idx % fallbackMults.length];
+  }
 
   return Math.round(liveAvgInr * mult);
 }
@@ -260,10 +271,11 @@ export default function ProductCards({
         const prods = await getFeaturedProducts(4);
         if (prods && prods.length > 0) {
           const mapped = prods.map((p, idx) => {
-            const sizeStr = p.grades?.[0]?.size_mm || '';
+            const sizeStr = p.grades?.[0]?.size_mm || p.specifications?.find((s) => s.label.toLowerCase().includes('size'))?.value || '';
+            const fullGradeText = `${p.name} ${p.export_grade || ''} ${sizeStr}`;
             return {
               id: p.id,
-              gradeNum: sizeStr ? sizeStr.replace('mm', '') : String(8.5 - idx * 0.5),
+              gradeNum: sizeStr ? sizeStr.replace('mm', '').replace('+', '').trim() : String(8.5 - idx * 0.5),
               gradeUnit: sizeStr.includes('mm') ? 'mm' : '',
               gradeName: p.name,
               badge: p.export_grade || sizeStr || (p.featured ? 'Flagship Grade' : ''),
@@ -272,7 +284,7 @@ export default function ProductCards({
               packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
               moq: '25 kg',
               volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
-              pricePerKg: getGradeInrPrice(p.name, sizeStr, liveAvg),
+              pricePerKg: getGradeInrPrice(fullGradeText, sizeStr, liveAvg, idx),
               defaultQtyKg: 25,
               image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
             };
@@ -346,7 +358,7 @@ export default function ProductCards({
           return (
             <div className={`grid ${gridColsClass} gap-6`}>
               {displayCards.map((item, i) => (
-                <GradeCard
+                <CardamomCard
                   key={item.id}
                   item={item}
                   index={i}

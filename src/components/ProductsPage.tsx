@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronDown, X, SlidersHorizontal, Star } from 'lucide-react';
+import { Search, ChevronDown, X, SlidersHorizontal, Star, Plus, Minus } from 'lucide-react';
 import { getProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
 import type { CartItem } from './CartDrawer';
@@ -100,23 +100,23 @@ const PRODUCTS_CATALOGUE = [
     reviewCount: 64,
   },
   {
-    id: 'mixed-grade',
+    id: 'split-grade',
     category: 'industrial' as const,
     gradeNum: 'MIX',
     gradeUnit: '',
-    gradeName: 'AGEB / LGB Blend',
-    size: 'Assorted 6.5 mm – 8.0 mm',
-    color: 'Natural Harvest Green Blend',
+    gradeName: 'Mixed Pods (AGEB / LGB)',
+    size: 'Assorted (6.5 mm – 8.0 mm)',
+    color: 'Natural Mixed Green',
     origin: 'Idukki, Kerala, India',
     moisture: '< 11.5%',
     availability: 'In Stock',
-    packaging: '25kg / 50kg Bulk Cartons',
-    moq: '3 Metric Tons',
+    packaging: '25kg / 50kg Bulk Bags',
+    moq: '1 Metric Ton',
     hsCode: '0908.31.90',
-    shelfLife: '18 Months',
-    applications: 'Spice Powder Milling, Garam Masala, Tea & Chai Premixes',
+    shelfLife: '24 Months',
+    applications: 'Grinding, Spice Powders, Extract Processing, Bulk Food Manufacture',
     image: '/images/cardamom-mixed.jpg',
-    badge: '6.5–8 mm',
+    badge: 'Mixed Size',
     pricePerKg: 1650,
     rating: 4.0,
     reviewCount: 42,
@@ -205,7 +205,7 @@ function ProductCard({
         image: product.image,
         quantityKg: qtyKg,
         packaging: product.packaging,
-        pricePerKg: product.pricePerKg > 200 ? Math.round(product.pricePerKg / 83.5) : product.pricePerKg,
+        pricePerKg: product.pricePerKg,
       });
       setAddedSuccess(true);
       setTimeout(() => setAddedSuccess(false), 2000);
@@ -267,30 +267,34 @@ function ProductCard({
 
         <div className="mt-4 mb-4 flex items-baseline justify-between">
           <div>
-            <span className="font-display gold-gradient-text font-light leading-none" style={{ fontSize: '1.6rem' }}>
+            <span translate="no" className="notranslate font-display gold-gradient-text font-light leading-none" style={{ fontSize: '1.6rem' }}>
               ₹{product.pricePerKg.toLocaleString('en-IN')}
             </span>
-            <span className="text-xs text-stone-400 ml-1.5 font-light">/ kg</span>
+            <span translate="no" className="notranslate text-xs text-stone-400 ml-1.5 font-light">/ kg</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between rounded-xl bg-stone-50 px-4 py-2.5 border border-stone-200 mb-4">
           <span className="text-xs text-stone-500 font-light">Quantity:</span>
-          <div className="flex items-center gap-2">
+          <div translate="no" className="notranslate flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setQtyKg((q) => Math.max(1, q <= 5 ? q - 1 : q - 5))}
-              className="w-7 h-7 rounded-lg border border-stone-200 bg-white text-stone-600 hover:border-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
+              className="w-7 h-7 rounded-lg border border-stone-200 bg-white text-stone-600 hover:border-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center active:scale-95 select-none"
+              aria-label="Decrease quantity"
             >
-              −
+              <Minus className="w-3.5 h-3.5 pointer-events-none" />
             </button>
-            <span className="font-mono text-xs text-[#112D15] min-w-[56px] text-center font-medium">
+            <span translate="no" className="notranslate font-mono text-xs text-[#112D15] min-w-[56px] text-center font-medium select-none">
               {qtyKg} kg
             </span>
             <button
+              type="button"
               onClick={() => setQtyKg((q) => q + (q < 5 ? 1 : 5))}
-              className="w-7 h-7 rounded-lg border border-stone-200 bg-white text-stone-600 hover:border-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center"
+              className="w-7 h-7 rounded-lg border border-stone-200 bg-white text-stone-600 hover:border-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center active:scale-95 select-none"
+              aria-label="Increase quantity"
             >
-              +
+              <Plus className="w-3.5 h-3.5 pointer-events-none" />
             </button>
           </div>
         </div>
@@ -299,20 +303,22 @@ function ProductCard({
 
         <div className="mt-auto flex gap-2.5">
           <button
+            type="button"
             onClick={handleAddToCart}
-            className="flex-1 rounded-full border border-[#C5A046] bg-white py-3 label-caps text-[#A18637] hover:bg-[#C5A046] hover:text-[#071309] transition-all cursor-pointer text-center font-semibold"
+            className="flex-1 rounded-full border border-[#C5A046] bg-white py-3 label-caps text-[#A18637] hover:bg-[#C5A046] hover:text-[#071309] transition-all cursor-pointer text-center font-semibold active:scale-95"
             style={{ fontSize: '0.58rem' }}
             aria-label={`Add ${product.gradeName} to cart`}
           >
-            Add to Cart
+            <span>Add to Cart</span>
           </button>
           <button
+            type="button"
             onClick={onQuote}
-            className="flex-1 rounded-full gold-gradient-bg py-3 label-caps text-[#071309] hover:brightness-110 transition-all cursor-pointer text-center shadow-md font-semibold"
+            className="flex-1 rounded-full gold-gradient-bg py-3 label-caps text-[#071309] hover:brightness-110 transition-all cursor-pointer text-center shadow-md font-semibold active:scale-95"
             style={{ fontSize: '0.58rem' }}
             aria-label={`Get a quote for ${product.gradeName}`}
           >
-            Get Quote
+            <span>Get Quote</span>
           </button>
         </div>
       </div>
