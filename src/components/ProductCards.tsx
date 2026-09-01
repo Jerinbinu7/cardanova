@@ -10,6 +10,7 @@ import { formatDisplayPrice } from '../utils/translation';
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
   onNavigateToProducts: () => void;
+  onNavigateToPackets?: () => void;
   onAddToCart?: (item: CartItem) => void;
 }
 
@@ -333,18 +334,30 @@ export default function ProductCards({
             <div className="mt-5 h-px w-16 bg-[#C5A046]/40" />
           </div>
 
-          <div className="lg:text-right shrink-0 max-w-xs lg:max-w-sm">
-            <p className="text-xs text-stone-500 font-light leading-relaxed mb-6">
+          <div className="lg:text-right shrink-0 max-w-xs lg:max-w-md">
+            <p className="text-xs text-stone-500 font-light leading-relaxed mb-4">
               Direct farm-to-export sourcing. Select a grade, configure quantity, add to cart or request a custom FOB/CIF quotation.
             </p>
-            <MagneticButton
-              as="button"
-              onClick={onNavigateToProducts}
-              cursorLabel="Catalogue"
-              className="inline-flex items-center gap-2 rounded-full border border-[#C5A046]/30 bg-transparent px-5 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/8 hover:border-[#C5A046]/60 transition-all cursor-pointer"
-            >
-              Full Catalogue <ArrowRight className="w-3.5 h-3.5" />
-            </MagneticButton>
+            <div className="flex flex-wrap items-center lg:justify-end gap-2.5">
+              {onNavigateToPackets && (
+                <button
+                  type="button"
+                  onClick={onNavigateToPackets}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A046]/50 bg-[#112D15]/80 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#E2BF63] hover:bg-[#112D15] hover:border-[#C5A046] transition-all cursor-pointer shadow-sm"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E2BF63] animate-pulse" />
+                  <span>🇮🇳 Retail Packs (50g - 1kg)</span>
+                </button>
+              )}
+              <MagneticButton
+                as="button"
+                onClick={onNavigateToProducts}
+                cursorLabel="Catalogue"
+                className="inline-flex items-center gap-2 rounded-full border border-[#C5A046]/30 bg-transparent px-4 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/8 hover:border-[#C5A046]/60 transition-all cursor-pointer"
+              >
+                Full Catalogue <ArrowRight className="w-3.5 h-3.5" />
+              </MagneticButton>
+            </div>
           </div>
         </div>
 

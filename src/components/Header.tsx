@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
 import TranslateHint from './TranslateHint';
 
 interface HeaderProps {
-  activeTab: 'home' | 'about' | 'products' | 'origin';
-  setActiveTab: (tab: 'home' | 'about' | 'products' | 'origin') => void;
+  activeTab: 'home' | 'about' | 'products' | 'origin' | 'packets';
+  setActiveTab: (tab: 'home' | 'about' | 'products' | 'origin' | 'packets') => void;
   onOpenQuoteModal: (grade?: string) => void;
   cartCount?: number;
   onOpenCart?: () => void;
@@ -35,7 +35,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleNavClick = (tab: 'home' | 'about' | 'products' | 'origin', hash?: string) => {
+  const handleNavClick = (tab: 'home' | 'about' | 'products' | 'origin' | 'packets', hash?: string) => {
     setActiveTab(tab);
     setMobileOpen(false);
     if (hash) {
@@ -49,14 +49,15 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
   };
 
   const NAV_LINKS = [
-    { label: 'Home',       tab: 'home'     as const, hash: undefined },
-    { label: 'Products',   tab: 'products' as const, hash: undefined },
-    { label: 'About',      tab: 'about'    as const, hash: undefined },
-    { label: 'Our Origin', tab: 'origin'   as const, hash: undefined },
-    { label: 'Contact',    tab: 'home'     as const, hash: '#contact' },
+    { label: 'Home',           tab: 'home'     as const, hash: undefined },
+    { label: 'Bulk Export',    tab: 'products' as const, hash: undefined },
+    { label: 'Retail Packs',   tab: 'packets'  as const, hash: undefined, isSpecialBadge: true },
+    { label: 'Our Origin',     tab: 'origin'   as const, hash: undefined },
+    { label: 'About',          tab: 'about'    as const, hash: undefined },
+    { label: 'Contact',        tab: 'home'     as const, hash: '#contact' },
   ];
 
-  const isLinkActive = (tab: 'home' | 'about' | 'products' | 'origin', hash?: string) => {
+  const isLinkActive = (tab: 'home' | 'about' | 'products' | 'origin' | 'packets', hash?: string) => {
     if (hash) return false;
     return activeTab === tab;
   };
@@ -113,13 +114,23 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
                 onClick={() => handleNavClick(link.tab, link.hash)}
                 aria-current={active ? 'page' : undefined}
                 aria-label={`Navigate to ${link.label}`}
-                className={`relative px-3.5 py-2 text-xs font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+                className={`relative px-3.5 py-2 text-xs font-medium tracking-wider uppercase transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                   active
                     ? 'text-[#C5A046]'
+                    : link.isSpecialBadge
+                    ? 'text-[#E2BF63] hover:text-[#FAF8F5]'
                     : 'text-stone-200/80 hover:text-[#FAF8F5]'
                 }`}
               >
-                {link.label}
+                {link.isSpecialBadge && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E2BF63] animate-pulse" />
+                )}
+                <span>{link.label}</span>
+                {link.isSpecialBadge && (
+                  <span className="text-[9px] px-1.5 py-0.2 bg-[#C5A046]/20 border border-[#C5A046]/50 rounded text-[#E2BF63] font-semibold">
+                    UPI
+                  </span>
+                )}
                 {active && (
                   <motion.span
                     layoutId="navIndicator"
@@ -237,13 +248,23 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
                   onClick={() => handleNavClick(link.tab, link.hash)}
                   aria-current={isLinkActive(link.tab, link.hash) ? 'page' : undefined}
                   aria-label={`Navigate to ${link.label}`}
-                  className={`text-left py-3 text-sm font-medium tracking-wider uppercase border-b border-stone-800/60 transition-colors ${
+                  className={`text-left py-3 text-sm font-medium tracking-wider uppercase border-b border-stone-800/60 transition-colors flex items-center justify-between ${
                     isLinkActive(link.tab, link.hash)
                       ? 'text-[#C5A046]'
+                      : link.isSpecialBadge
+                      ? 'text-[#E2BF63]'
                       : 'text-stone-300 hover:text-[#C5A046]'
                   }`}
                 >
-                  {link.label}
+                  <span className="flex items-center gap-2">
+                    {link.isSpecialBadge && <span className="w-2 h-2 rounded-full bg-[#E2BF63]" />}
+                    {link.label}
+                  </span>
+                  {link.isSpecialBadge && (
+                    <span className="text-[10px] px-2 py-0.5 bg-[#C5A046]/20 border border-[#C5A046]/50 rounded text-[#E2BF63] font-semibold">
+                      UPI Pay
+                    </span>
+                  )}
                 </motion.button>
               ))}
 

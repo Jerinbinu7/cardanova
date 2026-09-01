@@ -28,12 +28,14 @@ import ContactForm from './components/ContactForm';
 import AboutPage from './components/AboutPage';
 import OriginPage from './components/OriginPage';
 import ProductsPage from './components/ProductsPage';
+import DomesticStore from './components/DomesticStore';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import QuoteModal from './components/QuoteModal';
 import CartDrawer, { CartItem } from './components/CartDrawer';
 import { ADMIN_BASE_PATH } from './admin/adminConstants';
 import { triggerGoogleTranslateSync } from './utils/translation';
+
 // Admin Routes — lazy-loaded so public visitors never download admin JS
 const AdminPortal         = lazy(() => import('./admin/AdminPortal'));
 const AdminLayout         = lazy(() => import('./admin/AdminLayout'));
@@ -75,6 +77,16 @@ const PAGE_SEO = {
       'green cardamom grades, 8.5mm cardamom, extra bold cardamom, cardamom specifications, cardamom export catalogue, Kerala cardamom wholesale, cardamom MOQ, cardamom HS code',
     schema: buildSchemaGraph(organizationSchema, productsListSchema, productsBreadcrumbSchema),
   },
+  packets: {
+    title: 'Buy Premium Idukki Cardamom Packets Online — 50g to 1kg | Cardanova India',
+    description:
+      'Order single-origin green cardamom pouches directly from Idukki estates. 50g, 100g, 250g, 500g, 1kg zipper packs with direct UPI payment and express delivery across India.',
+    canonical: `${SITE_URL}/#packets`,
+    ogImage: '/images/pouch-8.5mm-royal.jpg',
+    keywords:
+      'buy cardamom online India, cardamom 250g pouch, Idukki green cardamom packets, UPI payment cardamom, Cardanova retail packs',
+    schema: buildSchemaGraph(organizationSchema, productsListSchema),
+  },
   origin: {
     title: 'Our Origin — Farm to Freight Process | Idukki Cardamom Estates | Cardanova Spices',
     description:
@@ -97,7 +109,6 @@ function PageLoader() {
       aria-hidden="true"
       role="presentation"
     >
-      {/* Subtle grid */}
       <div className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: 'radial-gradient(circle, rgba(197,160,70,0.8) 1px, transparent 1px)', backgroundSize: '30px 30px' }}
       />
@@ -108,7 +119,6 @@ function PageLoader() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Official Emblem Logo */}
         <div className="relative flex h-24 items-center justify-center" aria-hidden="true">
           <img
             src="/images/cardanova-emblem.png"
@@ -119,7 +129,6 @@ function PageLoader() {
           />
         </div>
 
-        {/* Official Wordmark */}
         <div className="flex flex-col items-center">
           <img
             src="/images/cardanova-wordmark-light.png"
@@ -130,7 +139,6 @@ function PageLoader() {
           />
         </div>
 
-        {/* Progress bar */}
         <div className="w-40 h-[1px] overflow-hidden" style={{ background: 'rgba(197,160,70,0.2)' }} role="progressbar" aria-label="Loading">
           <motion.div
             className="h-full gold-gradient-bg"
@@ -146,7 +154,7 @@ function PageLoader() {
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'home' | 'about' | 'products' | 'origin' | 'admin'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'about' | 'products' | 'origin' | 'packets' | 'admin'>('home');
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState<string>('8.5 mm Extra Bold');
 
@@ -159,21 +167,17 @@ export default function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Disable browser automatic scroll position restoration on refresh
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-    // Force scroll to top on initial page mount/refresh
     window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
-    // Redirect hash #admin to secret admin route
     if (window.location.hash === '#admin') {
       navigate(ADMIN_BASE_PATH);
     }
 
-    // Secret Admin Shortcut: Press Ctrl + Shift + A (or Cmd + Shift + A) to open admin portal
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
@@ -206,8 +210,6 @@ export default function App() {
     setActiveTab(tab as any);
     window.scrollTo(0, 0);
   };
-
-
 
   const [isCartCheckout, setIsCartCheckout] = useState(false);
   const [selectedPricePerKg, setSelectedPricePerKg] = useState<number | undefined>(undefined);
@@ -256,13 +258,10 @@ export default function App() {
     setIsQuoteOpen(true);
   };
 
-  // Determine current page SEO config
   const currentSEO = PAGE_SEO[activeTab as keyof typeof PAGE_SEO] ?? PAGE_SEO.home;
 
   return (
     <Routes>
-      {/* ── Secret Admin Routes — under ADMIN_BASE_PATH ── */}
-      {/* Suspense boundary: admin JS chunk loads only when these secret routes are visited */}
       <Route path={`${ADMIN_BASE_PATH}/*`} element={
         <Suspense fallback={<PageLoader />}>
           <AdminPortal />
@@ -297,7 +296,6 @@ export default function App() {
 
       {/* ── Public Site — all other routes ── */}
       <Route path="*" element={<>
-      {/* ── Per-Page SEO Head — updates <title>, meta, canonical, JSON-LD ── */}
       <SEOHead
         title={currentSEO.title}
         description={currentSEO.description}
@@ -322,7 +320,7 @@ export default function App() {
         {/* Header Navigation */}
         <Header
           activeTab={activeTab as any}
-          setActiveTab={(tab) => handleSelectTab(tab as 'home' | 'about' | 'products' | 'origin' | 'admin')}
+          setActiveTab={(tab) => handleSelectTab(tab as any)}
           onOpenQuoteModal={handleOpenQuoteModal}
           cartCount={cartItems.length}
           onOpenCart={() => setIsCartOpen(true)}
@@ -347,6 +345,7 @@ export default function App() {
               <ProductCards
                 onOpenQuoteModal={handleOpenQuoteModal}
                 onNavigateToProducts={handleNavigateToProducts}
+                onNavigateToPackets={() => handleSelectTab('packets')}
                 onAddToCart={handleAddToCart}
               />
               <ExportExperience />
@@ -386,6 +385,18 @@ export default function App() {
                 onOpenQuoteModal={handleOpenQuoteModal}
                 onAddToCart={handleAddToCart}
               />
+            </motion.div>
+          )}
+
+          {activeTab === 'packets' && (
+            <motion.div
+              key="packets"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <DomesticStore onSwitchToExport={handleNavigateToProducts} />
             </motion.div>
           )}
 
