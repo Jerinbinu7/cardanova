@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
@@ -51,7 +51,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
   const NAV_LINKS = [
     { label: 'Home',           tab: 'home'     as const, hash: undefined },
     { label: 'Bulk Export',    tab: 'products' as const, hash: undefined },
-    { label: 'Retail Packs',   tab: 'packets'  as const, hash: undefined, isSpecialBadge: true },
+    { label: 'Shop',           tab: 'packets'  as const, hash: undefined, isSpecialBadge: true },
     { label: 'Our Origin',     tab: 'origin'   as const, hash: undefined },
     { label: 'About',          tab: 'about'    as const, hash: undefined },
     { label: 'Contact',        tab: 'home'     as const, hash: '#contact' },

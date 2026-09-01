@@ -347,7 +347,7 @@ export default function ProductCards({
                   className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A046]/50 bg-[#112D15]/80 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#E2BF63] hover:bg-[#112D15] hover:border-[#C5A046] transition-all cursor-pointer shadow-sm"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#E2BF63] animate-pulse" />
-                  <span>🇮🇳 Retail Packs (50g - 1kg)</span>
+                  <span>🇮🇳 Shop Packets (50g - 1kg)</span>
                 </button>
               )}
               <MagneticButton
