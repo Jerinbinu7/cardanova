@@ -253,6 +253,7 @@ function getGradeInrPrice(name: string, sizeMm?: string, liveAvgInr: number = 30
 export default function ProductCards({
   onOpenQuoteModal,
   onNavigateToProducts,
+  onNavigateToPackets,
   onAddToCart,
 }: ProductCardsProps) {
   const [cards, setCards] = useState(CARDAMOM_GRADES);

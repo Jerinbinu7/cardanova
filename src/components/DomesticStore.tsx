@@ -1,10 +1,9 @@
-﻿import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
   ShieldCheck,
   Truck,
-  Check,
   ChevronRight,
   Info,
   X,
@@ -12,7 +11,6 @@ import {
   Leaf,
   Plus,
   Minus,
-  Award,
 } from 'lucide-react';
 import { RetailPacketProduct, WeightOption, DomesticOrderItem } from '../types/domestic';
 import { DEFAULT_RETAIL_PRODUCTS, UPI_CONFIG } from '../services/domesticService';
