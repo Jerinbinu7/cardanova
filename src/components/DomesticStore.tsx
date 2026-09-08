@@ -7,10 +7,12 @@ import {
   ChevronRight,
   Info,
   X,
-  Zap,
-  Leaf,
   Plus,
   Minus,
+  ShoppingCart,
+  Check,
+  Trash2,
+  CreditCard,
 } from 'lucide-react';
 import { RetailPacketProduct, WeightOption, DomesticOrderItem } from '../types/domestic';
 import { DEFAULT_RETAIL_PRODUCTS, UPI_CONFIG } from '../services/domesticService';
@@ -38,6 +40,11 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
   const [activeModalProduct, setActiveModalProduct] = useState<RetailPacketProduct | null>(null);
   const [checkoutItems, setCheckoutItems] = useState<DomesticOrderItem[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  
+  // Shopping Cart state
+  const [cartItems, setCartItems] = useState<DomesticOrderItem[]>([]);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  const [addedToast, setAddedToast] = useState<string | null>(null);
 
   const handleVariantChange = (productId: string, weight: WeightOption) => {
     setSelectedVariants((prev) => ({ ...prev, [productId]: weight }));
@@ -49,6 +56,76 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
       const next = Math.max(1, Math.min(20, current + delta));
       return { ...prev, [productId]: next };
     });
+  };
+
+  const showToast = (message: string) => {
+    setAddedToast(message);
+    setTimeout(() => {
+      setAddedToast(null);
+    }, 2800);
+  };
+
+  const handleAddToCart = (product: RetailPacketProduct) => {
+    const selectedWeight = selectedVariants[product.id] || '100g';
+    const variant = product.variants.find((v) => v.weight === selectedWeight) || product.variants[0];
+    const qty = quantities[product.id] || 1;
+
+    setCartItems((prev) => {
+      const existingIdx = prev.findIndex(
+        (item) => item.productId === product.id && item.weight === variant.weight
+      );
+
+      if (existingIdx > -1) {
+        const updated = [...prev];
+        const newQty = updated[existingIdx].quantity + qty;
+        updated[existingIdx] = {
+          ...updated[existingIdx],
+          quantity: newQty,
+          totalPriceInr: updated[existingIdx].unitPriceInr * newQty,
+        };
+        return updated;
+      }
+
+      const newItem: DomesticOrderItem = {
+        productId: product.id,
+        productName: product.name,
+        gradeBadge: product.gradeBadge,
+        weight: variant.weight,
+        quantity: qty,
+        unitPriceInr: variant.priceInr,
+        totalPriceInr: variant.priceInr * qty,
+        image: product.image,
+      };
+
+      return [...prev, newItem];
+    });
+
+    showToast(`Added ${qty}x ${product.name} (${variant.weight}) to Cart!`);
+  };
+
+  const handleUpdateCartQuantity = (productId: string, weight: WeightOption, delta: number) => {
+    setCartItems((prev) =>
+      prev
+        .map((item) => {
+          if (item.productId === productId && item.weight === weight) {
+            const newQty = item.quantity + delta;
+            if (newQty <= 0) return null;
+            return {
+              ...item,
+              quantity: newQty,
+              totalPriceInr: item.unitPriceInr * newQty,
+            };
+          }
+          return item;
+        })
+        .filter(Boolean) as DomesticOrderItem[]
+    );
+  };
+
+  const handleRemoveFromCart = (productId: string, weight: WeightOption) => {
+    setCartItems((prev) =>
+      prev.filter((item) => !(item.productId === productId && item.weight === weight))
+    );
   };
 
   const handleQuickBuy = (product: RetailPacketProduct) => {
@@ -71,8 +148,41 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
     setIsCheckoutOpen(true);
   };
 
+  const handleCartCheckout = () => {
+    if (cartItems.length === 0) return;
+    setCheckoutItems(cartItems);
+    setIsCartDrawerOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalCartPrice = cartItems.reduce((acc, item) => acc + item.totalPriceInr, 0);
+
   return (
-    <div className="bg-[#FAF8F5] min-h-screen text-[#112D15]">
+    <div className="bg-[#FAF8F5] min-h-screen text-[#112D15] relative">
+      {/* ── Global Notification Toast ── */}
+      <AnimatePresence>
+        {addedToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -20, x: '-50%' }}
+            className="fixed top-24 left-1/2 z-[700] bg-[#112D15] text-[#FAF8F5] px-5 py-3 rounded-full shadow-2xl border border-[#C5A046]/60 flex items-center gap-2.5 text-xs sm:text-sm font-medium"
+          >
+            <div className="w-5 h-5 rounded-full bg-[#C5A046] text-[#112D15] flex items-center justify-center font-bold">
+              <Check className="w-3.5 h-3.5" />
+            </div>
+            <span>{addedToast}</span>
+            <button
+              onClick={() => setIsCartDrawerOpen(true)}
+              className="ml-2 px-2.5 py-1 bg-[#C5A046] text-[#112D15] rounded-full text-xs font-semibold hover:bg-[#E2BF63] transition-colors cursor-pointer"
+            >
+              View Cart
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Top Hero / Context Header ── */}
       <section className="relative overflow-hidden bg-[#112D15] text-[#FAF8F5] pt-32 pb-16 px-4 sm:px-6 lg:px-8 border-b border-[#C5A046]/30">
         {/* Subtle background decorative glow */}
@@ -109,7 +219,7 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
               <span>Free Shipping on Orders Above ₹{UPI_CONFIG.freeShippingAboveInr}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#C5A046]" />
+              <CreditCard className="w-4 h-4 text-[#C5A046]" />
               <span>Instant 1-Tap UPI Payment (GPay, PhonePe, Paytm)</span>
             </div>
           </div>
@@ -119,7 +229,7 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
             <div className="pt-2">
               <button
                 onClick={onSwitchToExport}
-                className="text-xs text-[#C5A046] hover:text-[#E2BF63] underline underline-offset-4 inline-flex items-center gap-1 transition-colors"
+                className="text-xs text-[#C5A046] hover:text-[#E2BF63] underline underline-offset-4 inline-flex items-center gap-1 transition-colors cursor-pointer"
               >
                 <span>Looking for Commercial Bulk B2B Export (500 kg+ FOB/CIF)? Click here</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -137,7 +247,6 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
             const currentVariant =
               product.variants.find((v) => v.weight === selectedWeight) || product.variants[0];
             const qty = quantities[product.id] || 1;
-            const savings = currentVariant.originalPriceInr - currentVariant.priceInr;
 
             return (
               <motion.div
@@ -147,12 +256,6 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                 transition={{ duration: 0.4 }}
                 className="group relative bg-white rounded-2xl border border-stone-200 hover:border-[#C5A046]/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
               >
-                {/* Sale / Fresh Harvest Ribbon */}
-                <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-[#112D15] text-[#FAF8F5] text-[10px] uppercase font-semibold px-2.5 py-1 rounded-md shadow-sm border border-[#C5A046]/40">
-                  <Leaf className="w-3 h-3 text-[#C5A046]" />
-                  <span>Fresh Harvest</span>
-                </div>
-
                 {/* Grade Pod Diameter Badge */}
                 <div className="absolute top-3 right-3 z-10 bg-[#FAF8F5]/90 backdrop-blur-md text-[#112D15] text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md shadow-sm border border-stone-300">
                   {product.podDiameter}
@@ -224,9 +327,6 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                           ₹{(currentVariant.originalPriceInr * qty).toLocaleString('en-IN')}
                         </span>
                       </div>
-                      <span className="text-[10px] font-semibold text-emerald-700 block">
-                        Save ₹{(savings * qty).toLocaleString('en-IN')} (Fresh direct price)
-                      </span>
                     </div>
 
                     {/* Quantity Selector */}
@@ -234,7 +334,7 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                       <button
                         type="button"
                         onClick={() => handleQuantityChange(product.id, -1)}
-                        className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors"
+                        className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors cursor-pointer"
                         aria-label="Decrease"
                       >
                         <Minus className="w-3 h-3" />
@@ -245,7 +345,7 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                       <button
                         type="button"
                         onClick={() => handleQuantityChange(product.id, 1)}
-                        className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors"
+                        className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors cursor-pointer"
                         aria-label="Increase"
                       >
                         <Plus className="w-3 h-3" />
@@ -258,10 +358,18 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                     <button
                       type="button"
                       onClick={() => handleQuickBuy(product)}
-                      className="w-full py-2.5 px-4 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] text-xs font-medium flex items-center justify-center gap-2 shadow transition-all cursor-pointer"
+                      className="w-full py-2.5 px-4 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] text-xs font-medium flex items-center justify-center gap-2 shadow transition-all cursor-pointer active:scale-[0.99]"
                     >
-                      <Zap className="w-3.5 h-3.5 text-[#C5A046]" />
-                      <span>Buy with UPI • ₹{(currentVariant.priceInr * qty).toLocaleString('en-IN')}</span>
+                      <span>Buy Now • ₹{(currentVariant.priceInr * qty).toLocaleString('en-IN')}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleAddToCart(product)}
+                      className="w-full py-2.5 px-4 rounded-xl bg-white border border-stone-300 hover:border-[#C5A046] text-[#112D15] hover:bg-stone-50 text-xs font-medium flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer active:scale-[0.99]"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5 text-[#C5A046]" />
+                      <span>Add to Cart</span>
                     </button>
 
                     <button
@@ -279,6 +387,227 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
           })}
         </div>
       </section>
+
+      {/* ── Floating Sticky Cart Button (when items are in cart) ── */}
+      <AnimatePresence>
+        {totalCartCount > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 30, scale: 0.9 }}
+            className="fixed bottom-6 right-6 z-[500]"
+          >
+            <button
+              onClick={() => setIsCartDrawerOpen(true)}
+              className="px-5 py-3.5 rounded-full bg-[#112D15] text-[#FAF8F5] border-2 border-[#C5A046] shadow-2xl flex items-center gap-3 hover:bg-[#1A3E1F] transition-all cursor-pointer group"
+            >
+              <div className="relative">
+                <ShoppingCart className="w-5 h-5 text-[#C5A046]" />
+                <span className="absolute -top-2 -right-2 bg-[#C5A046] text-[#112D15] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {totalCartCount}
+                </span>
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-bold block text-[#FAF8F5]">
+                  Cart ({totalCartCount}) • ₹{totalCartPrice.toLocaleString('en-IN')}
+                </span>
+                <span className="text-[10px] text-[#C5A046] block font-medium">
+                  {totalCartPrice >= UPI_CONFIG.freeShippingAboveInr
+                    ? 'Free Shipping'
+                    : `Add ₹${(UPI_CONFIG.freeShippingAboveInr - totalCartPrice).toLocaleString('en-IN')} for Free Delivery`}
+                </span>
+              </div>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Domestic Store Cart Drawer ── */}
+      <AnimatePresence>
+        {isCartDrawerOpen && (
+          <div className="fixed inset-0 z-[650] flex justify-end">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCartDrawerOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+            />
+
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-md bg-[#FAF8F5] h-full shadow-2xl flex flex-col z-10 text-[#112D15]"
+            >
+              {/* Drawer Header */}
+              <div className="bg-[#112D15] text-[#FAF8F5] p-5 flex items-center justify-between border-b border-[#C5A046]/30">
+                <div className="flex items-center gap-2.5">
+                  <ShoppingCart className="w-5 h-5 text-[#C5A046]" />
+                  <h3 className="font-display text-lg text-[#FAF8F5]">Your Shopping Cart</h3>
+                  <span className="text-xs bg-[#C5A046] text-[#112D15] px-2 py-0.5 rounded-full font-bold">
+                    {totalCartCount}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsCartDrawerOpen(false)}
+                  className="p-1.5 text-stone-300 hover:text-white rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Free shipping progress indicator */}
+              <div className="bg-[#F3EFEA] px-5 py-2.5 border-b border-stone-200 text-xs flex items-center justify-between">
+                <span className="text-stone-600">
+                  {totalCartPrice >= UPI_CONFIG.freeShippingAboveInr ? (
+                    <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                      <Truck className="w-3.5 h-3.5" />
+                      Eligible for FREE Express Shipping!
+                    </span>
+                  ) : (
+                    <span>
+                      Add <strong>₹{(UPI_CONFIG.freeShippingAboveInr - totalCartPrice).toLocaleString('en-IN')}</strong> more for Free Shipping
+                    </span>
+                  )}
+                </span>
+                <span className="text-[10px] text-stone-500 font-mono">
+                  Min ₹{UPI_CONFIG.freeShippingAboveInr}
+                </span>
+              </div>
+
+              {/* Items List */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                {cartItems.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 text-stone-500">
+                    <ShoppingCart className="w-12 h-12 text-stone-300 mb-3" />
+                    <p className="font-medium text-sm text-[#112D15]">Your cart is empty</p>
+                    <p className="text-xs text-stone-500 mt-1">Select your favorite cardamom packets to add them here.</p>
+                  </div>
+                ) : (
+                  cartItems.map((item) => (
+                    <div
+                      key={`${item.productId}-${item.weight}`}
+                      className="bg-white rounded-xl p-3.5 border border-stone-200 shadow-sm flex items-center gap-3.5"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.productName}
+                        className="w-14 h-14 object-cover rounded-lg border border-stone-200 shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1">
+                          <h4 className="font-medium text-xs text-[#112D15] truncate">
+                            {item.productName}
+                          </h4>
+                          <button
+                            onClick={() => handleRemoveFromCart(item.productId, item.weight)}
+                            className="text-stone-400 hover:text-red-500 transition-colors p-1 cursor-pointer"
+                            title="Remove"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#FAF8F5] text-[#8B712A] border border-stone-200">
+                            {item.weight}
+                          </span>
+                          <span className="text-xs font-semibold text-[#112D15]">
+                            ₹{item.totalPriceInr.toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-[10px] text-stone-400">
+                            (₹{item.unitPriceInr} each)
+                          </span>
+                        </div>
+
+                        {/* Quantity adjust */}
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="flex items-center border border-stone-200 rounded-md bg-[#FAF8F5]">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCartQuantity(item.productId, item.weight, -1)}
+                              className="px-2 py-0.5 text-stone-600 hover:text-black transition-colors cursor-pointer"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="px-2 text-xs font-semibold font-mono text-[#112D15]">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCartQuantity(item.productId, item.weight, 1)}
+                              className="px-2 py-0.5 text-stone-600 hover:text-black transition-colors cursor-pointer"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Drawer Footer */}
+              {cartItems.length > 0 && (
+                <div className="p-5 bg-white border-t border-stone-200 space-y-3">
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between text-stone-600">
+                      <span>Subtotal ({totalCartCount} items):</span>
+                      <span className="font-semibold text-[#112D15]">
+                        ₹{totalCartPrice.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-stone-600">
+                      <span>Shipping:</span>
+                      <span className="font-semibold text-emerald-700">
+                        {totalCartPrice >= UPI_CONFIG.freeShippingAboveInr
+                          ? 'FREE'
+                          : `₹${UPI_CONFIG.standardShippingFeeInr}`}
+                      </span>
+                    </div>
+                    <div className="border-t border-stone-200 pt-2 flex justify-between font-display text-base text-[#112D15]">
+                      <span>Estimated Total:</span>
+                      <span className="font-bold">
+                        ₹
+                        {(
+                          totalCartPrice +
+                          (totalCartPrice >= UPI_CONFIG.freeShippingAboveInr
+                            ? 0
+                            : UPI_CONFIG.standardShippingFeeInr)
+                        ).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleCartCheckout}
+                    className="w-full py-3 px-4 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] text-xs font-semibold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+                  >
+                    <span>Proceed to Checkout • ₹{(
+                      totalCartPrice +
+                      (totalCartPrice >= UPI_CONFIG.freeShippingAboveInr
+                        ? 0
+                        : UPI_CONFIG.standardShippingFeeInr)
+                    ).toLocaleString('en-IN')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCartDrawerOpen(false)}
+                    className="w-full py-1.5 text-center text-[11px] text-stone-500 hover:text-[#112D15] transition-colors cursor-pointer"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ── Product Details Modal ── */}
       <AnimatePresence>
@@ -304,7 +633,7 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                 </div>
                 <button
                   onClick={() => setActiveModalProduct(null)}
-                  className="p-1.5 text-[#C5A046] hover:text-white rounded-full hover:bg-white/10"
+                  className="p-1.5 text-[#C5A046] hover:text-white rounded-full hover:bg-white/10 cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -354,18 +683,32 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const prod = activeModalProduct;
-                      setActiveModalProduct(null);
-                      handleQuickBuy(prod);
-                    }}
-                    className="w-full py-3 px-4 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] text-xs font-semibold flex items-center justify-center gap-2 shadow"
-                  >
-                    <Zap className="w-4 h-4 text-[#C5A046]" />
-                    <span>Proceed to Order Packets</span>
-                  </button>
+                  <div className="space-y-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const prod = activeModalProduct;
+                        setActiveModalProduct(null);
+                        handleQuickBuy(prod);
+                      }}
+                      className="w-full py-3 px-4 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] text-xs font-semibold flex items-center justify-center gap-2 shadow cursor-pointer"
+                    >
+                      <span>Proceed to Order Packets</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const prod = activeModalProduct;
+                        handleAddToCart(prod);
+                        setActiveModalProduct(null);
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-white border border-stone-300 hover:border-[#C5A046] text-[#112D15] text-xs font-semibold flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                    >
+                      <ShoppingCart className="w-4 h-4 text-[#C5A046]" />
+                      <span>Add to Cart</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -382,3 +725,4 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
     </div>
   );
 }
+
