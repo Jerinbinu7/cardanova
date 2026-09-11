@@ -21,6 +21,7 @@ const EMPTY_ROW: EditRow = {
   color: '',
   applications: '',
   moq: '',
+  price_per_kg: '',
   availability: 'In Stock',
   display_order: 0,
 };
@@ -68,6 +69,7 @@ export default function GradeComparisonManager() {
         color: editing.color ?? null,
         applications: editing.applications ?? null,
         moq: editing.moq ?? null,
+        price_per_kg: editing.price_per_kg ?? null,
         availability: editing.availability,
         display_order: editing.display_order,
       };
@@ -135,7 +137,7 @@ export default function GradeComparisonManager() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-[#C5A046]/20">
-                  {['#', 'Grade', 'Pod Size', 'Color', 'Applications', 'MOQ', 'Availability', 'Actions'].map((h) => (
+                  {['#', 'Grade', 'Pod Size', 'Color', 'Est. Price/Kg', 'Applications', 'MOQ', 'Availability', 'Actions'].map((h) => (
                     <th key={h} className="px-4 py-3 text-[10px] text-[#C5A046] uppercase tracking-wider font-normal whitespace-nowrap">
                       {h}
                     </th>
@@ -152,6 +154,12 @@ export default function GradeComparisonManager() {
                     </td>
                     <td className="px-4 py-3 text-xs text-[#C5A046] font-medium whitespace-nowrap">{r.pod_size}</td>
                     <td className="px-4 py-3 text-xs text-gray-300">{r.color}</td>
+                    <td className="px-4 py-3 text-xs whitespace-nowrap">
+                      {r.price_per_kg
+                        ? <span className="text-emerald-300 font-mono">{r.price_per_kg}</span>
+                        : <span className="text-gray-500">—</span>
+                      }
+                    </td>
                     <td className="px-4 py-3 text-xs text-gray-400 max-w-[180px] truncate">{r.applications}</td>
                     <td className="px-4 py-3 text-xs text-gray-200 whitespace-nowrap">{r.moq}</td>
                     <td className="px-4 py-3 text-xs text-emerald-400 whitespace-nowrap">{r.availability}</td>
@@ -225,6 +233,12 @@ export default function GradeComparisonManager() {
                   <label className="block text-xs text-[#C5A046] uppercase tracking-wider mb-1.5">Minimum Order (MOQ)</label>
                   <input placeholder="e.g. 500 kg" value={editing.moq ?? ''} onChange={(e) => setEditing((p) => p ? { ...p, moq: e.target.value } : p)} className={inputClass} />
                 </div>
+                <div>
+                  <label className="block text-xs text-[#C5A046] uppercase tracking-wider mb-1.5">Est. Price / Kg</label>
+                  <input placeholder="e.g. ₹2,850/kg" value={editing.price_per_kg ?? ''} onChange={(e) => setEditing((p) => p ? { ...p, price_per_kg: e.target.value } : p)} className={inputClass} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-[#C5A046] uppercase tracking-wider mb-1.5">Availability</label>
                   <select value={editing.availability ?? 'In Stock'} onChange={(e) => setEditing((p) => p ? { ...p, availability: e.target.value } : p)} className={inputClass}>

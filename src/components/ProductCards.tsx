@@ -10,6 +10,7 @@ import { formatDisplayPrice } from '../utils/translation';
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
   onNavigateToProducts: () => void;
+  onNavigateToPackets?: () => void;
   onAddToCart?: (item: CartItem) => void;
 }
 
@@ -176,7 +177,7 @@ function CardamomCard({
         <div className="flex items-baseline justify-between pt-1">
           <div>
             <span className="text-xs text-stone-400 font-light">Price: </span>
-            <span translate="no" className="notranslate font-display text-xl font-light gold-gradient-text">{priceInfo.amountStr}</span>
+            <span translate="no" className="notranslate font-sans text-sm sm:text-base font-normal text-stone-200">{priceInfo.amountStr}</span>
             <span className="text-xs text-stone-400 font-light"> / kg</span>
           </div>
         </div>
@@ -252,6 +253,7 @@ function getGradeInrPrice(name: string, sizeMm?: string, liveAvgInr: number = 30
 export default function ProductCards({
   onOpenQuoteModal,
   onNavigateToProducts,
+  onNavigateToPackets,
   onAddToCart,
 }: ProductCardsProps) {
   const [cards, setCards] = useState(CARDAMOM_GRADES);
@@ -275,6 +277,8 @@ export default function ProductCards({
           const mapped = prods.map((p, idx) => {
             const sizeStr = p.grades?.[0]?.size_mm || p.specifications?.find((s) => s.label.toLowerCase().includes('size'))?.value || '';
             const fullGradeText = `${p.name} ${p.export_grade || ''} ${sizeStr}`;
+            const liveInrPrice = getGradeInrPrice(fullGradeText, sizeStr, liveAvg, idx);
+            const finalPrice = (p.price_per_kg && p.price_per_kg > 0) ? p.price_per_kg : liveInrPrice;
             return {
               id: p.id,
               gradeNum: sizeStr ? sizeStr.replace('mm', '').replace('+', '').trim() : String(8.5 - idx * 0.5),
@@ -286,7 +290,7 @@ export default function ProductCards({
               packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
               moq: '25 kg',
               volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
-              pricePerKg: getGradeInrPrice(fullGradeText, sizeStr, liveAvg, idx),
+              pricePerKg: finalPrice,
               defaultQtyKg: 25,
               image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
             };
@@ -333,18 +337,30 @@ export default function ProductCards({
             <div className="mt-5 h-px w-16 bg-[#C5A046]/40" />
           </div>
 
-          <div className="lg:text-right shrink-0 max-w-xs lg:max-w-sm">
-            <p className="text-xs text-stone-500 font-light leading-relaxed mb-6">
+          <div className="lg:text-right shrink-0 max-w-xs lg:max-w-md">
+            <p className="text-xs text-stone-500 font-light leading-relaxed mb-4">
               Direct farm-to-export sourcing. Select a grade, configure quantity, add to cart or request a custom FOB/CIF quotation.
             </p>
-            <MagneticButton
-              as="button"
-              onClick={onNavigateToProducts}
-              cursorLabel="Catalogue"
-              className="inline-flex items-center gap-2 rounded-full border border-[#C5A046]/30 bg-transparent px-5 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/8 hover:border-[#C5A046]/60 transition-all cursor-pointer"
-            >
-              Full Catalogue <ArrowRight className="w-3.5 h-3.5" />
-            </MagneticButton>
+            <div className="flex flex-wrap items-center lg:justify-end gap-2.5">
+              {onNavigateToPackets && (
+                <button
+                  type="button"
+                  onClick={onNavigateToPackets}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A046]/50 bg-[#112D15]/80 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#E2BF63] hover:bg-[#112D15] hover:border-[#C5A046] transition-all cursor-pointer shadow-sm"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E2BF63] animate-pulse" />
+                  <span>🇮🇳 Shop Packets (50g - 1kg)</span>
+                </button>
+              )}
+              <MagneticButton
+                as="button"
+                onClick={onNavigateToProducts}
+                cursorLabel="Catalogue"
+                className="inline-flex items-center gap-2 rounded-full border border-[#C5A046]/30 bg-transparent px-4 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/8 hover:border-[#C5A046]/60 transition-all cursor-pointer"
+              >
+                Full Catalogue <ArrowRight className="w-3.5 h-3.5" />
+              </MagneticButton>
+            </div>
           </div>
         </div>
 

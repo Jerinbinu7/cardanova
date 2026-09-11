@@ -18,7 +18,7 @@ const EMPTY_PRODUCT: Partial<ProductWithRelations> = {
   name: '', slug: '', short_description: '', long_description: '',
   origin: 'Idukki, Kerala, India', availability: 'in_stock',
   featured: false, published: true, display_order: 0,
-  export_grade: '', hs_code: '', packaging_info: '',
+  export_grade: '', hs_code: '', packaging_info: '', price_per_kg: null,
   seo_title: '', seo_description: '', meta_keywords: '',
   images: [], specifications: [], grades: [],
 };
@@ -73,6 +73,7 @@ export default function ProductManager() {
         published:         editing.published ?? true,
         display_order:     editing.display_order ?? 0,
         export_grade:      editing.export_grade ?? null,
+        price_per_kg:      editing.price_per_kg ?? null,
         hs_code:           editing.hs_code ?? null,
         packaging_info:    editing.packaging_info ?? null,
         main_image_url:    editing.main_image_url ?? null,
@@ -220,8 +221,8 @@ export default function ProductManager() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0D2012]/80 p-6 rounded-2xl border border-[#C5A046]/30 shadow-xl">
         <div>
-          <h2 className="text-xl font-light text-[#FAF8F5]">Product Catalog</h2>
-          <p className="text-xs text-gray-400 mt-1">Manage spice products, grades, images, and SEO</p>
+          <h2 className="text-xl font-light text-[#FAF8F5]">Bulk Export Products</h2>
+          <p className="text-xs text-gray-400 mt-1">Manage B2B export-grade spice products, pricing, grades, images, and SEO</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-none">
@@ -245,6 +246,7 @@ export default function ProductManager() {
                 <th className="p-4 text-center">Pos</th>
                 <th className="p-4">Product</th>
                 <th className="p-4 hidden md:table-cell">Category</th>
+                <th className="p-4 hidden lg:table-cell">Price / Kg</th>
                 <th className="p-4 hidden lg:table-cell">Grades</th>
                 <th className="p-4">Featured</th>
                 <th className="p-4">Status</th>
@@ -253,9 +255,9 @@ export default function ProductManager() {
             </thead>
             <tbody className="divide-y divide-[#C5A046]/10">
               {loading
-                ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} cols={7} />)
+                ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} cols={8} />)
                 : filtered.length === 0
-                  ? <tr><td colSpan={7} className="text-center py-12 text-gray-400 text-sm">No products found.</td></tr>
+                  ? <tr><td colSpan={8} className="text-center py-12 text-gray-400 text-sm">No products found.</td></tr>
                   : filtered.map((p, index) => (
                     <tr key={p.id} className="hover:bg-[#C5A046]/5 transition-colors">
                       <td className="p-4">
@@ -299,6 +301,12 @@ export default function ProductManager() {
                       </td>
                       <td className="p-4 hidden md:table-cell">
                         <span className="text-xs text-gray-300 capitalize">{(p.category as any)?.name ?? '—'}</span>
+                      </td>
+                      <td className="p-4 hidden lg:table-cell">
+                        {p.price_per_kg
+                          ? <span className="text-xs text-emerald-300 font-mono">₹{p.price_per_kg.toLocaleString()}</span>
+                          : <span className="text-xs text-gray-500">—</span>
+                        }
                       </td>
                       <td className="p-4 hidden lg:table-cell text-xs text-gray-400">{p.grades?.length ?? 0} grades</td>
                       <td className="p-4">
@@ -401,10 +409,27 @@ export default function ProductManager() {
                     </div>
                     {textarea('Short Description', editing.short_description ?? '', (v) => setEditing((p) => ({ ...p, short_description: v })))}
                     {textarea('Full Description', editing.long_description ?? '', (v) => setEditing((p) => ({ ...p, long_description: v })), 5)}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {input('Origin', editing.origin ?? '', (v) => setEditing((p) => ({ ...p, origin: v })), 'Idukki, Kerala, India')}
                       {input('Golden Label / Badge', editing.export_grade ?? '', (v) => setEditing((p) => ({ ...p, export_grade: v })), 'e.g. 8.5 mm / Extra Bold / Flagship')}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {input('HS Code', editing.hs_code ?? '', (v) => setEditing((p) => ({ ...p, hs_code: v })), 'e.g. 0908.31')}
+                      <div>
+                        <label className="block text-xs text-[#C5A046] uppercase tracking-wider mb-1.5">Price per Kg (₹)</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400 text-sm font-medium">₹</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={editing.price_per_kg ?? ''}
+                            onChange={(e) => setEditing((p) => ({ ...p, price_per_kg: e.target.value ? parseInt(e.target.value) : null }))}
+                            placeholder="e.g. 2850"
+                            className="w-full bg-[#071309] border border-emerald-500/30 rounded-xl pl-8 pr-3 py-2.5 text-sm text-emerald-300 font-mono focus:outline-none focus:border-emerald-500 transition-all"
+                          />
+                        </div>
+                      </div>
                     </div>
                     {textarea('Packaging Information', editing.packaging_info ?? '', (v) => setEditing((p) => ({ ...p, packaging_info: v })), 2)}
                     <div className="grid grid-cols-2 gap-4">
