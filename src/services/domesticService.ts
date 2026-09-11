@@ -1,5 +1,6 @@
-﻿import { RetailPacketProduct, DomesticOrder } from '../types/domestic';
+import { RetailPacketProduct, DomesticOrder } from '../types/domestic';
 import { supabase } from '../lib/supabase';
+import { sendOrderNotificationEmail } from './emailNotificationService';
 
 export const UPI_CONFIG = {
   vpa: 'cardanovaspices@icici', // Primary UPI VPA / ID
@@ -132,11 +133,28 @@ export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
 
 export const domesticService = {
   getProducts(): RetailPacketProduct[] {
+    try {
+      const stored = localStorage.getItem('cardanova_retail_products');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch {
+      // Fallback to default
+    }
     return DEFAULT_RETAIL_PRODUCTS;
   },
 
+  saveProducts(products: RetailPacketProduct[]): void {
+    try {
+      localStorage.setItem('cardanova_retail_products', JSON.stringify(products));
+      window.dispatchEvent(new Event('cardanova_retail_products_updated'));
+    } catch (e) {
+      console.error('Failed to save retail products:', e);
+    }
+  },
+
   getProductById(id: string): RetailPacketProduct | undefined {
-    return DEFAULT_RETAIL_PRODUCTS.find((p) => p.id === id);
+    return this.getProducts().find((p) => p.id === id);
   },
 
   generateOrderNumber(): string {
@@ -186,6 +204,22 @@ export const domesticService = {
       if (error) {
         console.warn('[domesticService] Supabase insert note:', error.message);
       }
+
+      // 2. Send email notification to admin with full order details
+      const itemsSummary = order.items
+        .map((i) => `• ${i.productName} (${i.weight}) x ${i.quantity} = ₹${i.totalPriceInr}`)
+        .join('\n');
+
+      sendOrderNotificationEmail({
+        orderNumber: order.orderNumber,
+        customerName: order.customer.fullName,
+        customerPhone: order.customer.phone,
+        customerEmail: order.customer.email,
+        shippingAddress: `${order.customer.addressLine}, ${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}`,
+        itemsSummary,
+        totalAmountInr: order.finalAmountInr,
+        upiReferenceUtr: order.upiReferenceUtr,
+      }).catch((e) => console.warn('[domesticService] Email notification error:', e));
 
       // Also store in localStorage as reliable buyer receipt cache
       try {
@@ -256,6 +290,25 @@ export const domesticService = {
       }));
     } catch {
       return [];
+    }
+  },
+
+  async updateOrderStatus(orderNumber: string, updates: { orderStatus?: string; paymentStatus?: string; courierTrackingNumber?: string; upiReferenceUtr?: string }): Promise<boolean> {
+    try {
+      const dbUpdates: Record<string, any> = {};
+      if (updates.orderStatus) dbUpdates.order_status = updates.orderStatus;
+      if (updates.paymentStatus) dbUpdates.payment_status = updates.paymentStatus;
+      if (updates.courierTrackingNumber !== undefined) dbUpdates.courier_tracking_number = updates.courierTrackingNumber;
+      if (updates.upiReferenceUtr !== undefined) dbUpdates.upi_reference_utr = updates.upiReferenceUtr;
+
+      const { error } = await supabase
+        .from('domestic_orders')
+        .update(dbUpdates)
+        .eq('order_number', orderNumber);
+
+      return !error;
+    } catch {
+      return false;
     }
   }
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
@@ -15,7 +15,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { RetailPacketProduct, WeightOption, DomesticOrderItem } from '../types/domestic';
-import { DEFAULT_RETAIL_PRODUCTS, UPI_CONFIG } from '../services/domesticService';
+import { domesticService, UPI_CONFIG } from '../services/domesticService';
 import UpiCheckoutModal from './UpiCheckoutModal';
 
 interface DomesticStoreProps {
@@ -23,6 +23,16 @@ interface DomesticStoreProps {
 }
 
 export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) {
+  const [products, setProducts] = useState<RetailPacketProduct[]>(() => domesticService.getProducts());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setProducts(domesticService.getProducts());
+    };
+    window.addEventListener('cardanova_retail_products_updated', handleUpdate);
+    return () => window.removeEventListener('cardanova_retail_products_updated', handleUpdate);
+  }, []);
+
   const [selectedVariants, setSelectedVariants] = useState<Record<string, WeightOption>>({
     'cnd-pouch-85mm': '100g',
     'cnd-pouch-80mm': '100g',
@@ -242,7 +252,7 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
       {/* ── Product Catalog Section ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {DEFAULT_RETAIL_PRODUCTS.map((product) => {
+          {products.map((product) => {
             const selectedWeight = selectedVariants[product.id] || '100g';
             const currentVariant =
               product.variants.find((v) => v.weight === selectedWeight) || product.variants[0];

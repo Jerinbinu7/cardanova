@@ -277,6 +277,8 @@ export default function ProductCards({
           const mapped = prods.map((p, idx) => {
             const sizeStr = p.grades?.[0]?.size_mm || p.specifications?.find((s) => s.label.toLowerCase().includes('size'))?.value || '';
             const fullGradeText = `${p.name} ${p.export_grade || ''} ${sizeStr}`;
+            const liveInrPrice = getGradeInrPrice(fullGradeText, sizeStr, liveAvg, idx);
+            const finalPrice = (p.price_per_kg && p.price_per_kg > 0) ? p.price_per_kg : liveInrPrice;
             return {
               id: p.id,
               gradeNum: sizeStr ? sizeStr.replace('mm', '').replace('+', '').trim() : String(8.5 - idx * 0.5),
@@ -288,7 +290,7 @@ export default function ProductCards({
               packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
               moq: '25 kg',
               volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
-              pricePerKg: getGradeInrPrice(fullGradeText, sizeStr, liveAvg, idx),
+              pricePerKg: finalPrice,
               defaultQtyKg: 25,
               image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
             };

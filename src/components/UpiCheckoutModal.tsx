@@ -149,16 +149,31 @@ export default function UpiCheckoutModal({
     upiDeepLink
   )}`;
 
+  const [utrError, setUtrError] = useState('');
+
   const handleConfirmUtr = async () => {
     if (!currentOrder) return;
-    setIsSubmitting(true);
-    if (utrInput.trim()) {
-      await domesticService.updateOrderUtr(currentOrder.orderNumber, utrInput.trim());
+    const cleanUtr = utrInput.trim();
+
+    // Mandatory UTR check: Must be between 12 and 22 characters
+    if (!cleanUtr) {
+      setUtrError('Please enter your UPI Reference / UTR number to complete the order.');
+      return;
     }
+
+    if (cleanUtr.length < 12 || cleanUtr.length > 22) {
+      setUtrError('UPI Reference / UTR number must be between 12 and 22 characters.');
+      return;
+    }
+
+    setUtrError('');
+    setIsSubmitting(true);
+    await domesticService.updateOrderUtr(currentOrder.orderNumber, cleanUtr);
+    
     const completedOrder: DomesticOrder = {
       ...currentOrder,
-      upiReferenceUtr: utrInput.trim() || undefined,
-      paymentStatus: utrInput.trim() ? 'paid' : 'pending_verification',
+      upiReferenceUtr: cleanUtr,
+      paymentStatus: 'paid',
     };
     setCurrentOrder(completedOrder);
     setIsSubmitting(false);
@@ -524,19 +539,31 @@ export default function UpiCheckoutModal({
               <div className="bg-[#F3EFEA] p-4 rounded-xl border border-[#C5A046]/20 space-y-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#112D15] mb-1">
-                    Enter 12-Digit UPI Reference No. / UTR (Optional)
+                    Enter UPI Reference No. / UTR <span className="text-red-600">*</span> (12–22 digits)
                   </label>
                   <input
                     type="text"
-                    maxLength={16}
+                    maxLength={22}
                     placeholder="e.g. 423589123456"
                     value={utrInput}
-                    onChange={(e) => setUtrInput(e.target.value)}
-                    className="w-full px-3.5 py-2 text-sm font-mono rounded-lg bg-white border border-[#C5A046]/30 focus:border-[#112D15] focus:outline-none"
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+                      setUtrInput(val);
+                      if (utrError) setUtrError('');
+                    }}
+                    className={`w-full px-3.5 py-2 text-sm font-mono rounded-lg bg-white border ${
+                      utrError ? 'border-red-500 bg-red-50/50' : 'border-[#C5A046]/30 focus:border-[#112D15]'
+                    } focus:outline-none`}
                   />
-                  <p className="text-[11px] text-stone-500 mt-1">
-                    Found in your UPI app payment receipt after completing the transfer.
-                  </p>
+                  {utrError ? (
+                    <p className="text-[11px] text-red-600 font-medium mt-1.5 flex items-center gap-1">
+                      ⚠️ {utrError}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      Found in your UPI app payment receipt after completing the transfer (12 to 22 characters required).
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
