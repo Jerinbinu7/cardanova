@@ -19,7 +19,6 @@ import CustomCursor from './components/CustomCursor';
 import Header from './components/Header';
 import HeroSlideshow from './components/HeroSlideshow';
 import WhyChooseCardanova from './components/WhyChooseCardanova';
-import AuctionPriceTicker from './components/AuctionPriceTicker';
 import ProductCards from './components/ProductCards';
 import ExportExperience from './components/ExportExperience';
 import GlobalStandards from './components/GlobalStandards';
@@ -150,9 +149,24 @@ export default function App() {
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState<string>('8.5 mm Extra Bold');
 
-  // Cart state
+  // Cart state with localStorage persistence
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('cardanova_export_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cardanova_export_cart', JSON.stringify(cartItems));
+    } catch (e) {
+      console.warn('Failed to save export cart:', e);
+    }
+  }, [cartItems]);
 
   const reducedMotion = useReducedMotion();
 
@@ -342,7 +356,6 @@ export default function App() {
                 onOpenQuoteModal={handleOpenQuoteModal}
                 onNavigateToProducts={handleNavigateToProducts}
               />
-              <AuctionPriceTicker />
               <WhyChooseCardanova />
               <ProductCards
                 onOpenQuoteModal={handleOpenQuoteModal}
