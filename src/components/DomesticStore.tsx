@@ -51,25 +51,10 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
   const [checkoutItems, setCheckoutItems] = useState<DomesticOrderItem[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   
-  // Shopping Cart state with localStorage persistence across tab/page navigation
-  const [cartItems, setCartItems] = useState<DomesticOrderItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('cardanova_shop_cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Shopping Cart state
+  const [cartItems, setCartItems] = useState<DomesticOrderItem[]>([]);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [addedToast, setAddedToast] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('cardanova_shop_cart', JSON.stringify(cartItems));
-    } catch (e) {
-      console.warn('Failed to save shop cart:', e);
-    }
-  }, [cartItems]);
 
   const handleVariantChange = (productId: string, weight: WeightOption) => {
     setSelectedVariants((prev) => ({ ...prev, [productId]: weight }));
@@ -746,17 +731,6 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         orderItems={checkoutItems}
-        onOrderSuccess={() => {
-          // If the checkout was from the shopping cart, empty the cart
-          if (checkoutItems === cartItems || checkoutItems.length > 1) {
-            setCartItems([]);
-            try {
-              localStorage.removeItem('cardanova_shop_cart');
-            } catch (e) {
-              console.warn(e);
-            }
-          }
-        }}
       />
     </div>
   );

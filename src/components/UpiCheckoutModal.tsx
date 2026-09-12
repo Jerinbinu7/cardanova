@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   X,
   CheckCircle2,
@@ -66,10 +66,9 @@ export default function UpiCheckoutModal({
   const finalTotal = subtotal + shippingFee;
 
   useEffect(() => {
-    if (isOpen && orderItems.length > 0) {
+    if (isOpen) {
       setStep('details');
       setUtrInput('');
-      setUtrError('');
       setFormErrors({});
       // Generate initial order reference
       const initialOrderNumber = domesticService.generateOrderNumber();
@@ -85,7 +84,9 @@ export default function UpiCheckoutModal({
         orderStatus: 'received',
       });
     }
-  }, [isOpen, orderItems]);
+  }, [isOpen, orderItems, subtotal, shippingFee, finalTotal]);
+
+  if (!isOpen || orderItems.length === 0) return null;
 
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof CustomerShippingDetails, string>> = {};
@@ -202,45 +203,35 @@ export default function UpiCheckoutModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[750] flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-[#071309]/85 backdrop-blur-md cursor-pointer"
-          />
-
-          {/* Modal Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 15 }}
-            transition={{ duration: 0.25 }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-2xl bg-[#FAF8F5] rounded-2xl shadow-2xl border border-[#C5A046]/30 overflow-hidden my-auto z-10"
-          >
-            {/* Header Ribbon */}
-            <div className="bg-[#112D15] text-[#FAF8F5] px-6 py-4 flex items-center justify-between border-b border-[#C5A046]/20">
-              <div className="flex items-center gap-3">
-                {step === 'payment' && (
-                  <button
-                    type="button"
-                    onClick={() => setStep('details')}
-                    className="p-1.5 -ml-2 text-[#C5A046] hover:text-[#E2BF63] hover:bg-white/10 rounded-full transition-colors cursor-pointer"
-                    title="Back to Details"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                )}
-                <div>
-                  <span className="label-caps text-[#C5A046] text-[0.62rem] tracking-[0.2em] block">
-                    Direct Domestic Delivery • India
-                  </span>
-                  <h3 className="font-display text-xl sm:text-2xl text-[#FAF8F5] font-normal leading-tight">
+    <div
+      className="fixed inset-0 z-[600] flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+      style={{ backgroundColor: 'rgba(7, 19, 9, 0.85)', backdropFilter: 'blur(8px)' }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 15 }}
+        transition={{ duration: 0.25 }}
+        className="relative w-full max-w-2xl bg-[#FAF8F5] rounded-2xl shadow-2xl border border-[#C5A046]/30 overflow-hidden my-auto"
+      >
+        {/* Header Ribbon */}
+        <div className="bg-[#112D15] text-[#FAF8F5] px-6 py-4 flex items-center justify-between border-b border-[#C5A046]/20">
+          <div className="flex items-center gap-3">
+            {step === 'payment' && (
+              <button
+                type="button"
+                onClick={() => setStep('details')}
+                className="p-1.5 -ml-2 text-[#C5A046] hover:text-[#E2BF63] hover:bg-white/10 rounded-full transition-colors"
+                title="Back to Details"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <div>
+              <span className="label-caps text-[#C5A046] text-[0.62rem] tracking-[0.2em] block">
+                Direct Domestic Delivery • India
+              </span>
+              <h3 className="font-display text-xl sm:text-2xl text-[#FAF8F5] font-normal leading-tight">
                 {step === 'details' && 'Shipping & Customer Details'}
                 {step === 'payment' && 'Direct UPI Instant Checkout'}
                 {step === 'success' && 'Order Confirmed'}
@@ -664,7 +655,5 @@ export default function UpiCheckoutModal({
         </div>
       </motion.div>
     </div>
-      )}
-    </AnimatePresence>
   );
 }

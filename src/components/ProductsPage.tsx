@@ -269,7 +269,7 @@ function ProductCard({
 
         <div className="mt-4 mb-4 flex items-baseline justify-between">
           <div>
-            <span translate="no" className="notranslate font-display gold-gradient-text font-light leading-none" style={{ fontSize: '1.6rem' }}>
+            <span translate="no" className="notranslate font-sans text-base sm:text-lg font-normal text-stone-700 leading-none">
               {priceInfo.amountStr}
             </span>
             <span className="text-xs text-stone-400 ml-1.5 font-light">/ kg</span>
@@ -385,6 +385,9 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
             const mult = getProductGradeMultiplier(p.name, `${sizeStr} ${sizeVal}`, idx);
             const liveInrPrice = Math.round(liveAvg * mult);
 
+            // Admin-set price takes priority; auction-derived price is the fallback
+            const finalPrice = (p.price_per_kg && p.price_per_kg > 0) ? p.price_per_kg : liveInrPrice;
+
             return {
               id: p.id,
               category: (p.category?.slug === 'flagship' ? 'flagship' : p.category?.slug === 'standard' ? 'standard' : 'industrial') as CatalogueItem['category'],
@@ -403,7 +406,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
               applications: p.short_description || p.long_description || 'High-grade single origin green cardamom from Idukki, Kerala',
               image: p.main_image_url || p.images?.[0]?.url || PRODUCTS_CATALOGUE[idx % PRODUCTS_CATALOGUE.length].image,
               badge: p.export_grade || sizeStr || (p.featured ? 'Flagship Grade' : 'Export Standard'),
-              pricePerKg: liveInrPrice,
+              pricePerKg: finalPrice,
               rating: 4.5 + (idx % 4) * 0.1,
               reviewCount: 80 + idx * 15,
             };
