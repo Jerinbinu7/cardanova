@@ -45,8 +45,8 @@ export default function ContactInfoManager() {
         <div className={sectionClass}>
           <h3 className="text-sm uppercase tracking-wider text-[#C5A046] font-medium border-b border-[#C5A046]/20 pb-2">Communication</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {field('Phone', 'phone', '+91 9876543210')}
-            {field('WhatsApp Number', 'whatsapp', '+91 9876543210')}
+            {field('Phone', 'phone', '+91 9656866090')}
+            {field('WhatsApp Number', 'whatsapp', '+91 9656866090')}
             {field('Contact Email', 'email', 'trade@cardanovaspices.com', 'email')}
             {field('Inquiry Email', 'inquiry_email', 'trade@cardanovaspices.com', 'email')}
           </div>

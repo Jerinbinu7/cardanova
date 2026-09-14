@@ -77,7 +77,7 @@ export default function SettingsManager() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {field('Inquiry Email', 'inquiry_email', 'trade@cardanovaspices.com', 'email')}
-            {field('WhatsApp Number', 'whatsapp_number', '+91 9876543210')}
+            {field('WhatsApp Number', 'whatsapp_number', '+91 9656866090')}
           </div>
         </div>
 

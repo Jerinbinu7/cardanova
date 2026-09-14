@@ -731,6 +731,14 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         orderItems={checkoutItems}
+        onOrderSuccess={() => {
+          setCartItems([]);
+          try {
+            localStorage.removeItem('cardanova_shop_cart');
+          } catch (e) {
+            // ignore
+          }
+        }}
       />
     </div>
   );

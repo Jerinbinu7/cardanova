@@ -8,8 +8,8 @@ export const UPI_CONFIG = {
   currency: 'INR',
   freeShippingAboveInr: 1000,
   standardShippingFeeInr: 80,
-  supportPhone: '+91 94470 00000',
-  supportWhatsApp: '919447000000',
+  supportPhone: '+91 96568 66090',
+  supportWhatsApp: '919656866090',
 };
 
 export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [

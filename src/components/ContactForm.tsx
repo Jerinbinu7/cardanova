@@ -18,8 +18,8 @@ const CONTACT_DETAILS = [
   {
     icon: <MessageCircle className="w-5 h-5" />,
     label: 'WhatsApp Trade Desk',
-    value: '+91 98765 43210',
-    href: 'https://wa.me/919876543210',
+    value: '+91 96568 66090',
+    href: 'https://wa.me/919656866090',
   },
   {
     icon: <MapPin className="w-5 h-5" />,

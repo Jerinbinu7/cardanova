@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   CheckCircle2,
@@ -66,7 +66,7 @@ export default function UpiCheckoutModal({
   const finalTotal = subtotal + shippingFee;
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && orderItems.length > 0) {
       setStep('details');
       setUtrInput('');
       setFormErrors({});
@@ -84,9 +84,7 @@ export default function UpiCheckoutModal({
         orderStatus: 'received',
       });
     }
-  }, [isOpen, orderItems, subtotal, shippingFee, finalTotal]);
-
-  if (!isOpen || orderItems.length === 0) return null;
+  }, [isOpen, orderItems]);
 
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof CustomerShippingDetails, string>> = {};
@@ -203,17 +201,20 @@ export default function UpiCheckoutModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[600] flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
-      style={{ backgroundColor: 'rgba(7, 19, 9, 0.85)', backdropFilter: 'blur(8px)' }}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 15 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 15 }}
-        transition={{ duration: 0.25 }}
-        className="relative w-full max-w-2xl bg-[#FAF8F5] rounded-2xl shadow-2xl border border-[#C5A046]/30 overflow-hidden my-auto"
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[750] flex items-center justify-center p-3 sm:p-5 overflow-y-auto bg-black/80 backdrop-blur-sm"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 15 }}
+            transition={{ duration: 0.25 }}
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-2xl bg-[#FAF8F5] rounded-2xl shadow-2xl border border-[#C5A046]/30 overflow-hidden my-auto"
+          >
         {/* Header Ribbon */}
         <div className="bg-[#112D15] text-[#FAF8F5] px-6 py-4 flex items-center justify-between border-b border-[#C5A046]/20">
           <div className="flex items-center gap-3">
@@ -655,5 +656,7 @@ export default function UpiCheckoutModal({
         </div>
       </motion.div>
     </div>
+  )}
+</AnimatePresence>
   );
 }
