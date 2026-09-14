@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
 import TranslateHint from './TranslateHint';
 
 interface HeaderProps {
-  activeTab: 'home' | 'about' | 'products' | 'origin';
-  setActiveTab: (tab: 'home' | 'about' | 'products' | 'origin') => void;
+  activeTab: 'home' | 'about' | 'products' | 'origin' | 'packets';
+  setActiveTab: (tab: 'home' | 'about' | 'products' | 'origin' | 'packets') => void;
   onOpenQuoteModal: (grade?: string) => void;
   cartCount?: number;
   onOpenCart?: () => void;
@@ -35,7 +35,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleNavClick = (tab: 'home' | 'about' | 'products' | 'origin', hash?: string) => {
+  const handleNavClick = (tab: 'home' | 'about' | 'products' | 'origin' | 'packets', hash?: string) => {
     setActiveTab(tab);
     setMobileOpen(false);
     if (hash) {
@@ -49,14 +49,15 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
   };
 
   const NAV_LINKS = [
-    { label: 'Home',       tab: 'home'     as const, hash: undefined },
-    { label: 'Products',   tab: 'products' as const, hash: undefined },
-    { label: 'About',      tab: 'about'    as const, hash: undefined },
-    { label: 'Our Origin', tab: 'origin'   as const, hash: undefined },
-    { label: 'Contact',    tab: 'home'     as const, hash: '#contact' },
+    { label: 'Home',        tab: 'home'     as const, hash: undefined },
+    { label: 'Bulk Export', tab: 'products' as const, hash: undefined },
+    { label: 'Shop',        tab: 'packets'  as const, hash: undefined },
+    { label: 'Our Origin',  tab: 'origin'   as const, hash: undefined },
+    { label: 'About',       tab: 'about'    as const, hash: undefined },
+    { label: 'Contact',     tab: 'home'     as const, hash: '#contact' },
   ];
 
-  const isLinkActive = (tab: 'home' | 'about' | 'products' | 'origin', hash?: string) => {
+  const isLinkActive = (tab: 'home' | 'about' | 'products' | 'origin' | 'packets', hash?: string) => {
     if (hash) return false;
     return activeTab === tab;
   };
@@ -119,7 +120,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
                     : 'text-stone-200/80 hover:text-[#FAF8F5]'
                 }`}
               >
-                {link.label}
+                <span>{link.label}</span>
                 {active && (
                   <motion.span
                     layoutId="navIndicator"
@@ -243,7 +244,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
                       : 'text-stone-300 hover:text-[#C5A046]'
                   }`}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
                 </motion.button>
               ))}
 

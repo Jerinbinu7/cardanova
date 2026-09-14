@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Tags, Layers, Image as ImageIcon,
   Home, Info, Award, Star, Phone, MessageSquareQuote,
   Settings, LogOut, ExternalLink, Menu, X, HelpCircle,
-  Search as SearchIcon, Users, Shield,
+  Search as SearchIcon, Users, Shield, ShoppingBag,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -28,6 +28,8 @@ import FAQManager           from './views/FAQManager';
 import SEOManager           from './views/SEOManager';
 import UsersManager         from './views/UsersManager';
 import SettingsManager      from './views/SettingsManager';
+import ShopManager          from './views/ShopManager';
+import OrdersManager        from './views/OrdersManager';
 
 const ROLE_COLORS: Record<string, string> = {
   owner:  'bg-amber-950/60 text-amber-300 border-amber-500/40',
@@ -37,9 +39,11 @@ const ROLE_COLORS: Record<string, string> = {
 
 const NAV_ITEMS = [
   { id: 'dashboard',      label: 'Dashboard',          icon: LayoutDashboard,     roles: ['owner','admin','editor'] },
-  { id: 'products',       label: 'Products',           icon: Package,             roles: ['owner','admin','editor'] },
+  { id: 'orders',         label: 'Domestic Orders',    icon: ShoppingBag,         roles: ['owner','admin','editor'] },
+  { id: 'products',       label: 'Bulk Export',        icon: Package,             roles: ['owner','admin','editor'] },
   { id: 'categories',     label: 'Categories',         icon: Tags,                roles: ['owner','admin','editor'] },
   { id: 'gradeComparison',label: 'Grade Comparison',   icon: Layers,              roles: ['owner','admin','editor'] },
+  { id: 'shop',           label: 'Shop Products',      icon: Tags,                roles: ['owner','admin','editor'] },
   { id: 'homepage',       label: 'Homepage',           icon: Home,                roles: ['owner','admin','editor'] },
   { id: 'about',          label: 'About Page',         icon: Info,                roles: ['owner','admin','editor'] },
   { id: 'origin',          label: 'Our Origin',         icon: OriginIcon,          roles: ['owner','admin','editor'] },
@@ -124,6 +128,7 @@ export default function AdminLayout() {
   const renderView = () => {
     switch (activeTab) {
       case 'dashboard':      return <DashboardOverview onNavigateTab={setActiveTab} />;
+      case 'orders':         return <OrdersManager />;
       case 'products':       return <ProductManager />;
       case 'categories':     return <CategoriesManager />;
       case 'gradeComparison':return <GradeComparisonManager />;
@@ -139,6 +144,7 @@ export default function AdminLayout() {
       case 'seo':            return <SEOManager />;
       case 'users':          return <UsersManager />;
       case 'settings':       return <SettingsManager />;
+      case 'shop':           return <ShopManager />;
       default:               return <DashboardOverview onNavigateTab={setActiveTab} />;
     }
   };

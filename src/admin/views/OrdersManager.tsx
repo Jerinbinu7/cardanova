@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ShoppingBag, RefreshCw, CheckCircle2, Clock, Truck, Phone, MapPin, Hash, Search, AlertTriangle } from 'lucide-react';
+import { ShoppingBag, RefreshCw, CheckCircle2, Clock, Truck, Phone, MapPin, Hash, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { domesticService } from '../../services/domesticService';
 import type { DomesticOrder, DomesticOrderItem } from '../../types/domestic';
@@ -9,7 +9,6 @@ import { SkeletonRow } from '../components/Skeleton';
 export default function OrdersManager() {
   const [orders, setOrders] = useState<DomesticOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedOrder, setSelectedOrder] = useState<DomesticOrder | null>(null);
@@ -18,14 +17,11 @@ export default function OrdersManager() {
 
   const loadOrders = async () => {
     setLoading(true);
-    setFetchError(null);
     try {
       const fetched = await domesticService.fetchAllOrders();
       setOrders(fetched);
     } catch (err: any) {
-      const msg = err.message || 'Failed to load orders';
-      setFetchError(msg);
-      toast.error(msg);
+      toast.error(err.message || 'Failed to load orders');
     } finally {
       setLoading(false);
     }
@@ -154,22 +150,6 @@ export default function OrdersManager() {
           Refresh Orders
         </button>
       </div>
-
-      {/* Error Banner */}
-      {fetchError && (
-        <div className="bg-red-950/60 border border-red-500/40 rounded-2xl p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-red-300">Failed to load orders</p>
-            <p className="text-xs text-red-400/80 font-mono">{fetchError}</p>
-            <p className="text-xs text-gray-400 mt-2">
-              This is usually a <strong className="text-amber-300">Supabase RLS policy</strong> issue.
-              Go to your Supabase Dashboard → Table Editor → <code className="bg-black/30 px-1 rounded">domestic_orders</code> → Policies,
-              and add a SELECT policy allowing authenticated users (admins) to read all rows.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3">

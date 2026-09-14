@@ -19,6 +19,7 @@ export interface GradeComparisonRow {
   color: string | null;
   applications: string | null;
   moq: string | null;
+  price_per_kg: string | null;
   availability: string;
   display_order: number;
   created_at: string;
@@ -92,6 +93,7 @@ export interface ProductRow {
   published: boolean;
   display_order: number;
   export_grade: string | null;
+  price_per_kg: number | null;
   hs_code: string | null;
   packaging_info: string | null;
   main_image_url: string | null;

@@ -210,8 +210,8 @@ WHERE TRUE;
 -- ============================================================
 UPDATE public.contact_info SET
   email          = 'trade@cardanovaspices.com',
-  phone          = '+91 9876543210',
-  whatsapp       = '+91 9876543210',
+  phone          = '+91 9656866090',
+  whatsapp       = '+91 9656866090',
   address        = 'Cardanova Spices LLP, Vandanmedu, Idukki District, Kerala — 685 533, India',
   business_hours = 'Monday to Saturday: 9:00 AM – 6:00 PM IST',
   inquiry_email  = 'trade@cardanovaspices.com'

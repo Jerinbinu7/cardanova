@@ -115,6 +115,10 @@ export default function QuoteModal({
   // Spices Board India Auction price benchmark state
   const [auctionData, setAuctionData] = useState<AuctionRecord | null>(null);
 
+  const [selectedGrades, setSelectedGrades] = useState<string[]>(() => [defaultGrade || '8.5 mm Extra Bold Green (AGEB)']);
+  const [customGradeText, setCustomGradeText] = useState('');
+  const [isCustomActive, setIsCustomActive] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       setSubmitError(null);
@@ -129,24 +133,61 @@ export default function QuoteModal({
         const productSummary = cartItems
           .map((i) => `${i.gradeName} (${i.quantityKg}kg)`)
           .join(', ');
+        setSelectedGrades(cartItems.map((i) => i.gradeName));
         setFormData((prev) => ({
           ...prev,
           grade: `Bulk Cart Order: ${productSummary}`,
           quantity: `${totalCartKg} kg (${(totalCartKg / 1000).toFixed(2)} MT)`,
         }));
       } else {
+        const initial = defaultGrade || '8.5 mm Extra Bold Green (AGEB)';
+        setSelectedGrades([initial]);
+        setIsCustomActive(false);
+        setCustomGradeText('');
         setFormData((prev) => ({
           ...prev,
-          grade: defaultGrade,
+          grade: initial,
           quantity: '1 MT',
         }));
       }
     }
   }, [isOpen, defaultGrade, defaultPricePerKg, isBulkCart, cartItems, totalCartKg]);
 
-  const handleSelectGrade = (gradeName: string) => {
-    setFormData((prev) => ({ ...prev, grade: gradeName }));
-    setOverridePricePerKg(undefined);
+  const toggleGrade = (gradeLabel: string) => {
+    setSelectedGrades((prev) => {
+      const exists = prev.includes(gradeLabel);
+      let updated: string[];
+      if (exists) {
+        updated = prev.filter((g) => g !== gradeLabel);
+        if (updated.length === 0 && !isCustomActive) {
+          updated = [gradeLabel]; // Keep at least one selected
+        }
+      } else {
+        updated = [...prev, gradeLabel];
+      }
+      const customPart = isCustomActive && customGradeText.trim() ? [customGradeText.trim()] : [];
+      const combined = [...updated, ...customPart].join(', ');
+      setFormData((f) => ({ ...f, grade: combined || gradeLabel }));
+      setOverridePricePerKg(undefined);
+      return updated;
+    });
+  };
+
+  const handleCustomGradeChange = (text: string) => {
+    setCustomGradeText(text);
+    const customPart = text.trim() ? [text.trim()] : [];
+    const combined = [...selectedGrades, ...customPart].join(', ');
+    setFormData((f) => ({ ...f, grade: combined || 'Custom Specification' }));
+  };
+
+  const toggleCustomGrade = () => {
+    setIsCustomActive((prev) => {
+      const nextState = !prev;
+      const customPart = nextState && customGradeText.trim() ? [customGradeText.trim()] : [];
+      const combined = [...selectedGrades, ...customPart].join(', ');
+      setFormData((f) => ({ ...f, grade: combined || (selectedGrades[0] || '8.5 mm Extra Bold Green (AGEB)') }));
+      return nextState;
+    });
   };
 
   const handleEmailChange = (val: string) => {
@@ -182,7 +223,11 @@ export default function QuoteModal({
     : parseQuantityKg(formData.quantity);
   
   const parsedQtyKg = parsedQtyInfo.kg;
-  const multiplier = isBulkCart ? 1.0 : getGradeMultiplier(formData.grade);
+  const multiplier = isBulkCart 
+    ? 1.0 
+    : selectedGrades.length > 0 
+    ? selectedGrades.reduce((acc, g) => acc + getGradeMultiplier(g), 0) / selectedGrades.length 
+    : getGradeMultiplier(formData.grade);
   const estRateInrPerKg = Math.round(baseInrRate * (overridePricePerKg ? 1.0 : multiplier));
 
   // Bulk cart total in INR calculated directly from individual cart item rates
@@ -549,9 +594,16 @@ export default function QuoteModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start">
                   <div className="sm:col-span-2 space-y-1.5">
-                    <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70">
-                      Cardamom Grade / Product *
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[9px] font-semibold uppercase tracking-widest text-[#C5A046]/70">
+                        Cardamom Grade / Product (Select one or multiple) *
+                      </label>
+                      {!isBulkCart && (
+                        <span className="text-[9px] text-[#C5A046] font-medium">
+                          {selectedGrades.length + (isCustomActive && customGradeText.trim() ? 1 : 0)} selected
+                        </span>
+                      )}
+                    </div>
 
                     {isBulkCart ? (
                       <input
@@ -561,67 +613,63 @@ export default function QuoteModal({
                         className="w-full rounded-lg border border-[#C5A046]/30 px-3 py-2 text-xs text-[#C5A046] font-medium bg-[#112D15]/80 cursor-not-allowed"
                       />
                     ) : (
-                      <>
-                        <select
-                          value={
-                            EXPORT_GRADES_LIST.some((g) => g.label === formData.grade)
-                              ? formData.grade
-                              : 'Custom Specification'
-                          }
-                          onChange={(e) => {
-                            if (e.target.value !== 'Custom Specification') {
-                              handleSelectGrade(e.target.value);
-                            } else {
-                              handleSelectGrade('Custom Specification');
-                            }
-                          }}
-                          className="w-full rounded-lg border border-white/15 px-3 py-2 text-xs text-[#FAF8F5] focus:border-[#C5A046]/70 focus:outline-none transition-colors cursor-pointer"
-                          style={{ background: '#112D15' }}
-                        >
-                          {EXPORT_GRADES_LIST.map((g) => (
-                            <option key={g.label} value={g.label} style={{ background: '#0D2410', color: '#FAF8F5' }}>
-                              {g.label}
-                            </option>
-                          ))}
-                          <option value="Custom Specification" style={{ background: '#0D2410', color: '#FAF8F5' }}>
-                            ✏️ Custom Grade / Specification...
-                          </option>
-                        </select>
-
-                        {/* Quick Selection Pills */}
-                        <div className="flex flex-wrap items-center gap-1 pt-1">
-                          <span className="text-[9px] text-[#FAF8F5]/35 font-medium mr-0.5">Quick Pick:</span>
+                      <div className="space-y-2">
+                        {/* Multi-select Grid / Pills */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                           {EXPORT_GRADES_LIST.map((g) => {
-                            const isSelected = formData.grade === g.label;
+                            const isSelected = selectedGrades.includes(g.label);
                             return (
                               <button
                                 key={g.label}
                                 type="button"
-                                onClick={() => handleSelectGrade(g.label)}
-                                className={`px-2 py-0.5 rounded text-[9px] font-semibold transition-all cursor-pointer border ${
+                                onClick={() => toggleGrade(g.label)}
+                                className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-left text-[11px] transition-all cursor-pointer border ${
                                   isSelected
-                                    ? 'gold-gradient-bg text-[#071309] border-[#C5A046]'
-                                    : 'bg-white/5 text-[#FAF8F5]/50 border-white/10 hover:border-[#C5A046]/40 hover:text-[#FAF8F5]'
+                                    ? 'gold-gradient-bg text-[#071309] border-[#C5A046] font-semibold shadow-md'
+                                    : 'bg-white/5 text-[#FAF8F5]/70 border-white/10 hover:border-[#C5A046]/40 hover:text-[#FAF8F5]'
                                 }`}
                               >
-                                {g.shortLabel}
+                                <span className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] font-bold shrink-0 border ${
+                                  isSelected ? 'bg-[#071309] text-[#C5A046] border-[#071309]' : 'border-white/20 bg-transparent'
+                                }`}>
+                                  {isSelected ? '✓' : ''}
+                                </span>
+                                <span className="truncate">{g.shortLabel}</span>
                               </button>
                             );
                           })}
+
+                          {/* Custom Specification Button */}
+                          <button
+                            type="button"
+                            onClick={toggleCustomGrade}
+                            className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-left text-[11px] transition-all cursor-pointer border ${
+                              isCustomActive
+                                ? 'gold-gradient-bg text-[#071309] border-[#C5A046] font-semibold shadow-md'
+                                : 'bg-white/5 text-[#FAF8F5]/70 border-white/10 hover:border-[#C5A046]/40 hover:text-[#FAF8F5]'
+                            }`}
+                          >
+                            <span className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] font-bold shrink-0 border ${
+                              isCustomActive ? 'bg-[#071309] text-[#C5A046] border-[#071309]' : 'border-white/20 bg-transparent'
+                            }`}>
+                              {isCustomActive ? '✓' : ''}
+                            </span>
+                            <span className="truncate">+ Custom / Other</span>
+                          </button>
                         </div>
 
                         {/* Custom Grade input field if custom specification selected */}
-                        {(!EXPORT_GRADES_LIST.some((g) => g.label === formData.grade) || formData.grade === 'Custom Specification') && (
+                        {isCustomActive && (
                           <input
                             type="text"
-                            placeholder="Type custom grade name (e.g. 8.5mm AGEB, Black Pepper...)"
-                            value={formData.grade}
-                            onChange={(e) => handleSelectGrade(e.target.value)}
-                            className="w-full mt-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/30 focus:border-[#C5A046] focus:outline-none transition-colors"
+                            placeholder="Type custom grade or specification (e.g. 8.5mm AGEB, Black Pepper...)"
+                            value={customGradeText}
+                            onChange={(e) => handleCustomGradeChange(e.target.value)}
+                            className="w-full rounded-lg border border-[#C5A046]/50 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/30 focus:border-[#C5A046] focus:outline-none transition-colors"
                             style={{ background: 'rgba(255,255,255,0.05)' }}
                           />
                         )}
-                      </>
+                      </div>
                     )}
                   </div>
 

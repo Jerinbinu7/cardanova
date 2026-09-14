@@ -8,8 +8,8 @@ export const UPI_CONFIG = {
   currency: 'INR',
   freeShippingAboveInr: 1000,
   standardShippingFeeInr: 80,
-  supportPhone: '+91 94470 00000',
-  supportWhatsApp: '919447000000',
+  supportPhone: '+91 96568 66090',
+  supportWhatsApp: '919656866090',
 };
 
 export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
@@ -257,41 +257,40 @@ export const domesticService = {
   },
 
   async fetchAllOrders(): Promise<DomesticOrder[]> {
-    const { data, error } = await supabase
-      .from('domestic_orders')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('domestic_orders')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('[domesticService] fetchAllOrders error:', error);
-      throw new Error(error.message || 'Failed to fetch orders from database');
+      if (error || !data) return [];
+      return data.map((d: any) => ({
+        id: d.id,
+        orderNumber: d.order_number,
+        items: d.items || [],
+        customer: {
+          fullName: d.customer_name,
+          phone: d.customer_phone,
+          email: d.customer_email,
+          addressLine: d.shipping_address,
+          city: d.city,
+          state: d.state,
+          pincode: d.pincode,
+          notes: d.notes,
+        },
+        totalAmountInr: d.total_amount_inr,
+        shippingFeeInr: d.shipping_fee_inr,
+        finalAmountInr: d.final_amount_inr,
+        paymentMethod: 'UPI',
+        paymentStatus: d.payment_status,
+        orderStatus: d.order_status,
+        upiReferenceUtr: d.upi_reference_utr,
+        courierTrackingNumber: d.courier_tracking_number,
+        createdAt: d.created_at,
+      }));
+    } catch {
+      return [];
     }
-    if (!data) return [];
-
-    return data.map((d: any) => ({
-      id: d.id,
-      orderNumber: d.order_number,
-      items: d.items || [],
-      customer: {
-        fullName: d.customer_name,
-        phone: d.customer_phone,
-        email: d.customer_email,
-        addressLine: d.shipping_address,
-        city: d.city,
-        state: d.state,
-        pincode: d.pincode,
-        notes: d.notes,
-      },
-      totalAmountInr: d.total_amount_inr,
-      shippingFeeInr: d.shipping_fee_inr,
-      finalAmountInr: d.final_amount_inr,
-      paymentMethod: 'UPI',
-      paymentStatus: d.payment_status,
-      orderStatus: d.order_status,
-      upiReferenceUtr: d.upi_reference_utr,
-      courierTrackingNumber: d.courier_tracking_number,
-      createdAt: d.created_at,
-    }));
   },
 
   async updateOrderStatus(orderNumber: string, updates: { orderStatus?: string; paymentStatus?: string; courierTrackingNumber?: string; upiReferenceUtr?: string }): Promise<boolean> {
