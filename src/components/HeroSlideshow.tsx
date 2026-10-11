@@ -14,23 +14,23 @@ const HERO_SLIDES = [
   {
     image: '/images/cardamom-hero-1.jpg',
     alt: 'Premium green cardamom pods from Idukki, Kerala — Cardanova Spices flagship grade',
-    headline: "The World's Finest",
-    accent: 'Idukki Green Cardamom',
-    sub: 'SINGLE-ORIGIN · HIGH-ELEVATION ESTATES (1,100M) · KERALA, INDIA',
+    headline: 'PREMIUM GREEN CARDAMOM',
+    accent: 'FROM IDUKKI',
+    sub: 'Carefully sourced, graded and packed green cardamom for wholesalers, importers, food businesses and retail partners.',
   },
   {
     image: '/images/cardamom-hero-2.jpg',
     alt: 'Macro close-up of 8.5mm extra bold green cardamom pods from Idukki Kerala',
-    headline: '8.5mm Extra Bold Pods.',
-    accent: 'Handpicked for Excellence.',
-    sub: 'Direct partnership with 250+ smallholder cardamom farming families',
+    headline: 'From the Hills of Idukki',
+    accent: 'to Global Markets',
+    sub: 'Origin: Idukki, Kerala, India · Precision Optically Graded & Vacuum Sealed',
   },
   {
     image: '/images/cardamom-hero-3.jpg',
     alt: 'Misty lush cardamom plantation in high-altitude Western Ghats Idukki Kerala',
     headline: 'Peak Aroma & Freshness',
-    accent: 'Exported to 30+ Countries',
-    sub: 'Flue-Cured & Vacuum Sealed · FOB/CIF Cochin Port',
+    accent: 'Domestic & Global Supply',
+    sub: 'Flue-Cured & Vacuum Sealed · Sourced Direct from Kerala Estates',
   },
 ];
 
@@ -47,8 +47,8 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   const [slide, setSlide] = useState(0);
   const [progress, setProgress] = useState(0);
   const [slides, setSlides] = useState(HERO_SLIDES);
-  const [primaryCtaText, setPrimaryCtaText] = useState('Request a Quote →');
-  const [secondaryCtaText, setSecondaryCtaText] = useState('View Catalogue ↓');
+  const [primaryCtaText, setPrimaryCtaText] = useState('REQUEST A TRADE QUOTE');
+  const [secondaryCtaText, setSecondaryCtaText] = useState('VIEW CARDAMOM GRADES');
 
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
@@ -270,7 +270,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             aria-label="Request a cardamom trade quote"
             className="rounded-full gold-gradient-bg px-7 py-3.5 sm:px-8 sm:py-4 label-caps text-[#071309] shadow-2xl hover:brightness-110 transition-all cursor-pointer gold-glow text-center text-xs font-semibold"
           >
-            {primaryCtaText} →
+            {primaryCtaText}
           </MagneticButton>
 
           <MagneticButton
@@ -280,7 +280,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
             aria-label="View our cardamom product catalogue"
             className="rounded-full border border-[#FAF8F5]/25 bg-white/5 backdrop-blur-md px-7 py-3.5 sm:px-8 sm:py-4 label-caps text-[#FAF8F5] hover:border-[#C5A046]/60 hover:bg-white/10 transition-all cursor-pointer text-center text-xs font-semibold"
           >
-            {secondaryCtaText} →
+            {secondaryCtaText}
           </MagneticButton>
         </motion.div>
       </motion.div>

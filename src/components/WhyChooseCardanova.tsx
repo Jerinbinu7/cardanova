@@ -10,11 +10,11 @@ const WHY_ITEMS = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11a2 2 0 012-2h1.055M11 20a9 9 0 100-18 9 9 0 000 18z" />
       </svg>
     ),
-    tag: 'Single-Origin Idukki',
+    tag: 'Origin: Idukki, Kerala, India',
     title: 'High-Altitude Estates',
     stat: '1,100m',
     statLabel: 'Elevation',
-    sub: 'Cultivated across 120+ acres in the high ranges of Idukki, Kerala — where altitude, mist, and mineral-rich soil produce cardamom with unrivalled aroma and volatile oil content.',
+    sub: 'Cultivated in the high ranges of Idukki, Kerala — where altitude, mist, and mineral-rich soil produce cardamom with authentic aroma and natural essential oil content.',
   },
   {
     id: 'farmer-network',
@@ -23,24 +23,24 @@ const WHY_ITEMS = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
-    tag: 'Direct Farmer Sourcing',
-    title: 'Kerala Farmer Network',
-    stat: '250+',
-    statLabel: 'Farmer Families',
-    sub: 'Direct partnerships with over 250 local smallholder farming families — ensuring ethical sourcing, fair pricing, and peak pod freshness at every harvest cycle.',
+    tag: 'Direct Farmer Partnerships',
+    title: 'Kerala Smallholder Network',
+    stat: 'Direct',
+    statLabel: 'Farm Sourcing',
+    sub: 'Direct partnerships with local smallholder farming families in Kerala — ensuring ethical sourcing, fair pricing, and peak pod freshness at every harvest cycle.',
   },
   {
     id: 'export-grading',
     svgIcon: (
       <svg className="w-6 h-6 text-[#C5A046]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
       </svg>
     ),
     tag: 'Optical & Sieve Sorting',
-    title: 'Precision Export Grading',
-    stat: '<9.5%',
-    statLabel: 'Moisture Max',
-    sub: 'Every harvest batch is optically sorted, moisture-tested, and sieve-graded to exact mm dimensions (8.5mm, 8mm, 7.5mm, 7mm). Zero tolerance for sub-standard pods.',
+    title: 'Precision Size Grading',
+    stat: '≤9.5%',
+    statLabel: 'Target Moisture',
+    sub: 'Target moisture specification: ≤9.5%, subject to grade and lot. Pods are sieve-graded to exact mm dimensions (8.5mm, 8mm, 7.5mm, 7mm).',
   },
   {
     id: 'global-shipping',
@@ -50,10 +50,10 @@ const WHY_ITEMS = [
       </svg>
     ),
     tag: 'FOB / CIF Cochin',
-    title: 'Global Port Logistics',
-    stat: '30+',
-    statLabel: 'Countries Served',
-    sub: 'Containerized FCL & LCL delivery via Cochin Port to 30+ countries. Complete phytosanitary, origin certificates, and compliance documentation provided.',
+    title: 'Domestic & Global Shipping',
+    stat: 'Pan-India',
+    statLabel: '& Export Ready',
+    sub: 'Export-ready supply for buyers across the Middle East and global markets. Complete phytosanitary documents and compliance paperwork provided as required.',
   },
   {
     id: 'competitive-pricing',
@@ -62,11 +62,11 @@ const WHY_ITEMS = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    tag: 'No Intermediaries',
+    tag: 'Direct Sourcing',
     title: 'Direct Origin Pricing',
-    stat: '0',
-    statLabel: 'Middlemen',
-    sub: 'Plantation-direct sourcing eliminates middleman margins — delivering trade-competitive rates for B2B importers, wholesalers, and food manufacturers worldwide.',
+    stat: 'Direct',
+    statLabel: 'Estate Value',
+    sub: 'Direct origin sourcing from Idukki delivers competitive rates for wholesalers, retailers, food manufacturers, and overseas importers.',
   },
   {
     id: 'vacuum-seal',
@@ -76,10 +76,10 @@ const WHY_ITEMS = [
       </svg>
     ),
     tag: 'Aroma Locking Foil',
-    title: 'Vacuum Sealed Freshness',
-    stat: '24mo',
-    statLabel: 'Shelf Life',
-    sub: 'Multi-layer food-grade vacuum aluminium foil sealing retains essential volatile oils (>7.5% V/W) for up to 24 months — maximising aroma and potency on arrival.',
+    title: 'Vacuum Sealed Packaging',
+    stat: 'Fresh',
+    statLabel: 'Sealed Foil',
+    sub: 'Shelf life subject to packaging, storage conditions and product specification. Multi-layer food-grade vacuum aluminium foil sealing preserves pod freshness.',
   },
 ];
 
@@ -198,7 +198,7 @@ export default function WhyChooseCardanova() {
           </h2>
           <div className="mt-5 luxury-divider w-20" />
           <p className="mt-5 text-sm sm:text-base text-stone-500 leading-relaxed font-light max-w-md">
-            From our highland estates in Idukki to buyers across 30+ countries — precision, purity, and partnership define everything we do.
+            Serving buyers across India and international markets with authentic Idukki green cardamom, precision grading, and transparent trade terms.
           </p>
         </motion.div>
 

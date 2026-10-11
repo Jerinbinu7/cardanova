@@ -26,7 +26,7 @@ const DEFAULT_WHY_ITEMS: WhyChooseUsFeature[] = [
     tag: 'Optical & Sieve Sorting',
     stat: '<9.5%',
     statLabel: 'Moisture Max',
-    description: 'Every harvest batch is optically sorted, moisture-tested, and sieve-graded to exact mm dimensions (8.5mm, 8mm, 7.5mm, 7mm). Zero tolerance for sub-standard pods.',
+    description: 'Every harvest batch is optically sorted, moisture-tested, and sieve-graded to exact mm dimensions (8.5mm, 8mm, 7.5mm, 7mm). Strict sorting standards to minimise defective and off-grade pods.',
   },
   {
     title: 'Global Port Logistics',
@@ -37,10 +37,10 @@ const DEFAULT_WHY_ITEMS: WhyChooseUsFeature[] = [
   },
   {
     title: 'Direct Origin Pricing',
-    tag: 'No Intermediaries',
-    stat: '0',
-    statLabel: 'Middlemen',
-    description: 'Plantation-direct sourcing eliminates middleman margins — delivering trade-competitive rates for B2B importers, wholesalers, and food manufacturers worldwide.',
+    tag: 'Direct Origin Sourcing',
+    stat: 'Direct',
+    statLabel: 'Farm Value',
+    description: 'Direct sourcing from growers and trusted supply partners helps us maintain quality control and competitive pricing for wholesalers, retailers, and overseas importers.',
   },
   {
     title: 'Vacuum Sealed Freshness',

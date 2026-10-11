@@ -23,7 +23,7 @@ export const organizationSchema = {
   },
   image: OG_IMAGE,
   description:
-    'Premium single-origin green cardamom, pepper and turmeric exporter from Idukki, Kerala, India. Trusted B2B spice exporter to 30+ countries.',
+    'Premium green cardamom exporter from Idukki, Kerala, India. Serving domestic and international B2B buyers with carefully graded, export-ready spices.',
   foundingDate: '2022',
   foundingLocation: {
     '@type': 'Place',
@@ -143,7 +143,7 @@ export const productsListSchema = {
   '@type': 'ItemList',
   name: 'Green Cardamom Export Grades — Cardanova Spices',
   description:
-    'Complete trade catalogue of single-origin green cardamom grades from Idukki, Kerala. Available for B2B export worldwide.',
+    'Complete trade catalogue of green cardamom grades from Idukki, Kerala. Available for B2B export worldwide.',
   url: `${SITE_URL}/#products`,
   numberOfItems: 6,
   itemListElement: [
@@ -297,7 +297,7 @@ export const faqSchema = {
       name: 'What cardamom grades does Cardanova export?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Cardanova exports six grades of green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial Grade, Mixed Grade (AGEB/LGB), and Extraction Grade (Oil). All are single-origin from Idukki, Kerala, India.',
+        text: 'Cardanova exports six grades of green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial Grade, Mixed Grade (AGEB/LGB), and Extraction Grade (Oil). All grades are sourced from Idukki, Kerala, India.',
       },
     },
     {
@@ -305,7 +305,7 @@ export const faqSchema = {
       name: 'What is the minimum order quantity (MOQ) for cardamom export?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'The minimum order quantity starts from 500kg for flagship grades (8.5mm Extra Bold) and 1 Metric Ton for premium and export grades. Extraction grade requires a minimum of 5 Metric Tons.',
+        text: 'The minimum order quantity for export shipments is 100 kg for standard grades. For the flagship 8.5mm Extra Bold grade, an MOQ of 500 kg typically applies due to demand and lot sizing. Domestic bulk orders are available from 50 kg. Please contact us for your specific requirements.',
       },
     },
     {
@@ -321,7 +321,7 @@ export const faqSchema = {
       name: 'What certifications does Cardanova hold?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Cardanova holds APEDA (Agricultural and Processed Food Products Export Development Authority) registration, Spices Board certification, FSSAI (Food Safety and Standards Authority of India) compliance, and IEC (Import Export Code). Every shipment includes a Phytosanitary Certificate and Certificate of Origin.',
+        text: 'Cardanova holds APEDA (Agricultural and Processed Food Products Export Development Authority) registration, Spices Board registration, FSSAI (Food Safety and Standards Authority of India) compliance, and IEC (Import Export Code). Certificates of origin, phytosanitary documents, laboratory reports and other export documents can be provided based on buyer and destination requirements.',
       },
     },
     {
@@ -329,7 +329,7 @@ export const faqSchema = {
       name: 'Which countries does Cardanova export to?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Cardanova exports green cardamom to 30+ countries including UAE, Saudi Arabia, Qatar, Kuwait, USA, UK, Germany, Netherlands, Singapore, Malaysia, Australia, and many more across the Middle East, Europe, North America, and Asia-Pacific.',
+        text: 'Cardanova exports green cardamom to international buyers across the Middle East, Europe, North America, and Asia-Pacific, including markets such as UAE, Saudi Arabia, Qatar, Kuwait, USA, UK, Germany, Netherlands, Singapore, Malaysia, and Australia. Contact us for specific destination enquiries.',
       },
     },
     {

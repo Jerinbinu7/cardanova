@@ -1,16 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const rawUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
-const supabaseUrl = rawUrl.replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/, '') || 'https://placeholder.supabase.co';
-const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || 'placeholder-anon-key';
+const DEFAULT_SUPABASE_URL = 'https://gmoyahcaphzyrkzlcaub.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_lQFKk3PzBmhO58TZ2Ah6TA__F2SqlHq';
 
-if (!rawUrl || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn(
-    '[Supabase] Missing environment variables.\n' +
-    'Create a .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.\n' +
-    'See .env.example for reference.'
-  );
-}
+const rawUrl = (import.meta.env.VITE_SUPABASE_URL as string) || DEFAULT_SUPABASE_URL;
+const supabaseUrl = rawUrl.replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/, '') || DEFAULT_SUPABASE_URL;
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || DEFAULT_SUPABASE_ANON_KEY;
 
 export const supabase = createClient<any>(supabaseUrl, supabaseAnonKey, {
   auth: {

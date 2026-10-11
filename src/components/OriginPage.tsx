@@ -87,9 +87,9 @@ const PROCESS_STEPS = [
   {
     step: '06',
     phase: 'Global Export',
-    title: 'Shipped to 30+ Countries',
+    title: 'Global Export Shipping',
     subtitle: 'FCL / LCL · FOB & CIF · Cochin Port',
-    body: `Cardanova exports containerized shipments via Cochin International Container Transshipment Terminal — one of India's busiest and most efficient ports for spice exports. We offer both FCL (Full Container Load) and LCL (Less than Container Load) options, with FOB and CIF pricing available. Every shipment is accompanied by a complete documentation package: Phytosanitary Certificate, Certificate of Origin, FSSAI compliance, Health Certificate, and all regulatory paperwork required for EU, US, GCC, and Asian import clearance.`,
+    body: `Cardanova exports containerized shipments via Cochin International Container Transshipment Terminal — one of India's busiest and most efficient ports for spice exports. We offer both FCL (Full Container Load) and LCL (Less than Container Load) options, with FOB and CIF pricing available. Certificates of origin, phytosanitary documents, laboratory reports and other export documents can be provided based on buyer and destination requirements.`,
     detail: 'Our in-house trade documentation team coordinates with freight forwarders, customs brokers, and inspection agencies to ensure zero shipment delays.',
     image: '/images/global-standards-bg.jpg',
     accent: '#C5A046',
@@ -102,11 +102,11 @@ const PROCESS_STEPS = [
 ];
 
 const STATS = [
-  { value: '120+', label: 'Acres of Estate', sub: 'Idukki, Kerala' },
-  { value: '250+', label: 'Farmer Families', sub: 'Direct Partners' },
-  { value: '30+', label: 'Countries Served', sub: 'Global Exports' },
-  { value: '<9.5%', label: 'Moisture Max', sub: 'Export Standard' },
-  { value: '24mo', label: 'Shelf Life', sub: 'Vacuum Sealed' },
+  { value: '1,100m', label: 'High Elevation', sub: 'Idukki, Kerala' },
+  { value: 'Direct', label: 'Farmer Partners', sub: 'Kerala Smallholders' },
+  { value: 'Pan-India', label: '& Global Markets', sub: 'Domestic & Export' },
+  { value: '≤9.5%', label: 'Target Moisture', sub: 'Grade & Lot Spec' },
+  { value: 'Vacuum', label: 'Sealed Foil', sub: 'Freshness Preserved' },
 ];
 
 function ProcessStep({ step, index }: { step: typeof PROCESS_STEPS[0]; index: number }) {

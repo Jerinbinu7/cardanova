@@ -76,15 +76,15 @@ export default function CTABanner({ onOpenQuoteModal, onNavigateToProducts }: CT
               className="font-display font-light text-[#FAF8F5] mt-5 leading-[0.92]"
               style={{ fontSize: 'clamp(3rem, 7vw, 6.5rem)' }}
             >
-              The World's Finest
+              Premium Green
               <br />
               <em className="animate-shimmer not-italic">Cardamom,</em>
               <br />
-              Ready to Ship.
+              Export-Ready Supply.
             </h2>
 
             <p className="mt-7 text-stone-300/80 text-sm font-light leading-relaxed max-w-md">
-              Partner directly with Cardanova Spices LLP — guaranteed high-grade green cardamom, competitive FOB/CIF pricing, and on-time global delivery.
+              Partner directly with Cardanova Spices LLP — export-grade green cardamom, competitive FOB/CIF quotations and dependable shipment coordination.
             </p>
 
             <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4">

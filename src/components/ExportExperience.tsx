@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { MAP_DOTS } from './mapDots';
 
-const STATS = [
-  { value: 15, suffix: '+', label: 'Years of Heritage' },
-  { value: 120, suffix: '+', label: 'Acres of Plantation' },
-  { value: 30, suffix: '+', label: 'Countries Served' },
-  { value: 5000, suffix: 'MT', label: 'Metric Tons Exported' },
-  { value: 99, suffix: '%', label: 'Buyer Satisfaction' },
+const VALUE_HIGHLIGHTS = [
+  { value: 'Idukki', label: 'Origin Sourcing' },
+  { value: 'Retail & Bulk', label: 'Packaging Options' },
+  { value: 'Optical', label: 'Sieve Grading' },
+  { value: 'Export-Ready', label: 'Trade Supply' },
+  { value: 'Vacuum Sealed', label: 'Freshness Retention' },
 ];
 
 const TIMELINE_STEPS = [
@@ -153,17 +153,22 @@ export default function ExportExperience() {
             of <em className="animate-shimmer not-italic">Idukki, Kerala</em> to tables worldwide.
           </blockquote>
           <p className="mt-5 text-stone-300/70 text-sm font-light max-w-md mx-auto leading-relaxed">
-            Every pod carries the story of Kerala's land, its dedicated farmers, and 15 years of refined export craft.
+            Every pod carries the story of Kerala's land, its dedicated farmers, and our commitment to authentic spice trade.
           </p>
         </motion.div>
       </div>
 
-      {/* Animated Stats */}
-      <div className="bg-[#112D15]">
+      {/* Value Highlights Strip */}
+      <div className="bg-[#112D15] py-6">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-[#A18637]/20">
-            {STATS.map((s, i) => (
-              <AnimatedCounter key={i} {...s} index={i} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-[#A18637]/20 text-center">
+            {VALUE_HIGHLIGHTS.map((s, i) => (
+              <div key={i} className="px-3 py-3">
+                <div className="font-display font-light text-xl sm:text-2xl gold-gradient-text leading-tight">
+                  {s.value}
+                </div>
+                <div className="label-caps text-stone-400 mt-1" style={{ fontSize: '0.55rem' }}>{s.label}</div>
+              </div>
             ))}
           </div>
         </div>
@@ -238,7 +243,7 @@ export default function ExportExperience() {
               </h3>
             </div>
             <p className="text-xs text-stone-400 max-w-sm leading-relaxed font-light">
-              Regular FCL & LCL shipments to the Middle East, Europe, North America, and Asia-Pacific.
+              Export-ready supply for buyers across the Middle East and global markets.
             </p>
           </div>
 
