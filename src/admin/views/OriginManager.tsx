@@ -8,70 +8,49 @@ import { SkeletonText } from '../components/Skeleton';
 const DEFAULT_STEPS = [
   {
     step: 1,
-    phase: 'Cultivation',
-    title: 'Grown in the Clouds',
-    loc: 'Idukki High Ranges · 1,100m Elevation',
-    desc: 'Cardanova\'s cardamom originates from the misty high-altitude estates of Idukki, Kerala — one of the world\'s most biodiverse spice-growing regions.',
-    body: 'At elevations exceeding 1,100 metres, cool temperatures, consistent rainfall, and mineral-rich volcanic soil create the perfect conditions for premium-grade green cardamom with naturally intense volatile oil content exceeding 8.5% V/W.',
-    detail: 'Our 120+ acres of estate land are intercropped with shade trees — maintaining soil health and natural biodiversity without synthetic inputs.',
-    image: '',
+    phase: 'Temperature-Controlled Curing',
+    title: 'Precision Thermal Flue Curing',
+    loc: 'Regulated Chambers · 40–55°C · Chlorophyll & Oil Preservation',
+    desc: 'Immediately following harvest, green cardamom pods undergo proprietary temperature-controlled flue-curing.',
+    body: 'By strictly regulating hot-air circulation between 40°C and 55°C, thermal curing arrests natural enzymatic degradation and locks in the vivid emerald-green chlorophyll pigment while preserving volatile oil concentrations (>7.5%–8.5% V/W).',
+    detail: 'Pods cure uniformly on raised stainless and bamboo curing beds, maintaining consistent heat distribution and reducing moisture safely to ≤9.5%.',
+    image: '/images/origin-curing.png',
   },
   {
     step: 2,
-    phase: 'Hand Harvesting',
-    title: 'Handpicked at Peak Ripeness',
-    loc: 'September – December · Harvest Season',
-    desc: 'Every cardamom pod is harvested by hand — individually plucked at the precise moment of peak maturity.',
-    body: 'Our network of 250+ trusted smallholder farming families follows strict harvesting protocols: only pods that pass a visual ripeness check are collected per plant.',
-    detail: 'Harvesting by hand ensures zero mechanical damage to the pod skin — critical for preserving the essential oils locked within.',
-    image: '',
+    phase: 'Automated Colour Sorting',
+    title: 'High-Speed Optical Colour & Sieve Sorting',
+    loc: 'Multi-Channel Optical Sorters · Sieve Calibration (7.0mm – 8.5mm+)',
+    desc: 'Cured cardamom is mechanically sieved and sorted through high-resolution bichromatic optical colour sorters.',
+    body: 'Pods flow through advanced optical vision cameras and high-frequency pneumatic ejectors at microsecond speeds, eliminating discoloured, pale, yellowed, or off-grade pods to guarantee pristine deep green visual consistency.',
+    detail: 'Automated optical colour sorting removes manual error, delivering impeccable aesthetic grading and true lot-to-lot diameter conformity.',
+    image: '/images/export-processing.jpg',
   },
   {
     step: 3,
-    phase: 'Curing & Drying',
-    title: 'Flue-Cured for Colour Retention',
-    loc: 'Controlled Temperature · 40–55°C',
-    desc: 'Immediately after harvest, pods undergo our proprietary flue-curing process — a temperature-controlled curing method.',
-    body: 'Unlike sun-drying (which bleaches pods and degrades oils), flue-curing at 40–55°C preserves the natural chlorophyll pigment and locks in volatile oil concentrations.',
-    detail: 'Pods are spread on raised bamboo curing beds inside curing chambers — ensuring uniform airflow and consistent moisture reduction to under 9.5%.',
-    image: '',
+    phase: 'Advanced Laboratory Testing',
+    title: 'Comprehensive Analytical Quality Verification',
+    loc: 'ISO Standards · Volatile Oil & Moisture Analytics',
+    desc: 'Every export batch is subjected to comprehensive laboratory testing prior to packaging release.',
+    body: 'Consignments are verified for volatile oil concentration (>7.5% V/W), moisture levels strictly capped at ≤9.5%, aflatoxins, and pesticide residues with Spices Board India and international compliance test certificates.',
+    detail: 'Every export shipment is backed by a verified Certificate of Analysis (CoA) validating chemical purity, essential oil content, and microbial compliance.',
+    image: '/images/origin-lab-test.png',
   },
   {
     step: 4,
-    phase: 'Grading & Sorting',
-    title: 'Precision Optical Grading',
-    loc: 'Sieve-Graded · 7.0mm – 8.5mm+',
-    desc: 'Post-curing, every batch passes through our multi-stage grading facility.',
-    body: 'Pods are first mechanically sieved into size classifications (8.5mm, 8.0mm, 7.5mm, 7.0mm), then optically sorted to remove any discoloured, broken, or off-grade pods.',
-    detail: 'Independent lab testing of volatile oil content (>7.5% V/W), moisture levels, and microbial counts is conducted on every export batch.',
-    image: '',
-  },
-  {
-    step: 5,
-    phase: 'Vacuum Packaging',
-    title: 'Aroma-Locked & Sealed',
-    loc: 'Multi-Layer Foil · 5kg – 25kg Packs',
-    desc: 'Graded cardamom is immediately transferred to our food-grade vacuum packaging line.',
-    body: 'Each unit is sealed using multi-layer aluminium foil vacuum packs that maintain an airtight, oxygen-free environment, preserving volatile oil content (>7.5% V/W).',
-    detail: 'All packaging materials are food-grade certified. Each pack is labelled with batch number, grade, weight, origin, and packing date for full traceability.',
-    image: '',
-  },
-  {
-    step: 6,
-    phase: 'Global Export',
-    title: 'Shipped to 30+ Countries',
-    loc: 'FCL / LCL · FOB & CIF · Cochin Port',
-    desc: 'Cardanova exports containerized shipments via Cochin International Container Transshipment Terminal.',
-    body: 'We offer both FCL (Full Container Load) and LCL options, with FOB and CIF pricing available.',
-    detail: 'Our in-house trade documentation team coordinates with freight forwarders, customs brokers, and inspection agencies to ensure zero shipment delays.',
-    image: '',
+    phase: 'Other Specialised Processing',
+    title: 'Specialised Finishing & Vacuum Protection',
+    loc: 'Aroma-Sealed Barrier Packaging · Dispatch-Ready Protection',
+    desc: 'Pods undergo specialised finishing including de-dusting, polishing, and multi-layer vacuum foil packaging.',
+    body: 'Graded pods are sealed inside food-grade multi-layer aluminium barrier vacuum pouches with optional inert nitrogen flush, eliminating oxidation and preserving freshness for up to 24 months through global dispatch.',
+    detail: 'Certified food-grade packaging in sizes from 1kg and 5kg barrier pouches to 25kg bulk export cartons/jute outer packs with full batch lot traceability.',
+    image: '/images/origin-processing.png',
   },
 ];
 
 // Map step index to gallery subsection key
 const STEP_GALLERY_KEYS = [
-  'origin_step_1', 'origin_step_2', 'origin_step_3',
-  'origin_step_4', 'origin_step_5', 'origin_step_6',
+  'origin_step_1', 'origin_step_2', 'origin_step_3', 'origin_step_4',
 ];
 
 export default function OriginManager() {
@@ -403,7 +382,7 @@ export default function OriginManager() {
                         type="text"
                         value={st.title}
                         onChange={(e) => updateStep(idx, 'title', e.target.value)}
-                        placeholder="e.g. Grown in the Clouds"
+                        placeholder="e.g. Precision Thermal Flue Curing"
                         className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white placeholder-gray-600 focus:border-[#C5A046] focus:outline-none transition-colors"
                       />
                     </div>
@@ -415,7 +394,7 @@ export default function OriginManager() {
                       type="text"
                       value={st.loc}
                       onChange={(e) => updateStep(idx, 'loc', e.target.value)}
-                      placeholder="e.g. Idukki High Ranges · 1,100m Elevation"
+                      placeholder="e.g. Regulated Chambers · 40–55°C"
                       className="w-full bg-[#071309] border border-[#C5A046]/30 rounded-xl p-2.5 text-xs text-white placeholder-gray-600 focus:border-[#C5A046] focus:outline-none transition-colors"
                     />
                   </div>

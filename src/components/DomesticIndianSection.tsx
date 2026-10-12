@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, ArrowRight, Package, MessageSquareQuote, Truck, ShieldCheck, Sparkles } from 'lucide-react';
 import { domesticService } from '../services/domesticService';
@@ -16,7 +16,15 @@ export default function DomesticIndianSection({
   onNavigateToPackets,
   onAddToCart,
 }: DomesticIndianSectionProps) {
-  const products = domesticService.getProducts();
+  const [products, setProducts] = useState(() => domesticService.getProducts());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setProducts(domesticService.getProducts());
+    };
+    window.addEventListener('cardanova_retail_products_updated', handleUpdate);
+    return () => window.removeEventListener('cardanova_retail_products_updated', handleUpdate);
+  }, []);
 
   // Active weight state for each product card
   const [selectedWeights, setSelectedWeights] = useState<Record<string, WeightOption>>({
@@ -343,7 +351,7 @@ export default function DomesticIndianSection({
                 Export / International
               </h4>
               <p className="text-xs text-stone-500 font-light mt-1 leading-relaxed">
-                FOB / CIF Cochin Port containerized shipments for overseas importers, distributors, and brands.
+                FOB / CIF shipping options from suitable Indian ports based on destination and shipment requirements.
               </p>
             </div>
             <button

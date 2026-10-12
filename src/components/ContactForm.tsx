@@ -17,15 +17,21 @@ const CONTACT_DETAILS = [
   },
   {
     icon: <MessageCircle className="w-5 h-5" />,
-    label: 'WhatsApp Trade Desk',
-    value: '+91 96568 66090',
+    label: 'India Trade Desk',
+    value: '+91 9656866090',
     href: 'https://wa.me/919656866090',
+  },
+  {
+    icon: <MessageCircle className="w-5 h-5" />,
+    label: 'Oman Trade Desk',
+    value: '+968 79024179',
+    href: 'https://wa.me/96879024179',
   },
   {
     icon: <MapPin className="w-5 h-5" />,
     label: 'Registered Office',
-    value: 'Cardanova Spices LLP, Vandanmedu, Idukki District, Kerala — 685 533, India',
-    href: 'https://maps.google.com/?q=Vandanmedu+Idukki+Kerala+India',
+    value: 'Cardanova Spices LLP, 10/526, PO Pallikunnu, Senapathy, Rajakumari, Kerala – 685619, India',
+    href: 'https://www.google.com/maps/search/?api=1&query=10%2F526%2C+PO+Pallikunnu%2C+Senapathy%2C+Rajakumari%2C+Kerala+685619',
   },
   {
     icon: <Building2 className="w-5 h-5" />,
@@ -51,9 +57,10 @@ export default function ContactForm({ onOpenQuoteModal }: ContactFormProps) {
       if (info) {
         setContactItems([
           { icon: <Mail className="w-5 h-5" />, label: 'Export Inquiry', value: info.email || CONTACT_DETAILS[0].value, href: `mailto:${info.email || CONTACT_DETAILS[0].value}` },
-          { icon: <MessageCircle className="w-5 h-5" />, label: 'WhatsApp Trade Desk', value: info.whatsapp || CONTACT_DETAILS[1].value, href: `https://wa.me/${(info.whatsapp || '').replace(/\D/g, '')}` },
-          { icon: <MapPin className="w-5 h-5" />, label: 'Registered Office', value: info.address || CONTACT_DETAILS[2].value, href: info.google_maps_url || CONTACT_DETAILS[2].href },
-          CONTACT_DETAILS[3],
+          { icon: <MessageCircle className="w-5 h-5" />, label: 'India Trade Desk', value: info.phone || info.whatsapp || CONTACT_DETAILS[1].value, href: `https://wa.me/${(info.whatsapp || info.phone || '919656866090').replace(/\D/g, '')}` },
+          CONTACT_DETAILS[2], // Oman Trade Desk
+          { icon: <MapPin className="w-5 h-5" />, label: 'Registered Office', value: info.address || CONTACT_DETAILS[3].value, href: info.google_maps_url || CONTACT_DETAILS[3].href },
+          CONTACT_DETAILS[4], // Export Registrations
         ]);
       }
     }).catch(() => {});

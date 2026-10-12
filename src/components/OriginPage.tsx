@@ -10,42 +10,12 @@ interface OriginPageProps {
 const PROCESS_STEPS = [
   {
     step: '01',
-    phase: 'Cultivation',
-    title: 'Grown in the Clouds',
-    subtitle: 'Idukki High Ranges · 1,100m Elevation',
-    body: `Cardanova's cardamom originates from the misty high-altitude estates of Idukki, Kerala — one of the world's most biodiverse spice-growing regions. At elevations exceeding 1,100 metres, cool temperatures, consistent rainfall, and mineral-rich volcanic soil create the perfect conditions for premium-grade green cardamom with naturally intense volatile oil content exceeding 8.5% V/W.`,
-    detail: 'Our 120+ acres of estate land are intercropped with shade trees — maintaining soil health and natural biodiversity without synthetic inputs.',
-    image: '/images/origin-hero-bg.jpg',
-    accent: '#4A7C59',
-    icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11a2 2 0 012-2h1.055M11 20a9 9 0 100-18 9 9 0 000 18z" />
-      </svg>
-    ),
-  },
-  {
-    step: '02',
-    phase: 'Hand Harvesting',
-    title: 'Handpicked at Peak Ripeness',
-    subtitle: 'September – December · Harvest Season',
-    body: `Every cardamom pod is harvested by hand — individually plucked at the precise moment of peak maturity, when volatile oil concentration and pod colour are at their optimal. Our network of 250+ trusted smallholder farming families follows strict harvesting protocols: only pods that pass a visual ripeness check are collected per plant, preventing any premature or over-mature pods from entering the supply chain.`,
-    detail: 'Harvesting by hand ensures zero mechanical damage to the pod skin — critical for preserving the essential oils locked within.',
-    image: '/images/origin-harvesting.jpg',
-    accent: '#C5A046',
-    icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
-      </svg>
-    ),
-  },
-  {
-    step: '03',
-    phase: 'Curing & Drying',
-    title: 'Flue-Cured for Colour Retention',
-    subtitle: 'Controlled Temperature · 40–55°C',
-    body: `Immediately after harvest, pods undergo our proprietary flue-curing process — a temperature-controlled curing method that maintains the vibrant natural green colour characteristic of top-grade cardamom. Unlike sun-drying (which bleaches pods and degrades oils), flue-curing at 40–55°C preserves the natural chlorophyll pigment and locks in volatile oil concentrations above international export benchmarks.`,
-    detail: 'Pods are spread on raised bamboo curing beds inside curing chambers — ensuring uniform airflow and consistent moisture reduction to under 9.5%.',
-    image: '/images/cardamom-hero-1.jpg',
+    phase: 'Temperature-Controlled Curing',
+    title: 'Precision Thermal Flue Curing',
+    subtitle: 'Regulated Chambers · 40–55°C · Chlorophyll & Oil Preservation',
+    body: `Immediately following harvest, green cardamom pods undergo our proprietary temperature-controlled flue-curing process in dedicated curing chambers. By strictly regulating hot-air circulation between 40°C and 55°C, thermal curing arrests natural enzymatic degradation and locks in the vivid emerald-green chlorophyll pigment. Unlike uncontrolled open-air or sun drying, this controlled method preserves natural volatile oil concentrations above international export benchmarks (>7.5%–8.5% V/W).`,
+    detail: 'Pods cure uniformly on raised stainless and bamboo curing beds, maintaining consistent heat distribution and reducing moisture safely to ≤9.5%.',
+    image: '/images/origin-curing.png',
     accent: '#A18637',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,47 +25,47 @@ const PROCESS_STEPS = [
     ),
   },
   {
-    step: '04',
-    phase: 'Grading & Sorting',
-    title: 'Precision Optical Grading',
-    subtitle: 'Sieve-Graded · 7.0mm – 8.5mm+',
-    body: `Post-curing, every batch passes through our multi-stage grading facility. Pods are first mechanically sieved into size classifications (8.5mm, 8.0mm, 7.5mm, 7.0mm), then optically sorted to remove any discoloured, broken, or off-grade pods. Moisture content is independently verified to remain below 9.5% — meeting EU, US, and GCC food safety import standards. Each grade is batch-coded and traceable to its source farm.`,
-    detail: 'Independent lab testing of volatile oil content (>7.5% V/W), moisture levels, and microbial counts is conducted on every export batch.',
+    step: '02',
+    phase: 'Automated Colour Sorting',
+    title: 'High-Speed Optical Colour & Sieve Sorting',
+    subtitle: 'Multi-Channel Optical Sorters · Sieve Calibration (7.0mm – 8.5mm+)',
+    body: `Cured cardamom is fed into precision multi-deck mechanical sieves to separate pods by exact diameter (8.5mm Extra Bold, 8.0mm, 7.5mm, 7.0mm). Pods then flow through advanced bichromatic optical colour sorters. High-definition optical vision cameras and high-frequency pneumatic ejectors inspect every single pod at microsecond speeds, eliminating discoloured, pale, yellowed, or off-grade pods to guarantee pristine deep green visual consistency across every single consignment.`,
+    detail: 'Automated optical colour sorting removes manual error, delivering impeccable aesthetic grading and true lot-to-lot diameter conformity.',
     image: '/images/export-processing.jpg',
     accent: '#C5A046',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z" />
       </svg>
     ),
   },
   {
-    step: '05',
-    phase: 'Vacuum Packaging',
-    title: 'Aroma-Locked & Sealed',
-    subtitle: 'Multi-Layer Foil · 5kg – 25kg Packs',
-    body: `Graded cardamom is immediately transferred to our food-grade vacuum packaging line — preventing any post-grade oxidation or moisture absorption. Each unit is sealed using multi-layer aluminium foil vacuum packs that maintain an airtight, oxygen-free environment, preserving volatile oil content (>7.5% V/W) and vibrant green colour for up to 24 months from the packing date. Pack sizes range from 5 kg retail-ready pouches to 25 kg bulk jute-lined bags.`,
-    detail: 'All packaging materials are food-grade certified. Each pack is labelled with batch number, grade, weight, origin, and packing date for full traceability.',
-    image: '/images/cardamom-8.5mm.jpg',
+    step: '03',
+    phase: 'Advanced Laboratory Testing',
+    title: 'Comprehensive Analytical Quality Verification',
+    subtitle: 'ISO Standards · Volatile Oil & Moisture Analytics',
+    body: `Every export batch is subjected to comprehensive laboratory testing prior to packaging release. Utilizing Clevenger essential oil distillation apparatus, calibrated moisture balances, and chromatographic screening, each consignment is verified for volatile oil concentration (>7.5% V/W), moisture levels strictly capped at ≤9.5%, aflatoxins, and pesticide residues. Test reports confirm compliance with Spices Board India, Codex Alimentarius, EU, and GCC regulatory food safety norms.`,
+    detail: 'Every export shipment is backed by a verified Certificate of Analysis (CoA) validating chemical purity, essential oil content, and microbial compliance.',
+    image: '/images/origin-lab-test.png',
     accent: '#4A7C59',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
       </svg>
     ),
   },
   {
-    step: '06',
-    phase: 'Global Export',
-    title: 'Global Export Shipping',
-    subtitle: 'FCL / LCL · FOB & CIF · Cochin Port',
-    body: `Cardanova exports containerized shipments via Cochin International Container Transshipment Terminal — one of India's busiest and most efficient ports for spice exports. We offer both FCL (Full Container Load) and LCL (Less than Container Load) options, with FOB and CIF pricing available. Certificates of origin, phytosanitary documents, laboratory reports and other export documents can be provided based on buyer and destination requirements.`,
-    detail: 'Our in-house trade documentation team coordinates with freight forwarders, customs brokers, and inspection agencies to ensure zero shipment delays.',
-    image: '/images/global-standards-bg.jpg',
+    step: '04',
+    phase: 'Other Specialised Processing',
+    title: 'Specialised Finishing & Vacuum Protection',
+    subtitle: 'Aroma-Sealed Barrier Packaging · Dispatch-Ready Protection',
+    body: `Tested cardamom proceeds to specialised final processing including gentle de-dusting, husk polishing, and magnetic foreign-matter separation before transfer to the packaging line. Graded pods are sealed inside food-grade multi-layer aluminium barrier vacuum pouches with optional inert nitrogen flush. This eliminates oxygen and ambient humidity exposure, preserving fresh-picked aroma, intense flavour compounds, and pod colour for up to 24 months through global dispatch.`,
+    detail: 'Certified food-grade packaging in sizes from 1kg and 5kg barrier pouches to 25kg bulk export cartons/jute outer packs with full batch lot traceability.',
+    image: '/images/origin-processing.png',
     accent: '#C5A046',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11a2 2 0 012-2h1.055M11 20a9 9 0 100-18 9 9 0 000 18z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7" />
       </svg>
     ),
   },
@@ -194,7 +164,7 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
     // Load homepage content first (text data for steps)
     getHomepageContent().then((data) => {
       if (data?.farm_to_export_steps && data.farm_to_export_steps.length > 0) {
-        const mapped = data.farm_to_export_steps.map((st: any, idx: number) => {
+        const mapped = data.farm_to_export_steps.slice(0, 4).map((st: any, idx: number) => {
           const def = PROCESS_STEPS[idx % PROCESS_STEPS.length];
           return {
             step: String(st.step || idx + 1).padStart(2, '0'),
@@ -220,7 +190,7 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
         }
       });
 
-      const stepKeys = ['origin_step_1', 'origin_step_2', 'origin_step_3', 'origin_step_4', 'origin_step_5', 'origin_step_6'];
+      const stepKeys = ['origin_step_1', 'origin_step_2', 'origin_step_3', 'origin_step_4'];
       Promise.all(stepKeys.map((key) => getGalleryItems(key))).then((results) => {
         const galleryImagesMap: Record<number, string> = {};
         results.forEach((res, idx) => {
@@ -359,12 +329,15 @@ export default function OriginPage({ onOpenQuoteModal }: OriginPageProps) {
             className="font-display font-light text-[#FAF8F5] mt-4 leading-[0.95]"
             style={{ fontSize: 'clamp(1.8rem, 4vw, 3.5rem)' }}
           >
-            Six Steps from{' '}
-            <em className="gold-gradient-text not-italic">Farm to Freight</em>
+            Origin Sourcing to{' '}
+            <em className="gold-gradient-text not-italic">Export Dispatch</em>
           </h2>
           <div className="mx-auto mt-5 luxury-divider w-20" />
-          <p className="mt-6 text-stone-400 text-sm sm:text-base font-light leading-relaxed max-w-2xl mx-auto">
-            Transparency is our foundation. Below is the exact journey every Cardanova cardamom pod takes — from our estates in Idukki to a buyer's warehouse anywhere in the world. No intermediaries. No shortcuts. Just the pure process that earns global trust.
+          <p className="mt-6 font-display italic text-[#C5A046] text-base sm:text-xl font-light">
+            “Six carefully managed stages from origin sourcing to export dispatch.”
+          </p>
+          <p className="mt-4 text-stone-400 text-sm sm:text-base font-light leading-relaxed max-w-2xl mx-auto">
+            Transparency is our foundation. We highlight the specialized technical processing stages actually deployed across our supply chain: from temperature-controlled flue curing and high-precision optical sorting to certified laboratory quality assurance and protective vacuum packaging.
           </p>
         </motion.div>
       </section>

@@ -245,7 +245,7 @@ export default function CartDrawer({
                   </div>
                   <div className="flex justify-between text-stone-500 text-[10px]">
                     <span>Terms & Port:</span>
-                    <span>FOB / CIF Cochin Port (INCOTERMS 2020)</span>
+                    <span>FOB / CIF Indian Port (INCOTERMS 2020)</span>
                   </div>
                 </div>
 

@@ -50,11 +50,11 @@ const PAGE_SEO = {
   home: {
     title: 'Cardanova Spices — Premium Cardamom from Idukki, Kerala | Domestic & B2B Export',
     description:
-      'Cardanova Spices LLP — premium green cardamom from Idukki, Kerala. Sourcing, grading & packing for domestic buyers across India and international markets. FOB/CIF Cochin Port.',
+      'Cardanova Spices LLP — premium green cardamom from Idukki, Kerala. Sourcing, grading & packing for domestic buyers across India and international markets. FOB/CIF available.',
     canonical: `${SITE_URL}/`,
     ogImage: '/images/cardamom-hero-1.jpg',
     keywords:
-      'green cardamom export, Kerala cardamom, Idukki cardamom, cardamom wholesaler, spice exporter India, B2B cardamom supplier, premium cardamom Kerala, cardamom FOB CIF Cochin',
+      'green cardamom export, Kerala cardamom, Idukki cardamom, cardamom wholesaler, spice exporter India, B2B cardamom supplier, premium cardamom Kerala, cardamom FOB CIF',
     schema: buildSchemaGraph(organizationSchema, localBusinessSchema, websiteSchema, faqSchema),
   },
   about: {
@@ -90,7 +90,7 @@ const PAGE_SEO = {
   origin: {
     title: 'Our Origin — Farm to Freight Process | Idukki Cardamom Estates | Cardanova Spices',
     description:
-      'Discover how Cardanova cardamom travels from mist-covered Idukki estates to global markets. Six transparent steps: cultivation, hand harvesting, flue curing, grading, vacuum sealing, and export to 30+ countries.',
+      'Discover how Cardanova cardamom travels from mist-covered Idukki estates to global markets. Carefully managed stages from origin sourcing to export dispatch: temperature-controlled curing, automated colour sorting, advanced laboratory testing, and specialised processing.',
     canonical: `${SITE_URL}/#origin`,
     ogImage: '/images/origin-hero-bg.jpg',
     keywords:

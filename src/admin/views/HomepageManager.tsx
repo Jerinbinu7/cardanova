@@ -30,10 +30,10 @@ const DEFAULT_WHY_ITEMS: WhyChooseUsFeature[] = [
   },
   {
     title: 'Global Port Logistics',
-    tag: 'FOB / CIF Cochin',
+    tag: 'FOB / CIF Available',
     stat: '30+',
     statLabel: 'Countries Served',
-    description: 'Containerized FCL & LCL delivery via Cochin Port to 30+ countries. Complete phytosanitary, origin certificates, and compliance documentation provided.',
+    description: 'FOB / CIF shipping options from suitable Indian ports based on destination and shipment requirements. Complete phytosanitary, origin certificates, and compliance documentation provided.',
   },
   {
     title: 'Direct Origin Pricing',

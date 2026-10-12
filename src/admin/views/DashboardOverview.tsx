@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Package, Image as ImageIcon, MessageSquareQuote, Award, Star, HelpCircle, ArrowUpRight, Wifi, WifiOff } from 'lucide-react';
+import { Package, Image as ImageIcon, MessageSquareQuote, Award, Star, HelpCircle, ArrowUpRight, Wifi, WifiOff, ShoppingBag, Tags } from 'lucide-react';
+import { domesticService } from '../../services/domesticService';
 
 interface DashboardOverviewProps {
   onNavigateTab: (tab: string) => void;
@@ -13,10 +14,12 @@ interface Stats {
   certifications: number;
   testimonials: number;
   faqs: number;
+  orders: number;
+  shopItems: number;
 }
 
 export default function DashboardOverview({ onNavigateTab }: DashboardOverviewProps) {
-  const [stats, setStats]           = useState<Stats>({ products: 0, gallery: 0, quotes: 0, certifications: 0, testimonials: 0, faqs: 0 });
+  const [stats, setStats]           = useState<Stats>({ products: 0, gallery: 0, quotes: 0, certifications: 0, testimonials: 0, faqs: 0, orders: 0, shopItems: 0 });
   const [recentQuotes, setRecentQuotes] = useState<any[]>([]);
   const [loading, setLoading]       = useState(true);
   const [connected, setConnected]   = useState<boolean | null>(null);
@@ -24,14 +27,18 @@ export default function DashboardOverview({ onNavigateTab }: DashboardOverviewPr
   useEffect(() => {
     async function load() {
       try {
-        const [p, g, q, c, t, f] = await Promise.all([
+        const [p, g, q, c, t, f, ord] = await Promise.all([
           supabase.from('products').select('id', { count: 'exact', head: true }),
           supabase.from('gallery_items').select('id', { count: 'exact', head: true }),
           supabase.from('quote_requests').select('id', { count: 'exact', head: true }),
           supabase.from('certifications').select('id', { count: 'exact', head: true }),
           supabase.from('testimonials').select('id', { count: 'exact', head: true }),
           supabase.from('faqs').select('id', { count: 'exact', head: true }),
+          supabase.from('domestic_orders').select('id', { count: 'exact', head: true }),
         ]);
+
+        const shopCount = domesticService.getProducts().length;
+
         setStats({
           products: p.count ?? 0,
           gallery: g.count ?? 0,
@@ -39,6 +46,8 @@ export default function DashboardOverview({ onNavigateTab }: DashboardOverviewPr
           certifications: c.count ?? 0,
           testimonials: t.count ?? 0,
           faqs: f.count ?? 0,
+          orders: ord.count ?? 0,
+          shopItems: shopCount,
         });
 
         const { data: recent } = await supabase
@@ -58,12 +67,12 @@ export default function DashboardOverview({ onNavigateTab }: DashboardOverviewPr
   }, []);
 
   const metricCards = [
-    { id: 'products',       label: 'Active Products',    value: stats.products,      icon: Package,            color: 'from-[#C5A046]/20 to-[#DFBF6C]/10' },
+    { id: 'orders',         label: 'Domestic Orders',    value: stats.orders,        icon: ShoppingBag,        color: 'from-amber-500/20 to-amber-500/5' },
     { id: 'quotes',         label: 'Quote Requests',     value: stats.quotes,        icon: MessageSquareQuote, color: 'from-blue-500/20 to-blue-500/5' },
+    { id: 'shop',           label: 'Shop Products',      value: stats.shopItems,     icon: Tags,               color: 'from-emerald-500/20 to-emerald-500/5' },
+    { id: 'products',       label: 'Bulk Export',        value: stats.products,      icon: Package,            color: 'from-[#C5A046]/20 to-[#DFBF6C]/10' },
     { id: 'gallery',        label: 'Gallery Assets',     value: stats.gallery,       icon: ImageIcon,          color: 'from-purple-500/20 to-purple-500/5' },
-    { id: 'certifications', label: 'Certifications',     value: stats.certifications, icon: Award,             color: 'from-emerald-500/20 to-emerald-500/5' },
-    { id: 'testimonials',   label: 'Testimonials',       value: stats.testimonials,  icon: Star,               color: 'from-rose-500/20 to-rose-500/5' },
-    { id: 'faq',            label: 'FAQs',               value: stats.faqs,          icon: HelpCircle,         color: 'from-cyan-500/20 to-cyan-500/5' },
+    { id: 'certifications', label: 'Certifications',     value: stats.certifications, icon: Award,             color: 'from-teal-500/20 to-teal-500/5' },
   ];
 
   return (

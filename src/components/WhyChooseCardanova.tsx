@@ -49,7 +49,7 @@ const WHY_ITEMS = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7" />
       </svg>
     ),
-    tag: 'FOB / CIF Cochin',
+    tag: 'FOB / CIF Available',
     title: 'Domestic & Global Shipping',
     stat: 'Pan-India',
     statLabel: '& Export Ready',
