@@ -397,7 +397,7 @@ export default function QuoteModal({
                 Request a Formal Trade Quote
               </h2>
               <p className="text-[11px] text-[#FAF8F5]/40 mt-1 font-light">
-                Cardanova Spices · Idukki, Kerala · Live Spices Board India auction rates
+                Cardanova Spices · Idukki, Kerala · Export & Wholesale Division
               </p>
             </div>
           </div>
@@ -679,7 +679,7 @@ export default function QuoteModal({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. 2 MT or 500 kg"
+                      placeholder="e.g. 100 kg, 500 kg, or 2 MT (Export MOQ: 100 kg)"
                       value={formData.quantity}
                       onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                       className="w-full rounded-lg border border-white/10 px-3 py-2 text-xs text-[#FAF8F5] placeholder-white/20 focus:border-[#C5A046]/50 focus:outline-none transition-colors"

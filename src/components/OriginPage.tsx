@@ -72,7 +72,7 @@ const PROCESS_STEPS = [
 ];
 
 const STATS = [
-  { value: '1,100m', label: 'High Elevation', sub: 'Idukki, Kerala' },
+  { value: '100%', label: 'Single Origin', sub: 'Idukki, Kerala' },
   { value: 'Direct', label: 'Farmer Partners', sub: 'Kerala Smallholders' },
   { value: 'Pan-India', label: '& Global Markets', sub: 'Domestic & Export' },
   { value: '≤9.5%', label: 'Target Moisture', sub: 'Grade & Lot Spec' },

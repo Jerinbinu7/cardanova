@@ -34,18 +34,22 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
   }, []);
 
   const [selectedVariants, setSelectedVariants] = useState<Record<string, WeightOption>>({
-    'cnd-pouch-85mm': '100g',
-    'cnd-pouch-80mm': '100g',
-    'cnd-pouch-75mm': '250g',
-    'cnd-pouch-70mm': '250g',
+    'pack-50g-bottle': '50g',
+    'pack-100g-box': '100g',
+    'pack-250g-pouch': '250g',
+    'pack-500g-pouch': '500g',
+    'pack-1kg-pouch': '1kg',
   });
 
   const [quantities, setQuantities] = useState<Record<string, number>>({
-    'cnd-pouch-85mm': 1,
-    'cnd-pouch-80mm': 1,
-    'cnd-pouch-75mm': 1,
-    'cnd-pouch-70mm': 1,
+    'pack-50g-bottle': 1,
+    'pack-100g-box': 1,
+    'pack-250g-pouch': 1,
+    'pack-500g-pouch': 1,
+    'pack-1kg-pouch': 1,
   });
+
+  const [activeGramFilter, setActiveGramFilter] = useState<string>('all');
 
   const [activeModalProduct, setActiveModalProduct] = useState<RetailPacketProduct | null>(null);
   const [checkoutItems, setCheckoutItems] = useState<DomesticOrderItem[]>([]);
@@ -251,150 +255,212 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
 
       {/* ── Product Catalog Section ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.map((product) => {
-            const selectedWeight = selectedVariants[product.id] || '100g';
-            const currentVariant =
-              product.variants.find((v) => v.weight === selectedWeight) || product.variants[0];
-            const qty = quantities[product.id] || 1;
+        {/* Gram Size Classification Filter Tabs */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-stone-200">
+          <div>
+            <span className="text-[11px] font-semibold text-[#8B712A] uppercase tracking-wider block mb-1">
+              Domestic Retail Packets
+            </span>
+            <h2 className="font-display text-2xl sm:text-3xl font-light text-[#112D15]">
+              Classified by Gram Size
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-500 font-light mt-1">
+              Select your preferred quantity from dining table bottles (50g) to master estate reserve pouches (1 kg).
+            </p>
+          </div>
 
-            return (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="group relative bg-white rounded-2xl border border-stone-200 hover:border-[#C5A046]/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
-              >
-                {/* Grade Pod Diameter Badge */}
-                <div className="absolute top-3 right-3 z-10 bg-[#FAF8F5]/90 backdrop-blur-md text-[#112D15] text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md shadow-sm border border-stone-300">
-                  {product.podDiameter}
-                </div>
+          <div className="flex flex-wrap items-center gap-1.5 bg-[#F3EFEA] p-1.5 rounded-2xl border border-stone-200 shrink-0">
+            {[
+              { id: 'all', label: 'All Sizes' },
+              { id: '50g', label: '50g' },
+              { id: '100g', label: '100g' },
+              { id: '250g', label: '250g' },
+              { id: '500g', label: '500g' },
+              { id: '1kg', label: '1 kg' },
+            ].map((tab) => {
+              const isActive = activeGramFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveGramFilter(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#112D15] text-[#FAF8F5] shadow-sm'
+                      : 'text-stone-600 hover:text-[#112D15] hover:bg-white/60'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-                {/* Top Image Section */}
-                <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden cursor-pointer" onClick={() => setActiveModalProduct(product)}>
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
+        {/* 5-Column Responsive Deck for Gram Sizes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          {products
+            .filter((product) => {
+              if (activeGramFilter === 'all') return true;
+              return product.variants.some((v) => v.weight.toLowerCase() === activeGramFilter.toLowerCase());
+            })
+            .map((product) => {
+              const selectedWeight = selectedVariants[product.id] || product.variants[0]?.weight || '100g';
+              const currentVariant =
+                product.variants.find((v) => v.weight === selectedWeight) || product.variants[0];
+              const qty = quantities[product.id] || 1;
+              const discountPercent = Math.round(
+                ((currentVariant.originalPriceInr - currentVariant.priceInr) / currentVariant.originalPriceInr) * 100
+              );
 
-                {/* Product Content */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    {/* Grade Title */}
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="text-[11px] font-semibold text-[#8B712A] uppercase tracking-wider">
-                        {product.gradeBadge}
-                      </span>
-                    </div>
+              const formatLabel = (product.name.includes('Bottle') || currentVariant.packagingType === 'Bottle')
+                ? 'Glass Bottle'
+                : (product.name.includes('Box') || currentVariant.packagingType === 'Square Box')
+                ? 'Gift Box'
+                : 'Zipper Pouch';
 
-                    <h3 className="font-display text-lg text-[#112D15] font-semibold leading-snug mt-1 group-hover:text-[#8B712A] transition-colors">
-                      {product.name}
-                    </h3>
-
-                    <p className="text-stone-500 text-xs mt-1.5 line-clamp-2 leading-relaxed font-light">
-                      {product.tagline}
-                    </p>
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="group relative bg-white rounded-3xl border border-stone-200 hover:border-[#C5A046]/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                >
+                  {/* Gram Size Badge (Top-Right, high-contrast, never obstructed) */}
+                  <div className="absolute top-3.5 right-3.5 z-20 bg-[#112D15] text-[#FAF8F5] text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-[#C5A046]/50 flex items-center gap-1.5 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#E2BF63]" />
+                    <span className="font-mono tracking-tight">{currentVariant.weight}</span>
                   </div>
 
-                  {/* Weight Selector Buttons */}
-                  <div>
-                    <label className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider block mb-1.5">
-                      Select Net Weight:
-                    </label>
-                    <div className="grid grid-cols-5 gap-1">
-                      {product.variants.map((v) => {
-                        const isSelected = v.weight === selectedWeight;
-                        return (
-                          <button
-                            key={v.weight}
-                            type="button"
-                            onClick={() => handleVariantChange(product.id, v.weight)}
-                            className={`py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                              isSelected
-                                ? 'bg-[#112D15] text-[#FAF8F5] shadow-sm'
-                                : 'bg-[#F3EFEA] text-stone-700 hover:bg-stone-200'
-                            }`}
-                          >
-                            {v.weight}
-                          </button>
-                        );
-                      })}
-                    </div>
+                  {/* Packaging Type Tag (Top-Left, concise, zero collision) */}
+                  <div className="absolute top-3.5 left-3.5 z-20 bg-white/95 backdrop-blur-md text-[#8B712A] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-xs border border-stone-200 shrink-0 max-w-[120px] truncate">
+                    {formatLabel}
                   </div>
 
-                  {/* Pricing Bar */}
-                  <div className="bg-[#FAF8F5] p-3 rounded-xl border border-stone-200 flex items-center justify-between">
+                  {/* Top Image Section — Much bigger, vertical aspect ratio for luxury pouch presentation */}
+                  <div
+                    className="relative aspect-[4/5] sm:h-72 bg-[#F8F5F0] overflow-hidden cursor-pointer flex items-center justify-center p-3 sm:p-4"
+                    onClick={() => setActiveModalProduct(product)}
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                    {discountPercent > 0 && (
+                      <div className="absolute bottom-3 left-3.5 z-20 bg-emerald-700/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md shadow-xs">
+                        {discountPercent}% OFF
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Product Content */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-display font-semibold text-[#112D15]">
-                          ₹{(currentVariant.priceInr * qty).toLocaleString('en-IN')}
-                        </span>
-                        <span className="text-xs text-stone-400 line-through">
-                          ₹{(currentVariant.originalPriceInr * qty).toLocaleString('en-IN')}
+                      <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FFF9ED] border border-[#8B712A]/30 text-[#8B712A] text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                        <span>★ Net Weight: {currentVariant.weight}</span>
+                      </div>
+
+                      <h3 className="font-display text-lg text-[#112D15] font-semibold leading-snug group-hover:text-[#8B712A] transition-colors">
+                        {product.name}
+                      </h3>
+
+                      <p className="text-stone-500 text-xs mt-1.5 line-clamp-2 leading-relaxed font-light">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    {/* Weight & Packaging Format Bar */}
+                    <div className="bg-[#FAF8F5] rounded-xl p-2.5 border border-stone-100">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-stone-400 font-medium">Net Weight:</span>
+                        <span className="font-bold text-[#112D15]">{currentVariant.weight}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] mt-1">
+                        <span className="text-stone-400 font-medium">Preservation:</span>
+                        <span className="text-stone-700 font-medium truncate ml-2">
+                          {currentVariant.packagingType || 'Freshness Seal'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Quantity Selector */}
-                    <div className="flex items-center gap-1 bg-white border border-stone-300 rounded-lg p-0.5">
+                    {/* Pricing Bar */}
+                    <div className="bg-[#FAF8F5] p-3 rounded-xl border border-stone-200 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider block">
+                          Price
+                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-lg font-display font-bold text-[#112D15]">
+                            ₹{(currentVariant.priceInr * qty).toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-xs text-stone-400 line-through">
+                            ₹{(currentVariant.originalPriceInr * qty).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Quantity Selector */}
+                      <div className="flex items-center gap-1 bg-white border border-stone-300 rounded-lg p-0.5 shadow-2xs">
+                        <button
+                          type="button"
+                          onClick={() => handleQuantityChange(product.id, -1)}
+                          className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors cursor-pointer"
+                          aria-label="Decrease"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-5 text-center text-xs font-semibold font-mono text-[#112D15]">
+                          {qty}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleQuantityChange(product.id, 1)}
+                          className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors cursor-pointer"
+                          aria-label="Increase"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="space-y-2 pt-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleAddToCart(product)}
+                          className="w-full py-2.5 px-2 rounded-xl bg-white border border-stone-300 hover:border-[#112D15] text-[#112D15] hover:bg-stone-50 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
+                        >
+                          <ShoppingCart className="w-3.5 h-3.5 text-[#8B712A]" />
+                          <span>Cart</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleQuickBuy(product)}
+                          className="w-full py-2.5 px-2 rounded-xl gold-gradient-bg text-[#071309] text-xs font-bold uppercase tracking-wider hover:brightness-110 flex items-center justify-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95"
+                        >
+                          <span>Buy Now</span>
+                        </button>
+                      </div>
+
                       <button
                         type="button"
-                        onClick={() => handleQuantityChange(product.id, -1)}
-                        className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors cursor-pointer"
-                        aria-label="Decrease"
+                        onClick={() => setActiveModalProduct(product)}
+                        className="w-full py-1.5 px-2 text-[11px] font-medium text-stone-500 hover:text-[#8B712A] rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer"
                       >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="w-6 text-center text-xs font-semibold font-mono text-[#112D15]">
-                        {qty}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleQuantityChange(product.id, 1)}
-                        className="p-1 text-stone-600 hover:text-black rounded hover:bg-stone-100 transition-colors cursor-pointer"
-                        aria-label="Increase"
-                      >
-                        <Plus className="w-3 h-3" />
+                        <Info className="w-3 h-3 text-[#8B712A]" />
+                        <span>View Specifications</span>
                       </button>
                     </div>
                   </div>
-
-                  {/* Actions */}
-                  <div className="space-y-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => handleQuickBuy(product)}
-                      className="w-full py-2.5 px-4 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] text-xs font-medium flex items-center justify-center gap-2 shadow transition-all cursor-pointer active:scale-[0.99]"
-                    >
-                      <span>Buy Now • ₹{(currentVariant.priceInr * qty).toLocaleString('en-IN')}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(product)}
-                      className="w-full py-2.5 px-4 rounded-xl bg-white border border-stone-300 hover:border-[#C5A046] text-[#112D15] hover:bg-stone-50 text-xs font-medium flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer active:scale-[0.99]"
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5 text-[#C5A046]" />
-                      <span>Add to Cart</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveModalProduct(product)}
-                      className="w-full py-2 px-3 text-[11px] font-medium text-stone-600 hover:text-[#112D15] hover:bg-stone-100 rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                    >
-                      <Info className="w-3.5 h-3.5 text-[#C5A046]" />
-                      <span>View Specifications & Origin</span>
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              );
+            })}
         </div>
       </section>
 
@@ -672,8 +738,8 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                       <span className="font-medium text-[#112D15] text-right">{activeModalProduct.specs.speciality}</span>
                     </div>
                     <div className="py-1.5 flex justify-between">
-                      <span className="text-stone-500">Pod Grade:</span>
-                      <span className="font-medium text-[#112D15] text-right">{activeModalProduct.specs.grade}</span>
+                      <span className="text-stone-500">Pack Format:</span>
+                      <span className="font-medium text-[#112D15] text-right">{activeModalProduct.specs.packaging || activeModalProduct.specs.grade}</span>
                     </div>
                     <div className="py-1.5 flex justify-between">
                       <span className="text-stone-500">Essential Oil:</span>
