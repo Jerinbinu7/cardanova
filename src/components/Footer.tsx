@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import MagneticButton from './MagneticButton';
 import { getContactInfo } from '../services/contactService';
+import { getSiteSettings } from '../services/settingsService';
 
 interface FooterProps {
   setActiveTab: (tab: 'home' | 'about' | 'products' | 'origin' | 'admin') => void;
@@ -8,12 +9,18 @@ interface FooterProps {
 }
 
 const DIRECTIONS_URL =
-  'https://www.google.com/maps/search/?api=1&query=10%2F526%2C+Senapathy+PO%2C+Pallikunnu%2C+Rajakumary%2C+Idukki%2C+Kerala+685619';
+  'https://www.google.com/maps/search/?api=1&query=10%2F526%2C+PO+Pallikunnu%2C+Senapathy%2C+Rajakumari%2C+Kerala+685619';
 
 export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) {
-  const [address, setAddress] = useState('Cardanova Spices LLP, Kattappana, Idukki District, Kerala — 685508, India');
+  const [address, setAddress] = useState(
+    'Cardanova Spices LLP\n10/526, PO Pallikunnu\nSenapathy, Rajakumari\nKerala – 685619, India'
+  );
   const [email, setEmail] = useState('trade@cardanovaspices.com');
-  const [phone, setPhone] = useState('+91 96568 66090');
+  const [phone, setPhone] = useState('+91 9656866090');
+  const [omanPhone] = useState('+968 79024179');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState('Cardanova Spices LLP');
+  const [copyrightText, setCopyrightText] = useState<string | null>(null);
 
   useEffect(() => {
     getContactInfo().then((cms) => {
@@ -25,6 +32,14 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
     }).catch((e) => {
       console.warn('Failed to fetch contact info', e);
     });
+
+    getSiteSettings().then((s) => {
+      if (s) {
+        if (s.logo_url) setCustomLogo(s.logo_url);
+        if (s.company_name) setCompanyName(s.company_name);
+        if (s.copyright_text) setCopyrightText(s.copyright_text);
+      }
+    }).catch(() => {});
   }, []);
 
 
@@ -92,20 +107,30 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
                 className="flex items-center gap-3 mb-5 text-left group cursor-pointer"
                 aria-label="Cardanova Spices LLP — Go to homepage"
               >
-                <img
-                  src="/images/cardanova-emblem.png"
-                  alt="Cardanova Spices Emblem"
-                  width={538}
-                  height={470}
-                  className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                />
-                <img
-                  src="/images/cardanova-wordmark-light.png"
-                  alt="Cardanova Spices — Exporting Nature's Finest"
-                  width={944}
-                  height={232}
-                  className="h-8 w-auto object-contain"
-                />
+                {customLogo ? (
+                  <img
+                    src={customLogo}
+                    alt={companyName}
+                    className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <>
+                    <img
+                      src="/images/cardanova-emblem.png"
+                      alt="Cardanova Spices Emblem"
+                      width={538}
+                      height={470}
+                      className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <img
+                      src="/images/cardanova-wordmark-light.png"
+                      alt="Cardanova Spices — Exporting Nature's Finest"
+                      width={944}
+                      height={232}
+                      className="h-8 w-auto object-contain"
+                    />
+                  </>
+                )}
               </button>
               <p className="text-xs text-stone-500 leading-relaxed font-light mb-5">
                 Premier B2B green cardamom exporter. Single-origin luxury spices from Idukki, Kerala to global markets.
@@ -153,10 +178,10 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
               <h3 className="label-caps text-[#C5A046] mb-4">Cardamom Grades</h3>
               <ul className="space-y-3 text-xs text-stone-400 font-light">
                 {[
-                  '8.5 mm Extra Bold',
-                  '8.0 mm Premium Bold',
-                  '7.5 mm Export Grade',
-                  '7.0 mm Commercial Grade',
+                  '8.5 mm+ Extra Bold',
+                  '8.0 mm+ Premium Bold',
+                  '7.5 mm+ Export Grade',
+                  '7.0 mm+ Commercial Grade',
                   'Mixed Grade (AGEB/LGB)',
                   'Extraction Grade (Oil)',
                 ].map((g) => (
@@ -186,16 +211,21 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
                   className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#C5A046' }}>
                   <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.003 3.5-4.697 3.5-8.327a8.25 8.25 0 00-16.5 0c0 3.63 1.556 6.326 3.5 8.327a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.144.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
                 </svg>
-                <p className="text-xs text-stone-400 font-light leading-relaxed" translate="no">{address}</p>
+                <p className="text-xs text-stone-400 font-light leading-relaxed whitespace-pre-line" translate="no">{address}</p>
               </div>
 
-              {/* Phone */}
+              {/* India Phone */}
               <div className="flex items-center gap-2.5">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                  className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#C5A046' }}>
-                  <path fillRule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
-                </svg>
+                <span className="text-xs" aria-hidden="true">🇮🇳</span>
+                <span className="text-xs text-[#C5A046] font-medium">India:</span>
                 <a href={`tel:${phone.replace(/\s/g, '')}`} translate="no" className="notranslate text-xs text-stone-400 font-light hover:text-[#C5A046] transition-colors">{phone}</a>
+              </div>
+
+              {/* Oman Phone */}
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs" aria-hidden="true">🇴🇲</span>
+                <span className="text-xs text-[#C5A046] font-medium">Oman:</span>
+                <a href={`tel:${omanPhone.replace(/\s/g, '')}`} translate="no" className="notranslate text-xs text-stone-400 font-light hover:text-[#C5A046] transition-colors">{omanPhone}</a>
               </div>
 
               {/* Email */}
@@ -249,11 +279,18 @@ export default function Footer({ setActiveTab, onOpenQuoteModal }: FooterProps) 
         {/* Bottom bar */}
         <div className="pt-7 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-stone-600 font-light">
-            <small>© {new Date().getFullYear()} Cardanova Spices LLP. All Rights Reserved.</small>
+            <small>{copyrightText || `© ${new Date().getFullYear()} ${companyName}. All Rights Reserved.`}</small>
           </p>
           <nav aria-label="Legal navigation" className="flex items-center gap-6 text-xs text-stone-600">
             <span className="hover:text-[#C5A046] transition-colors cursor-pointer">Terms of Trade</span>
             <span className="hover:text-[#C5A046] transition-colors cursor-pointer">Privacy Policy</span>
+            <button
+              onClick={() => setActiveTab('admin')}
+              className="hover:text-[#C5A046] transition-colors cursor-pointer font-medium"
+              aria-label="Access Admin Portal"
+            >
+              Admin Portal
+            </button>
           </nav>
         </div>
       </div>

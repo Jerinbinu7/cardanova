@@ -23,7 +23,7 @@ export const organizationSchema = {
   },
   image: OG_IMAGE,
   description:
-    'Premium single-origin green cardamom, pepper and turmeric exporter from Idukki, Kerala, India. Trusted B2B spice exporter to 30+ countries.',
+    'Premium green cardamom exporter from Idukki, Kerala, India. Serving domestic and international B2B buyers with carefully graded, export-ready spices.',
   foundingDate: '2022',
   foundingLocation: {
     '@type': 'Place',
@@ -31,32 +31,34 @@ export const organizationSchema = {
   },
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Kattappana',
-    addressLocality: 'Idukki District',
+    streetAddress: '10/526, PO Pallikunnu, Senapathy',
+    addressLocality: 'Rajakumari',
     addressRegion: 'Kerala',
-    postalCode: '685508',
+    postalCode: '685619',
     addressCountry: 'IN',
   },
   contactPoint: [
     {
       '@type': 'ContactPoint',
       telephone: '+91-96568-66090',
-      contactType: 'sales',
-      areaServed: 'Worldwide',
+      contactType: 'sales (India)',
+      areaServed: ['IN', 'Worldwide'],
       availableLanguage: ['English', 'Hindi', 'Malayalam'],
       email: 'trade@cardanovaspices.com',
     },
     {
       '@type': 'ContactPoint',
-      telephone: '+91-96568-66090',
-      contactType: 'customer support',
-      contactOption: 'TollFree',
+      telephone: '+968-79024179',
+      contactType: 'sales (Oman & Middle East)',
+      areaServed: ['OM', 'Middle East'],
+      availableLanguage: ['English', 'Arabic', 'Hindi'],
     },
   ],
   sameAs: [
     'https://www.linkedin.com/company/cardanova-spices',
     'https://www.facebook.com/cardanovaspices',
     'https://wa.me/919656866090',
+    'https://wa.me/96879024179',
   ],
   areaServed: {
     '@type': 'GeoCircle',
@@ -91,10 +93,10 @@ export const localBusinessSchema = {
   priceRange: '$$$$',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Kattappana',
-    addressLocality: 'Idukki District',
+    streetAddress: '10/526, PO Pallikunnu, Senapathy',
+    addressLocality: 'Rajakumari',
     addressRegion: 'Kerala',
-    postalCode: '685508',
+    postalCode: '685619',
     addressCountry: 'IN',
   },
   geo: {
@@ -143,7 +145,7 @@ export const productsListSchema = {
   '@type': 'ItemList',
   name: 'Green Cardamom Export Grades — Cardanova Spices',
   description:
-    'Complete trade catalogue of single-origin green cardamom grades from Idukki, Kerala. Available for B2B export worldwide.',
+    'Complete trade catalogue of green cardamom grades from Idukki, Kerala. Available for B2B export worldwide.',
   url: `${SITE_URL}/#products`,
   numberOfItems: 6,
   itemListElement: [
@@ -172,7 +174,7 @@ export const productsListSchema = {
         additionalProperty: [
           { '@type': 'PropertyValue', name: 'Pod Size', value: '8.5mm+' },
           { '@type': 'PropertyValue', name: 'Moisture', value: '<9.5%' },
-          { '@type': 'PropertyValue', name: 'MOQ', value: '500kg' },
+          { '@type': 'PropertyValue', name: 'MOQ', value: '100kg' },
           { '@type': 'PropertyValue', name: 'HS Code', value: '0908.31.10' },
           { '@type': 'PropertyValue', name: 'Origin', value: 'Idukki, Kerala, India' },
         ],
@@ -297,7 +299,7 @@ export const faqSchema = {
       name: 'What cardamom grades does Cardanova export?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Cardanova exports six grades of green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial Grade, Mixed Grade (AGEB/LGB), and Extraction Grade (Oil). All are single-origin from Idukki, Kerala, India.',
+        text: 'Cardanova exports six grades of green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial Grade, Mixed Grade (AGEB/LGB), and Extraction Grade (Oil). All grades are sourced from Idukki, Kerala, India.',
       },
     },
     {
@@ -305,7 +307,7 @@ export const faqSchema = {
       name: 'What is the minimum order quantity (MOQ) for cardamom export?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'The minimum order quantity starts from 500kg for flagship grades (8.5mm Extra Bold) and 1 Metric Ton for premium and export grades. Extraction grade requires a minimum of 5 Metric Tons.',
+        text: 'The minimum order quantity (MOQ) for export shipments is 100 kg across all cardamom grades. For domestic buyers across India, bulk orders start from an MOQ of 50 kg, and consumer retail packs are available from 50g to 1 kg.',
       },
     },
     {
@@ -313,7 +315,7 @@ export const faqSchema = {
       name: 'Does Cardanova offer FOB and CIF pricing?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. Cardanova offers both FOB (Free on Board) and CIF (Cost, Insurance, Freight) pricing via Cochin International Container Transshipment Terminal (ICTT). Both FCL and LCL container options are available.',
+        text: 'Yes. Cardanova offers both FOB (Free on Board) and CIF (Cost, Insurance, Freight) pricing from suitable Indian ports based on destination and shipment requirements. Both FCL and LCL container options are available.',
       },
     },
     {
@@ -321,7 +323,7 @@ export const faqSchema = {
       name: 'What certifications does Cardanova hold?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Cardanova holds APEDA (Agricultural and Processed Food Products Export Development Authority) registration, Spices Board certification, FSSAI (Food Safety and Standards Authority of India) compliance, and IEC (Import Export Code). Every shipment includes a Phytosanitary Certificate and Certificate of Origin.',
+        text: 'Cardanova holds APEDA (Agricultural and Processed Food Products Export Development Authority) registration, Spices Board registration, FSSAI (Food Safety and Standards Authority of India) compliance, and IEC (Import Export Code). Certificates of origin, phytosanitary documents, laboratory reports and other export documents can be provided based on buyer and destination requirements.',
       },
     },
     {
@@ -329,7 +331,7 @@ export const faqSchema = {
       name: 'Which countries does Cardanova export to?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Cardanova exports green cardamom to 30+ countries including UAE, Saudi Arabia, Qatar, Kuwait, USA, UK, Germany, Netherlands, Singapore, Malaysia, Australia, and many more across the Middle East, Europe, North America, and Asia-Pacific.',
+        text: 'Cardanova exports green cardamom to international buyers across the Middle East, Europe, North America, and Asia-Pacific, including markets such as UAE, Saudi Arabia, Qatar, Kuwait, USA, UK, Germany, Netherlands, Singapore, Malaysia, and Australia. Contact us for specific destination enquiries.',
       },
     },
     {

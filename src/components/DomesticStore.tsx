@@ -211,11 +211,11 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
           </div>
 
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] leading-tight">
-            Single-Origin <span className="italic text-[#E2BF63]">Idukki Cardamom</span> Packets
+            Green Cardamom <span className="italic text-[#E2BF63]">Retail & Bulk Packets</span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-stone-300 text-sm sm:text-base font-light">
-            Enjoy the authentic flavor and royal aroma of whole green cardamom directly from our high-altitude estates in Kerala. Packed in freshness-preserving zipper pouches and delivered to your doorstep.
+            Enjoy authentic green cardamom sourced directly from Idukki, Kerala (Origin: Idukki, Kerala, India). Packed in freshness-preserving zipper pouches and delivered across India.
           </p>
 
           {/* Quick Perks Strip */}
@@ -241,7 +241,7 @@ export default function DomesticStore({ onSwitchToExport }: DomesticStoreProps) 
                 onClick={onSwitchToExport}
                 className="text-xs text-[#C5A046] hover:text-[#E2BF63] underline underline-offset-4 inline-flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <span>Looking for Commercial Bulk B2B Export (500 kg+ FOB/CIF)? Click here</span>
+                <span>Looking for Export / International Bulk (MOQ 100 kg+, FOB/CIF)? Click here</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>

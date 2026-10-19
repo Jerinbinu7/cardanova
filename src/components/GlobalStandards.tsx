@@ -88,13 +88,12 @@ export default function GlobalStandards() {
             className="font-display font-light text-[#112D15] mt-3 leading-[0.95]"
             style={{ fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}
           >
-            Global Export
-            <br />
-            <em className="gold-gradient-text not-italic">Certifications</em>
+            Registrations &<br />
+            <em className="gold-gradient-text not-italic">Trade Compliance</em>
           </h2>
           <div className="mx-auto mt-6 luxury-divider w-24" />
           <p className="mt-5 text-sm text-stone-500 font-light leading-relaxed">
-            Every shipment includes certificates of origin, phytosanitary analysis, and lab test reports.
+            Certificates of origin, phytosanitary documents, laboratory reports and other export documents can be provided based on buyer and destination requirements.
           </p>
         </motion.div>
 

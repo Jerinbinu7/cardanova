@@ -56,12 +56,10 @@ const PAGE_SECTIONS: PageSectionConfig[] = [
     label: '🌿 Our Origin',
     description: 'Manage 6 sections of Our Origin (Cultivation, Hand Harvesting, Curing, Grading, Packaging, Global Export & Hero)',
     subsections: [
-      { id: 'origin_step_1', label: '1. Cultivation', aspect: '4:3', hint: 'Grown in Idukki high ranges at 1,100m elevation' },
-      { id: 'origin_step_2', label: '2. Hand Harvesting', aspect: '4:3', hint: 'Individually hand-picked at peak essential oil maturity' },
-      { id: 'origin_step_3', label: '3. Curing & Drying', aspect: '4:3', hint: 'Temperature-controlled flue curing chambers (40-55°C)' },
-      { id: 'origin_step_4', label: '4. Grading & Sorting', aspect: '4:3', hint: 'Multi-stage mechanical sieving & optical pod sorting' },
-      { id: 'origin_step_5', label: '5. Vacuum Packaging', aspect: '4:3', hint: 'Multi-layer foil vacuum packing line' },
-      { id: 'origin_step_6', label: '6. Global Export', aspect: '4:3', hint: 'Shipped to 30+ countries via Cochin port' },
+            { id: 'origin_step_1', label: '1. Temperature-Controlled Curing', aspect: '4:3', hint: 'Thermal flue curing chambers (40-55°C) for chlorophyll preservation' },
+      { id: 'origin_step_2', label: '2. Automated Colour Sorting', aspect: '4:3', hint: 'High-speed optical sorters & multi-deck sieve sizing' },
+      { id: 'origin_step_3', label: '3. Advanced Laboratory Testing', aspect: '4:3', hint: 'Volatile oil content, moisture (≤9.5%) & microbial analysis' },
+      { id: 'origin_step_4', label: '4. Other Specialised Processing', aspect: '4:3', hint: 'De-dusting, vacuum packaging & export dispatch preparation' },
       { id: 'origin_hero', label: 'Top Hero Header', aspect: '16:9', hint: 'Misty Idukki highland estate hero background' },
     ],
   },
@@ -160,8 +158,8 @@ const DEFAULT_SUBSECTION_PHOTOS: Record<string, Partial<GalleryItemRow>[]> = {
   origin_step_1: [
     {
       id: 'default-step-1',
-      title: 'Step 1: Cultivation — Grown in Idukki high ranges at 1,100m elevation',
-      image_url: 'https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1400&auto=format&fit=crop',
+      title: 'Step 1: Temperature-Controlled Curing — Thermal flue curing chambers (40–55°C)',
+      image_url: '/images/origin-curing.png',
       folder: 'factory',
       display_order: 0,
     },
@@ -169,8 +167,8 @@ const DEFAULT_SUBSECTION_PHOTOS: Record<string, Partial<GalleryItemRow>[]> = {
   origin_step_2: [
     {
       id: 'default-step-2',
-      title: 'Step 2: Hand Harvesting — Handpicked at peak essential oil maturity',
-      image_url: 'https://images.unsplash.com/photo-1529693662653-9d480530a697?q=80&w=1400&auto=format&fit=crop',
+      title: 'Step 2: Automated Colour Sorting — Optical sorting & sieve grading',
+      image_url: '/images/export-processing.jpg',
       folder: 'factory',
       display_order: 0,
     },
@@ -178,8 +176,8 @@ const DEFAULT_SUBSECTION_PHOTOS: Record<string, Partial<GalleryItemRow>[]> = {
   origin_step_3: [
     {
       id: 'default-step-3',
-      title: 'Step 3: Curing & Drying — Flue-cured for colour retention (40–55°C)',
-      image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=1400&auto=format&fit=crop',
+      title: 'Step 3: Advanced Laboratory Testing — Essential oil & moisture analysis',
+      image_url: '/images/origin-lab-test.png',
       folder: 'factory',
       display_order: 0,
     },
@@ -187,27 +185,9 @@ const DEFAULT_SUBSECTION_PHOTOS: Record<string, Partial<GalleryItemRow>[]> = {
   origin_step_4: [
     {
       id: 'default-step-4',
-      title: 'Step 4: Grading & Sorting — Precision optical & mechanical sieving',
-      image_url: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?q=80&w=1400&auto=format&fit=crop',
-      folder: 'factory',
-      display_order: 0,
-    },
-  ],
-  origin_step_5: [
-    {
-      id: 'default-step-5',
-      title: 'Step 5: Vacuum Packaging — Aroma-locked in multi-layer foil',
-      image_url: 'https://images.unsplash.com/photo-1509358211563-393f60f64c67?q=80&w=1400&auto=format&fit=crop',
+      title: 'Step 4: Other Specialised Processing — De-dusting & barrier packaging',
+      image_url: '/images/origin-processing.png',
       folder: 'packaging',
-      display_order: 0,
-    },
-  ],
-  origin_step_6: [
-    {
-      id: 'default-step-6',
-      title: 'Step 6: Global Export — Container shipments to 30+ countries via Cochin port',
-      image_url: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=1400&auto=format&fit=crop',
-      folder: 'events',
       display_order: 0,
     },
   ],

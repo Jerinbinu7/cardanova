@@ -1,8 +1,9 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
 import TranslateHint from './TranslateHint';
+import { getSiteSettings } from '../services/settingsService';
 
 interface HeaderProps {
   activeTab: 'home' | 'about' | 'products' | 'origin' | 'packets';
@@ -15,7 +16,14 @@ interface HeaderProps {
 export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cartCount = 0, onOpenCart }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [customLogoUrl, setCustomLogoUrl] = useState<string | null>(null);
   const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    getSiteSettings().then((s) => {
+      if (s?.logo_url) setCustomLogoUrl(s.logo_url);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -84,24 +92,34 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
           aria-label="Cardanova Spices LLP — Go to homepage"
           aria-current={activeTab === 'home' ? 'page' : undefined}
         >
-          <div className="relative flex items-center justify-center shrink-0">
+          {customLogoUrl ? (
             <img
-              src="/images/cardanova-emblem.png"
-              alt="Cardanova Spices emblem"
-              width={538}
-              height={470}
-              className="h-8 sm:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              src={customLogoUrl}
+              alt="Cardanova Spices"
+              className="h-9 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
-          </div>
-          <div className="flex items-center">
-            <img
-              src="/images/cardanova-wordmark-light.png"
-              alt="Cardanova Spices — Exporting Nature's Finest"
-              width={944}
-              height={232}
-              className="h-6 sm:h-9 w-auto object-contain"
-            />
-          </div>
+          ) : (
+            <>
+              <div className="relative flex items-center justify-center shrink-0">
+                <img
+                  src="/images/cardanova-emblem.png"
+                  alt="Cardanova Spices emblem"
+                  width={538}
+                  height={470}
+                  className="h-8 sm:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <div className="flex items-center">
+                <img
+                  src="/images/cardanova-wordmark-light.png"
+                  alt="Cardanova Spices — Exporting Nature's Finest"
+                  width={944}
+                  height={232}
+                  className="h-6 sm:h-9 w-auto object-contain"
+                />
+              </div>
+            </>
+          )}
         </button>
 
         {/* Desktop Navigation */}

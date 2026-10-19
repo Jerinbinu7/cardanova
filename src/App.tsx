@@ -1,5 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import SEOHead from './seo/SEOHead';
@@ -28,6 +28,7 @@ import AboutPage from './components/AboutPage';
 import OriginPage from './components/OriginPage';
 import ProductsPage from './components/ProductsPage';
 import DomesticStore from './components/DomesticStore';
+import DomesticIndianSection from './components/DomesticIndianSection';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import QuoteModal from './components/QuoteModal';
@@ -47,13 +48,13 @@ const SITE_URL = 'https://cardanovaspices.com';
 // ── Per-page SEO configurations ───────────────────────────────────────────────
 const PAGE_SEO = {
   home: {
-    title: 'Cardanova Spices — Premium Cardamom from Idukki, Kerala | B2B Export & Wholesale',
+    title: 'Cardanova Spices — Premium Cardamom from Idukki, Kerala | Domestic & B2B Export',
     description:
-      'Cardanova Spices LLP — single-origin premium green cardamom, pepper & turmeric from Idukki, Kerala. APEDA-certified B2B spice exporter to 30+ countries. FOB/CIF Cochin Port.',
+      'Cardanova Spices LLP — premium green cardamom from Idukki, Kerala. Sourcing, grading & packing for domestic buyers across India and international markets. FOB/CIF available.',
     canonical: `${SITE_URL}/`,
     ogImage: '/images/cardamom-hero-1.jpg',
     keywords:
-      'green cardamom export, Kerala cardamom, Idukki cardamom, cardamom wholesaler, spice exporter India, B2B cardamom supplier, premium cardamom Kerala, cardamom FOB CIF Cochin',
+      'green cardamom export, Kerala cardamom, Idukki cardamom, cardamom wholesaler, spice exporter India, B2B cardamom supplier, premium cardamom Kerala, cardamom FOB CIF',
     schema: buildSchemaGraph(organizationSchema, localBusinessSchema, websiteSchema, faqSchema),
   },
   about: {
@@ -69,7 +70,7 @@ const PAGE_SEO = {
   products: {
     title: 'Green Cardamom Grades & Catalogue — 8.5mm to 7.0mm Export Specifications | Cardanova',
     description:
-      'Complete B2B trade catalogue of single-origin Idukki green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial. MOQ 500kg. FOB/CIF pricing available.',
+      'Complete B2B trade catalogue of Idukki green cardamom: 8.5mm Extra Bold, 8.0mm Premium Bold, 7.5mm Export Grade, 7.0mm Commercial. Export MOQ from 100 kg. FOB/CIF quotations available.',
     canonical: `${SITE_URL}/#products`,
     ogImage: '/images/cardamom-hero-1.jpg',
     keywords:
@@ -89,7 +90,7 @@ const PAGE_SEO = {
   origin: {
     title: 'Our Origin — Farm to Freight Process | Idukki Cardamom Estates | Cardanova Spices',
     description:
-      'Discover how Cardanova cardamom travels from mist-covered Idukki estates to global markets. Six transparent steps: cultivation, hand harvesting, flue curing, grading, vacuum sealing, and export to 30+ countries.',
+      'Discover how Cardanova cardamom travels from mist-covered Idukki estates to global markets. Carefully managed stages from origin sourcing to export dispatch: temperature-controlled curing, automated colour sorting, advanced laboratory testing, and specialised processing.',
     canonical: `${SITE_URL}/#origin`,
     ogImage: '/images/origin-hero-bg.jpg',
     keywords:
@@ -308,6 +309,11 @@ export default function App() {
         </Suspense>
       } />
 
+      {/* ── Convenient Aliases for /admin on Vercel ── */}
+      <Route path="/admin" element={<Navigate to={`${ADMIN_BASE_PATH}`} replace />} />
+      <Route path="/admin/login" element={<Navigate to={`${ADMIN_BASE_PATH}/login`} replace />} />
+      <Route path="/admin/*" element={<Navigate to={`${ADMIN_BASE_PATH}`} replace />} />
+
       {/* ── Public Site — all other routes ── */}
       <Route path="*" element={<>
       <SEOHead
@@ -353,6 +359,11 @@ export default function App() {
               <HeroSlideshow
                 onOpenQuoteModal={handleOpenQuoteModal}
                 onNavigateToProducts={handleNavigateToProducts}
+              />
+              <DomesticIndianSection
+                onOpenQuoteModal={handleOpenQuoteModal}
+                onNavigateToPackets={() => handleSelectTab('packets')}
+                onAddToCart={handleAddToCart}
               />
               <WhyChooseCardanova />
               <ProductCards

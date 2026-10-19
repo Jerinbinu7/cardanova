@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronDown, X, SlidersHorizontal, Star, Plus, Minus } from 'lucide-react';
+import { Search, ChevronDown, X, SlidersHorizontal } from 'lucide-react';
 import { getProducts } from '../services/productsService';
 import { getAuctionPrice } from '../services/auctionPriceService';
-import { triggerGoogleTranslateSync, formatDisplayPrice } from '../utils/translation';
+import { triggerGoogleTranslateSync } from '../utils/translation';
 import type { CartItem } from './CartDrawer';
 
 interface ProductsPageProps {
@@ -17,19 +17,19 @@ const PRODUCTS_CATALOGUE = [
     category: 'flagship' as const,
     gradeNum: '8.5',
     gradeUnit: 'mm',
-    gradeName: 'Extra Bold',
+    gradeName: '8.5 mm+ Extra Bold',
     size: '8.5 mm+',
     color: 'Deep Natural Emerald Green',
     origin: 'Idukki, Kerala, India',
     moisture: '< 9.5%',
     availability: 'Year-Round',
     packaging: '5kg Multi-Layer Vacuum Packs / 10kg Master Cartons',
-    moq: '500 kg',
+    moq: '100 kg',
     hsCode: '0908.31.10',
     shelfLife: '24 Months',
     applications: 'Luxury Retail, High-End Gourmet, Middle East Coffee Blends, Premium Export',
     image: '/images/cardamom-8.5mm.jpg',
-    badge: '8.5 mm',
+    badge: '8.5 mm+',
     pricePerKg: 2850,
     rating: 4.8,
     reviewCount: 124,
@@ -39,19 +39,19 @@ const PRODUCTS_CATALOGUE = [
     category: 'flagship' as const,
     gradeNum: '8.0',
     gradeUnit: 'mm',
-    gradeName: 'Premium Bold',
+    gradeName: '8.0 mm+ Premium Bold',
     size: '8.0 mm – 8.4 mm',
     color: 'Vibrant Forest Green',
     origin: 'Idukki, Kerala, India',
     moisture: '< 10.0%',
     availability: 'In Stock',
     packaging: '10kg Vacuum Foil Bags / 25kg Cartons',
-    moq: '1 Metric Ton',
+    moq: '100 kg',
     hsCode: '0908.31.10',
     shelfLife: '24 Months',
     applications: 'Premium Wholesale, Supermarket Labels, Confectionery & Beverage',
     image: '/images/cardamom-8.0mm.jpg',
-    badge: '8.0 mm',
+    badge: '8.0 mm+',
     pricePerKg: 2550,
     rating: 4.5,
     reviewCount: 98,
@@ -61,19 +61,19 @@ const PRODUCTS_CATALOGUE = [
     category: 'standard' as const,
     gradeNum: '7.5',
     gradeUnit: 'mm',
-    gradeName: 'Export Grade',
+    gradeName: '7.5 mm+ Export Grade',
     size: '7.5 mm – 7.9 mm',
     color: 'Rich Emerald Green',
     origin: 'Idukki, Kerala, India',
     moisture: '< 10.0%',
     availability: 'In Stock',
     packaging: '10kg / 25kg Jute Bags with Inner PE Liner',
-    moq: '1 Metric Ton',
+    moq: '100 kg',
     hsCode: '0908.31.20',
     shelfLife: '24 Months',
     applications: 'Export Wholesalers, Culinary Repackers, Bakery & Spice Blenders',
     image: '/images/cardamom-7.5mm.jpg',
-    badge: '7.5 mm',
+    badge: '7.5 mm+',
     pricePerKg: 2250,
     rating: 4.4,
     reviewCount: 76,
@@ -83,19 +83,19 @@ const PRODUCTS_CATALOGUE = [
     category: 'standard' as const,
     gradeNum: '7.0',
     gradeUnit: 'mm',
-    gradeName: 'Commercial Grade',
+    gradeName: '7.0 mm+ Commercial Grade',
     size: '7.0 mm – 7.4 mm',
     color: 'Medium Light Green',
     origin: 'Idukki, Kerala, India',
     moisture: '< 11.0%',
     availability: 'In Stock',
     packaging: '25kg Bulk HDPE / Jute Bags',
-    moq: '2 Metric Tons',
+    moq: '100 kg',
     hsCode: '0908.31.20',
     shelfLife: '24 Months',
     applications: 'Commercial Kitchens, Institutional Foodservice, Catering Supply',
     image: '/images/cardamom-7.0mm.jpg',
-    badge: '7.0 mm',
+    badge: '7.0 mm+',
     pricePerKg: 1950,
     rating: 4.2,
     reviewCount: 64,
@@ -112,7 +112,7 @@ const PRODUCTS_CATALOGUE = [
     moisture: '< 11.5%',
     availability: 'In Stock',
     packaging: '25kg / 50kg Bulk Bags',
-    moq: '1 Metric Ton',
+    moq: '100 kg',
     hsCode: '0908.31.90',
     shelfLife: '24 Months',
     applications: 'Grinding, Spice Powders, Extract Processing, Bulk Food Manufacture',
@@ -134,7 +134,7 @@ const PRODUCTS_CATALOGUE = [
     moisture: '< 12.0%',
     availability: 'Contract Basis',
     packaging: '50kg Industrial HDPE Woven Bags',
-    moq: '5 Metric Tons',
+    moq: '100 kg',
     hsCode: '0908.32.00',
     shelfLife: '18 Months',
     applications: 'Essential Oil Distillation, Oleoresin Extraction, Pharmaceutical Processing',
@@ -159,61 +159,17 @@ const SORT_OPTIONS = [
   { id: 'rating', label: 'Highest Rated' },
 ];
 
-// ── Star Rating display ─────────────────────────────────────────
-function StarRating({ rating, reviewCount }: { rating: number; reviewCount: number }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((s) => (
-          <Star
-            key={s}
-            className="w-3 h-3"
-            fill={s <= Math.round(rating) ? '#C5A046' : 'none'}
-            stroke={s <= Math.round(rating) ? '#C5A046' : '#CBD5E1'}
-            strokeWidth={1.5}
-          />
-        ))}
-      </div>
-      <span className="text-[10px] text-stone-500 font-light">
-        {rating.toFixed(1)} <span className="text-stone-400">({reviewCount})</span>
-      </span>
-    </div>
-  );
-}
-
 // ── Product Card ─────────────────────────────────────────────────
 function ProductCard({
   product,
   index,
   onQuote,
-  onAddToCart,
 }: {
   product: CatalogueItem;
   index: number;
   onQuote: () => void;
   onAddToCart?: (item: CartItem) => void;
 }) {
-  const [qtyKg, setQtyKg] = useState(1);
-  const [addedSuccess, setAddedSuccess] = useState(false);
-  const priceInfo = formatDisplayPrice(product.pricePerKg);
-
-  const handleAddToCart = () => {
-    if (onAddToCart) {
-      onAddToCart({
-        id: product.id,
-        gradeName: product.gradeName,
-        gradeNum: product.gradeNum,
-        gradeUnit: product.gradeUnit,
-        image: product.image,
-        quantityKg: qtyKg,
-        packaging: product.packaging,
-        pricePerKg: product.pricePerKg,
-      });
-      setAddedSuccess(true);
-      setTimeout(() => setAddedSuccess(false), 2000);
-    }
-  };
-
   return (
     <motion.article
       initial={{ opacity: 0, y: 28 }}
@@ -222,19 +178,6 @@ function ProductCard({
       transition={{ duration: 0.55, delay: index * 0.07, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="group flex flex-col bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-400 relative"
     >
-      <AnimatePresence>
-        {addedSuccess && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute top-3 left-3 right-3 z-10 rounded-xl bg-emerald-900 border border-emerald-500/30 px-3 py-2 text-center text-emerald-200 text-xs font-semibold shadow-md"
-          >
-            ✓ Added {qtyKg} kg to Cart!
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
         <motion.img
           src={product.image}
@@ -265,64 +208,39 @@ function ProductCard({
           </p>
         </div>
 
-        <StarRating rating={product.rating} reviewCount={product.reviewCount} />
-
-        <div className="mt-4 mb-4 flex items-baseline justify-between">
-          <div>
-            <span translate="no" className="notranslate font-sans text-base sm:text-lg font-normal text-stone-700 leading-none">
-              {priceInfo.amountStr}
-            </span>
-            <span className="text-xs text-stone-400 ml-1.5 font-light">/ kg</span>
+        {/* Specs row */}
+        <div className="mt-2 mb-4 flex items-center justify-between rounded-xl bg-stone-50 px-4 py-3 border border-stone-100 gap-2">
+          <div className="text-center">
+            <div className="text-[10px] text-stone-400 font-light">Pod Size</div>
+            <div className="text-xs text-stone-700 font-medium mt-0.5">{product.size}</div>
+          </div>
+          <div className="w-px h-6 bg-stone-200" />
+          <div className="text-center">
+            <div className="text-[10px] text-stone-400 font-light">MOQ</div>
+            <div className="text-xs text-stone-700 font-medium mt-0.5">{product.moq}</div>
+          </div>
+          <div className="w-px h-6 bg-stone-200" />
+          <div className="text-center">
+            <div className="text-[10px] text-stone-400 font-light">Moisture</div>
+            <div className="text-xs text-stone-700 font-medium mt-0.5">{product.moisture}</div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between rounded-xl bg-stone-50 px-4 py-2.5 border border-stone-200 mb-4">
-          <span className="text-xs text-stone-500 font-light">Quantity:</span>
-          <div translate="no" className="notranslate flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setQtyKg((q) => Math.max(1, q <= 5 ? q - 1 : q - 5))}
-              className="w-7 h-7 rounded-lg border border-stone-200 bg-white text-stone-600 hover:border-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center active:scale-95 select-none"
-              aria-label="Decrease quantity"
-            >
-              <Minus className="w-3.5 h-3.5 pointer-events-none" />
-            </button>
-            <span translate="no" className="notranslate font-mono text-xs text-[#112D15] min-w-[56px] text-center font-medium select-none">
-              {qtyKg} kg
-            </span>
-            <button
-              type="button"
-              onClick={() => setQtyKg((q) => q + (q < 5 ? 1 : 5))}
-              className="w-7 h-7 rounded-lg border border-stone-200 bg-white text-stone-600 hover:border-[#C5A046] hover:text-[#071309] transition-colors cursor-pointer text-sm font-bold flex items-center justify-center active:scale-95 select-none"
-              aria-label="Increase quantity"
-            >
-              <Plus className="w-3.5 h-3.5 pointer-events-none" />
-            </button>
-          </div>
-        </div>
+        <p className="text-[10px] text-stone-400 font-light leading-relaxed mb-4">
+          Prices vary by grade, colour, quantity, harvest, packing and Incoterm.
+        </p>
 
         <div className="luxury-divider mb-5" />
 
-        <div className="mt-auto flex gap-2.5">
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="flex-1 rounded-full border border-[#C5A046] bg-white py-3 label-caps text-[#A18637] hover:bg-[#C5A046] hover:text-[#071309] transition-all cursor-pointer text-center font-semibold active:scale-95"
-            style={{ fontSize: '0.58rem' }}
-            aria-label={`Add ${product.gradeName} to cart`}
-          >
-            <span>Add to Cart</span>
-          </button>
-          <button
-            type="button"
-            onClick={onQuote}
-            className="flex-1 rounded-full gold-gradient-bg py-3 label-caps text-[#071309] hover:brightness-110 transition-all cursor-pointer text-center shadow-md font-semibold active:scale-95"
-            style={{ fontSize: '0.58rem' }}
-            aria-label={`Get a quote for ${product.gradeName}`}
-          >
-            <span>Get Quote</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onQuote}
+          className="mt-auto w-full rounded-full gold-gradient-bg py-3 label-caps text-[#071309] hover:brightness-110 transition-all cursor-pointer text-center shadow-md font-semibold active:scale-95"
+          style={{ fontSize: '0.58rem' }}
+          aria-label={`Request quote for ${product.gradeName}`}
+        >
+          Request Current Quote
+        </button>
       </div>
     </motion.article>
   );
@@ -400,12 +318,12 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
               moisture: p.specifications?.find((s) => s.label.toLowerCase().includes('moisture'))?.value || '< 10.0%',
               availability: p.availability?.replace('_', ' ') || 'In Stock',
               packaging: p.packaging_info || '5kg Multi-Layer Vacuum Packs',
-              moq: '500 kg',
+              moq: '100 kg',
               hsCode: p.hs_code || '0908.31.10',
               shelfLife: '24 Months',
               applications: p.short_description || p.long_description || 'High-grade single origin green cardamom from Idukki, Kerala',
               image: p.main_image_url || p.images?.[0]?.url || PRODUCTS_CATALOGUE[idx % PRODUCTS_CATALOGUE.length].image,
-              badge: p.export_grade || sizeStr || (p.featured ? 'Flagship Grade' : 'Export Standard'),
+              badge: sizeStr || p.export_grade || (p.featured ? 'Extra Bold' : 'Export Grade'),
               pricePerKg: finalPrice,
               rating: 4.5 + (idx % 4) * 0.1,
               reviewCount: 80 + idx * 15,
@@ -500,7 +418,7 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
             <em className="animate-shimmer not-italic">Grades & Specifications</em>
           </h1>
           <p className="mt-4 text-stone-300/60 text-sm font-light max-w-md leading-relaxed">
-            Single-origin grades sorted by pod diameter, colour, and international market applications.
+            Grades sorted by pod diameter, colour, and market applications. Origin: Idukki, Kerala, India.
           </p>
         </motion.div>
       </section>
