@@ -8,34 +8,6 @@ interface AboutPageProps {
   onNavigateToProducts: () => void;
 }
 
-const FOUNDERS = [
-  {
-    name: 'Akhilkumar K A',
-    position: 'Co-Founder',
-    photo: '/images/founder-akhilkumar.jpg',
-    intro:
-      'A passionate entrepreneur dedicated to delivering premium-quality spices while building lasting relationships with customers and farmers. With a strong focus on quality, transparency, and innovation, he believes every shipment represents the trust of the Cardanova brand.',
-    quote: '"Every shipment carries the trust of our brand and the hard work of Kerala\'s spice farmers."',
-    social: {
-      linkedin: 'https://linkedin.com',
-      facebook: 'https://facebook.com',
-      email: 'akhilkumar@cardanovaspices.com',
-    },
-  },
-  {
-    name: 'Amal Babu',
-    position: 'Co-Founder',
-    photo: '/images/founder-amal.jpg',
-    intro:
-      'Driven by a vision to connect the finest spices of Kerala with international markets, Amal focuses on customer relationships, business growth, and ensuring every buyer experiences the authenticity and reliability that define Cardanova.',
-    quote: '"Building a global brand means ensuring every buyer experiences the pure authenticity of our origin."',
-    social: {
-      linkedin: 'https://linkedin.com',
-      facebook: 'https://facebook.com',
-      email: 'amal@cardanovaspices.com',
-    },
-  },
-];
 
 const VALUES = [
   {
@@ -109,7 +81,6 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
   const heroRef = useRef<HTMLDivElement>(null);
   const [story, setStory] = useState('Cardanova was founded by two passionate entrepreneurs who grew up surrounded by the rich spice heritage of Idukki, Kerala. Inspired by the quality of locally grown cardamom and the dedication of hardworking farmers, they shared a vision of bringing authentic Indian spices to buyers across the world.');
   const [vision, setVision] = useState('Our vision is to become one of India\'s most trusted spice exporters by combining authentic sourcing, uncompromising quality, and exceptional customer relationships.');
-  const [founders, setFounders] = useState(FOUNDERS);
 
   const [heroBg, setHeroBg] = useState('/images/about-hero.jpg');
   const [beginningImage, setBeginningImage] = useState('/images/cardamom-hero-1.jpg');
@@ -120,26 +91,7 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
         if (cms.company_story) setStory(cms.company_story);
         if (cms.vision) setVision(cms.vision);
         if (cms.history && cms.history.startsWith('http')) setHeroBg(cms.history);
-        if (cms.founders && cms.founders.length > 0) {
-          setFounders(cms.founders.map((f: any, idx: number) => {
-            const founderName = f.name?.trim() ? f.name : (idx === 0 ? 'Akhilkumar K A' : idx === 1 ? 'Amal Babu' : `Founder ${idx + 1}`);
-            const defaultPhoto = idx === 0 
-              ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'
-              : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop';
-            return {
-              name: founderName,
-              position: f.position || 'Co-Founder',
-              photo: f.photo !== undefined ? f.photo : defaultPhoto,
-              intro: f.intro || (idx === 0 ? FOUNDERS[0].intro : FOUNDERS[1].intro),
-              quote: f.quote || (idx === 0 ? FOUNDERS[0].quote : FOUNDERS[1].quote),
-              social: {
-                linkedin: f.linkedin || 'https://linkedin.com',
-                facebook: f.facebook || 'https://facebook.com',
-                email: f.email || (idx === 0 ? 'akhilkumar@cardanovaspices.com' : 'amal@cardanovaspices.com'),
-              },
-            };
-          }));
-        }
+
       }
     }).catch((e) => {
       console.warn('Failed to fetch about CMS content', e);
@@ -284,128 +236,6 @@ export default function AboutPage({ onOpenQuoteModal, onNavigateToProducts: _onN
               </div>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* ── 3. MEET THE FOUNDERS ──────────────────────────────── */}
-      <section className="py-24 px-6 lg:px-10 bg-[#112D15] text-[#FAF8F5]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="label-caps text-[#C5A046]">People Behind Cardanova</span>
-            <h2
-              className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.95]"
-              style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
-            >
-              Meet the <em className="animate-shimmer not-italic">Founders</em>
-            </h2>
-            <div className="mx-auto mt-5 luxury-divider w-24" />
-            <p className="mt-4 text-stone-300/80 text-sm font-light max-w-md mx-auto">
-              Driven by ambition, rooted in integrity, and dedicated to long-term international buyer trust.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 lg:gap-10 max-w-4xl mx-auto">
-            {founders.map((founder, i) => (
-              <motion.div
-                key={founder.name || i}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: i * 0.15 }}
-                className="group relative rounded-3xl overflow-hidden bg-[#0D2012]/90 border border-[#C5A046]/30 shadow-2xl flex flex-col justify-between"
-              >
-                {/* 1. Header Image Section */}
-                <div className="relative overflow-hidden aspect-[3/4] max-h-[480px] w-full bg-[#071309]">
-                  {founder.photo ? (
-                    <img
-                      src={founder.photo}
-                      alt={`${founder.name} — ${founder.position} at Cardanova Spices LLP`}
-                      width={800}
-                      height={1067}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-[#071309] text-stone-500">
-                      <span className="text-4xl">👤</span>
-                      <span className="text-xs mt-2 font-mono text-stone-400">Photo Removed</span>
-                    </div>
-                  )}
-
-                  {/* Gradient Overlay for bottom text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0D2012] via-[#0D2012]/40 to-transparent pointer-events-none" />
-
-                  {/* Co-Founder Badge */}
-                  <div className="absolute top-5 left-5 rounded-full gold-gradient-bg px-4 py-1.5 label-caps text-[#071309] shadow-xl font-bold tracking-wider" style={{ fontSize: '0.6rem' }}>
-                    {founder.position}
-                  </div>
-
-                  {/* Founder Name on Image Bottom */}
-                  <div className="absolute bottom-4 left-6 right-6 flex items-end justify-between gap-4">
-                    <div>
-                      <h3 className="font-display text-2xl sm:text-3xl font-light text-[#FAF8F5] drop-shadow-md">
-                        {founder.name}
-                      </h3>
-                      <span className="label-caps text-[#C5A046] mt-0.5 block tracking-widest" style={{ fontSize: '0.58rem' }}>
-                        {founder.position} · Cardanova Spices LLP
-                      </span>
-                    </div>
-
-                    {/* Social Links */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      {founder.social?.linkedin && (
-                        <a
-                          href={founder.social.linkedin}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`${founder.name} LinkedIn`}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/90 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
-                        >
-                          in
-                        </a>
-                      )}
-                      {founder.social?.facebook && (
-                        <a
-                          href={founder.social.facebook}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`${founder.name} Facebook`}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/90 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
-                        >
-                          fb
-                        </a>
-                      )}
-                      {founder.social?.email && (
-                        <a
-                          href={`mailto:${founder.social.email}`}
-                          aria-label={`${founder.name} Email`}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C5A046]/40 bg-[#071309]/90 text-[#C5A046] text-xs hover:bg-[#C5A046] hover:text-[#071309] transition-all backdrop-blur-md"
-                        >
-                          ✉
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Bio & Vision Section */}
-                <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between space-y-5">
-                  <p className="text-xs sm:text-sm text-stone-300/90 leading-relaxed font-light">
-                    {founder.intro}
-                  </p>
-
-                  {founder.quote && (
-                    <blockquote className="rounded-2xl bg-[#071309]/80 p-4 border-l-2 border-[#C5A046]">
-                      <p className="font-display italic text-stone-200 text-xs sm:text-sm leading-relaxed font-light">
-                        {founder.quote}
-                      </p>
-                    </blockquote>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 

@@ -14,8 +14,8 @@ const HERO_SLIDES = [
   {
     image: '/images/cardamom-hero-1.jpg',
     alt: 'Premium green cardamom pods from Idukki, Kerala — Cardanova Spices flagship grade',
-    headline: 'PREMIUM GREEN CARDAMOM',
-    accent: 'FROM IDUKKI',
+    headline: 'Premium Green Cardamom',
+    accent: 'from Idukki, Kerala',
     sub: 'Carefully sourced, graded and packed green cardamom for wholesalers, importers, food businesses and retail partners.',
   },
   {
@@ -96,8 +96,8 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
   const { scrollY } = useScroll();
   const rawImgY = useTransform(scrollY, [0, 600], [0, 80]);
-  const rawContentY = useTransform(scrollY, [0, 400], [0, -60]);
-  const rawOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const rawContentY = useTransform(scrollY, [0, 500], [0, -50]);
+  const rawOpacity = useTransform(scrollY, [0, 500], [1, 0.2]);
 
   const imgY = isTouch ? 0 : rawImgY;
   const contentY = isTouch ? 0 : rawContentY;
@@ -146,7 +146,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   return (
     <section
       ref={heroRef}
-      className="relative min-h-screen sm:h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-center sm:justify-end pt-20 sm:pt-24 pb-12 sm:pb-24 lg:pb-28"
+      className="relative min-h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-center pt-24 sm:pt-28 pb-16 sm:pb-20"
       aria-label="Hero slideshow — Premium Cardanova Spices"
     >
       {/* ── Background Slideshow ─────────────────────────── */}
@@ -220,7 +220,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Main Hero Content ────────────────────────────── */}
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 translate-y-[60px] sm:translate-y-0"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
         style={{ y: contentY, opacity }}
       >
         {/* Headline */}
@@ -234,12 +234,11 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
               transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <h1
-                className="font-display font-light leading-[0.95] tracking-[-0.02em] text-[#FAF8F5]"
-                style={{ fontSize: 'clamp(2.5rem, 6.5vw, 6.4rem)' }}
+                className="font-display font-light text-[#FAF8F5] tracking-tight leading-[1.04] text-left max-w-4xl"
+                style={{ fontSize: 'clamp(2.4rem, 5.8vw, 5.6rem)' }}
               >
-                {slides[slide]?.headline || HERO_SLIDES[0].headline}
-                <br />
-                <span className="animate-shimmer italic">
+                <span>{slides[slide]?.headline || HERO_SLIDES[0].headline}</span>
+                <span className="block animate-shimmer italic font-serif text-[#E2BF63] mt-1 sm:mt-2">
                   {slides[slide]?.accent || HERO_SLIDES[0].accent}
                 </span>
               </h1>
@@ -248,7 +247,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="mt-3 sm:mt-5 label-caps text-xs sm:text-sm text-stone-300/90 tracking-widest"
+                className="mt-4 sm:mt-6 text-xs sm:text-sm text-stone-300/90 tracking-wide font-light max-w-2xl leading-relaxed"
               >
                 {slides[slide]?.sub || HERO_SLIDES[0].sub}
               </motion.p>
@@ -261,7 +260,7 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-10 sm:mt-16 lg:mt-20 flex flex-col sm:flex-row items-stretch sm:items-start gap-3.5 sm:gap-5"
+          className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-stretch sm:items-start gap-3.5 sm:gap-4"
         >
           <MagneticButton
             as="button"

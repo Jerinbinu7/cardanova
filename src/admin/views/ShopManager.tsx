@@ -92,7 +92,7 @@ export default function ShopManager() {
         <div>
           <h2 className="text-xl font-light text-[#FAF8F5] flex items-center gap-2">
             <Store className="w-5 h-5 text-[#C5A046]" />
-            Shop — Domestic Store
+            Shop &mdash; Domestic Store
           </h2>
           <p className="text-xs text-gray-400 mt-1">
             Manage retail packet products, variant pricing, and stock status for the domestic consumer store
@@ -129,8 +129,8 @@ export default function ShopManager() {
           <p><span className="text-[#C5A046] font-medium">Payee Name:</span> {UPI_CONFIG.payeeName}</p>
         </div>
         <div className="space-y-1 text-xs text-gray-300">
-          <p><span className="text-[#C5A046] font-medium">Free Shipping Above:</span> ₹{UPI_CONFIG.freeShippingAboveInr}</p>
-          <p><span className="text-[#C5A046] font-medium">Standard Shipping:</span> ₹{UPI_CONFIG.standardShippingFeeInr}</p>
+          <p><span className="text-[#C5A046] font-medium">Free Shipping Above:</span> &#8377;{UPI_CONFIG.freeShippingAboveInr}</p>
+          <p><span className="text-[#C5A046] font-medium">Standard Shipping:</span> &#8377;{UPI_CONFIG.standardShippingFeeInr}</p>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export default function ShopManager() {
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-16 text-gray-400 text-sm">
-          No shop products found. Click "Reset to Defaults" to restore them.
+          No shop products found. Click &quot;Reset to Defaults&quot; to restore them.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -156,22 +156,16 @@ export default function ShopManager() {
               >
                 {/* Product Header */}
                 <div className="flex gap-4 p-4">
-                  {/* Image */}
                   <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-[#C5A046]/20">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                   </div>
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-medium text-[#FAF8F5] truncate">{product.name}</h3>
                     <p className="text-[10px] text-[#C5A046] font-medium uppercase tracking-wider mt-0.5">{product.gradeBadge}</p>
                     <p className="text-xs text-gray-400 mt-1 line-clamp-1">{product.tagline}</p>
                     <div className="flex items-center gap-3 mt-2">
                       <span className="text-xs text-gray-300 font-mono">
-                        ₹{cheapest.toLocaleString()} – ₹{mostExpensive.toLocaleString()}
+                        &#8377;{cheapest.toLocaleString()} &ndash; &#8377;{mostExpensive.toLocaleString()}
                       </span>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
                         product.inStock
@@ -189,10 +183,8 @@ export default function ShopManager() {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-[#C5A046]/10">
-                        {['Weight', 'Price ₹', 'Original ₹', 'Stock'].map((h) => (
-                          <th key={h} className="px-3 py-2 text-[9px] text-[#C5A046] uppercase tracking-wider font-normal whitespace-nowrap">
-                            {h}
-                          </th>
+                        {['Weight', 'Price', 'Original', 'Stock'].map((h) => (
+                          <th key={h} className="px-3 py-2 text-[9px] text-[#C5A046] uppercase tracking-wider font-normal whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -200,8 +192,8 @@ export default function ShopManager() {
                       {product.variants.map((v) => (
                         <tr key={v.weight} className="hover:bg-[#C5A046]/5 transition-colors">
                           <td className="px-3 py-1.5 text-xs text-gray-200 font-medium">{v.label}</td>
-                          <td className="px-3 py-1.5 text-xs text-emerald-300 font-mono">₹{v.priceInr.toLocaleString()}</td>
-                          <td className="px-3 py-1.5 text-xs text-gray-500 line-through font-mono">₹{v.originalPriceInr.toLocaleString()}</td>
+                          <td className="px-3 py-1.5 text-xs text-emerald-300 font-mono">&#8377;{v.priceInr.toLocaleString()}</td>
+                          <td className="px-3 py-1.5 text-xs text-gray-500 line-through font-mono">&#8377;{v.originalPriceInr.toLocaleString()}</td>
                           <td className="px-3 py-1.5">
                             <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${v.inStock ? 'bg-emerald-950/60 text-emerald-400' : 'bg-red-950/60 text-red-400'}`}>
                               {v.inStock ? 'Yes' : 'No'}
@@ -237,7 +229,7 @@ export default function ShopManager() {
         </div>
       )}
 
-      {/* ── Edit Modal ── */}
+      {/* Edit Modal */}
       {isModal && editingProduct && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="bg-[#0D2012] border border-[#C5A046]/40 rounded-2xl w-full max-w-3xl my-4 shadow-2xl overflow-hidden">
@@ -332,14 +324,12 @@ export default function ShopManager() {
                   <IndianRupee className="w-3.5 h-3.5" />
                   Weight Variant Pricing
                 </h4>
-                <div className="bg-[#071309]/60 border border-[#C5A046]/15 rounded-xl overflow-hidden">
-                  <table className="w-full text-left">
+                <div className="bg-[#071309]/60 border border-[#C5A046]/15 rounded-xl overflow-x-auto">
+                  <table className="w-full text-left min-w-[640px]">
                     <thead>
                       <tr className="border-b border-[#C5A046]/15">
-                        {['Weight', 'Label', 'Selling Price (₹)', 'Original Price (₹)', 'In Stock'].map((h) => (
-                          <th key={h} className="px-3 py-2.5 text-[9px] text-[#C5A046] uppercase tracking-wider font-normal whitespace-nowrap">
-                            {h}
-                          </th>
+                        {['Weight', 'Label', 'Packaging Type', 'Selling Price', 'Original Price', 'In Stock'].map((h) => (
+                          <th key={h} className="px-3 py-2.5 text-[9px] text-[#C5A046] uppercase tracking-wider font-normal whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -355,8 +345,19 @@ export default function ShopManager() {
                             />
                           </td>
                           <td className="px-3 py-2">
+                            <select
+                              className="bg-[#071309] border border-[#C5A046]/20 rounded-lg px-2 py-1 text-xs text-white w-full focus:outline-none focus:border-[#C5A046]"
+                              value={variant.packagingType || 'Premium Packaging Pouch'}
+                              onChange={(e) => updateVariantField(i, 'packagingType', e.target.value as any)}
+                            >
+                              <option value="Bottle">Glass Bottle</option>
+                              <option value="Square Box">Gift Box</option>
+                              <option value="Premium Packaging Pouch">Glass Pouch</option>
+                            </select>
+                          </td>
+                          <td className="px-3 py-2">
                             <div className="flex items-center gap-1">
-                              <span className="text-xs text-emerald-400">₹</span>
+                              <span className="text-xs text-emerald-400">&#8377;</span>
                               <input
                                 type="number"
                                 min="0"
@@ -368,7 +369,7 @@ export default function ShopManager() {
                           </td>
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-1">
-                              <span className="text-xs text-gray-500">₹</span>
+                              <span className="text-xs text-gray-500">&#8377;</span>
                               <input
                                 type="number"
                                 min="0"
@@ -397,7 +398,7 @@ export default function ShopManager() {
                 </div>
               </div>
 
-              {/* Save / Cancel buttons */}
+              {/* Save / Cancel */}
               <div className="flex justify-end gap-3 pt-2 border-t border-[#C5A046]/15">
                 <button
                   type="button"
@@ -412,7 +413,7 @@ export default function ShopManager() {
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-medium text-xs uppercase tracking-wider hover:brightness-110 shadow-lg disabled:opacity-50 cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
-                  {saving ? 'Saving…' : 'Save Changes'}
+                  {saving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>
