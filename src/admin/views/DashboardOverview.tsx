@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Package, Image as ImageIcon, MessageSquareQuote, Award, Star, HelpCircle, ArrowUpRight, Wifi, WifiOff, ShoppingBag, Tags } from 'lucide-react';
+import { Package, Image as ImageIcon, MessageSquareQuote, Award, ArrowUpRight, Wifi, WifiOff, ShoppingBag } from 'lucide-react';
 import { domesticService } from '../../services/domesticService';
+
+// In dev, link back to local server; in prod use configured env var
+const LIVE_SITE_URL = import.meta.env.DEV
+  ? window.location.origin
+  : (import.meta.env.VITE_MAIN_SITE_URL ?? 'https://cardanovaspices.com');
 
 interface DashboardOverviewProps {
   onNavigateTab: (tab: string) => void;
@@ -12,14 +17,12 @@ interface Stats {
   gallery: number;
   quotes: number;
   certifications: number;
-  testimonials: number;
-  faqs: number;
   orders: number;
   shopItems: number;
 }
 
 export default function DashboardOverview({ onNavigateTab }: DashboardOverviewProps) {
-  const [stats, setStats]           = useState<Stats>({ products: 0, gallery: 0, quotes: 0, certifications: 0, testimonials: 0, faqs: 0, orders: 0, shopItems: 0 });
+  const [stats, setStats]           = useState<Stats>({ products: 0, gallery: 0, quotes: 0, certifications: 0, orders: 0, shopItems: 0 });
   const [recentQuotes, setRecentQuotes] = useState<any[]>([]);
   const [loading, setLoading]       = useState(true);
   const [connected, setConnected]   = useState<boolean | null>(null);
@@ -27,13 +30,11 @@ export default function DashboardOverview({ onNavigateTab }: DashboardOverviewPr
   useEffect(() => {
     async function load() {
       try {
-        const [p, g, q, c, t, f, ord] = await Promise.all([
+        const [p, g, q, c, ord] = await Promise.all([
           supabase.from('products').select('id', { count: 'exact', head: true }),
           supabase.from('gallery_items').select('id', { count: 'exact', head: true }),
           supabase.from('quote_requests').select('id', { count: 'exact', head: true }),
           supabase.from('certifications').select('id', { count: 'exact', head: true }),
-          supabase.from('testimonials').select('id', { count: 'exact', head: true }),
-          supabase.from('faqs').select('id', { count: 'exact', head: true }),
           supabase.from('domestic_orders').select('id', { count: 'exact', head: true }),
         ]);
 
@@ -44,8 +45,6 @@ export default function DashboardOverview({ onNavigateTab }: DashboardOverviewPr
           gallery: g.count ?? 0,
           quotes: q.count ?? 0,
           certifications: c.count ?? 0,
-          testimonials: t.count ?? 0,
-          faqs: f.count ?? 0,
           orders: ord.count ?? 0,
           shopItems: shopCount,
         });
@@ -67,33 +66,65 @@ export default function DashboardOverview({ onNavigateTab }: DashboardOverviewPr
   }, []);
 
   const metricCards = [
-    { id: 'orders',         label: 'Domestic Orders',    value: stats.orders,        icon: ShoppingBag,        color: 'from-amber-500/20 to-amber-500/5' },
-    { id: 'quotes',         label: 'Quote Requests',     value: stats.quotes,        icon: MessageSquareQuote, color: 'from-blue-500/20 to-blue-500/5' },
-    { id: 'shop',           label: 'Shop Products',      value: stats.shopItems,     icon: Tags,               color: 'from-emerald-500/20 to-emerald-500/5' },
-    { id: 'products',       label: 'Bulk Export',        value: stats.products,      icon: Package,            color: 'from-[#C5A046]/20 to-[#DFBF6C]/10' },
-    { id: 'gallery',        label: 'Gallery Assets',     value: stats.gallery,       icon: ImageIcon,          color: 'from-purple-500/20 to-purple-500/5' },
-    { id: 'certifications', label: 'Certifications',     value: stats.certifications, icon: Award,             color: 'from-teal-500/20 to-teal-500/5' },
+    { id: 'orders',         label: 'Domestic Orders',    value: stats.orders,         icon: ShoppingBag,        color: 'from-amber-500/20 to-amber-500/5' },
+    { id: 'quotes',         label: 'Quote Requests',     value: stats.quotes,         icon: MessageSquareQuote, color: 'from-blue-500/20 to-blue-500/5' },
+    { id: 'shop',           label: 'Shop Packets',       value: stats.shopItems,      icon: ShoppingBag,        color: 'from-emerald-500/20 to-emerald-500/5' },
+    { id: 'products',       label: 'Bulk Export',        value: stats.products,       icon: Package,            color: 'from-[#C5A046]/20 to-[#DFBF6C]/10' },
+    { id: 'gallery',        label: 'Gallery Assets',     value: stats.gallery,        icon: ImageIcon,          color: 'from-purple-500/20 to-purple-500/5' },
+    { id: 'certifications', label: 'Certifications',     value: stats.certifications, icon: Award,              color: 'from-teal-500/20 to-teal-500/5' },
   ];
 
   return (
     <div className="space-y-8">
       {/* Welcome banner */}
-      <div className="bg-gradient-to-r from-[#0D2012] via-[#142C1B] to-[#0D2012] p-6 rounded-2xl border border-[#C5A046]/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
-        <div>
-          <h2 className="text-xl font-light tracking-wide text-[#FAF8F5]">
-            Welcome to <span className="text-[#C5A046] font-normal">Cardanova CMS</span>
-          </h2>
-          <p className="text-xs text-gray-400 mt-1">
-            Manage your spice catalog, export quotes, certifications, and all website content.
+      <div className="bg-gradient-to-r from-[#0D2012] via-[#142C1B] to-[#0D2012] p-6 rounded-2xl border border-[#C5A046]/30 shadow-xl space-y-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-xl font-light tracking-wide text-[#FAF8F5]">
+              Welcome to <span className="text-[#C5A046] font-normal">Cardanova CMS</span>
+            </h2>
+            <p className="text-xs text-gray-400 mt-1">
+              Manage your spice catalog, export quotes, certifications, and all website content.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap shrink-0">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs ${connected === false ? 'bg-red-950/60 border-red-500/40 text-red-300' : 'bg-[#C5A046]/10 border-[#C5A046]/40 text-[#C5A046]'}`}>
+              {connected === false
+                ? <><WifiOff className="w-3.5 h-3.5" /> <span>Supabase disconnected</span></>
+                : <><Wifi className="w-3.5 h-3.5" /><span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /><span>Supabase Connected</span></>
+              }
+            </div>
+            <a
+              href={LIVE_SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C5A046]/40 bg-[#C5A046]/10 text-xs text-[#C5A046] hover:text-white hover:bg-[#C5A046]/20 transition-colors"
+            >
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>View Live Site</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Live sync notice */}
+        <div className="flex items-center gap-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/20 px-4 py-2.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <p className="text-xs text-emerald-300/80">
+            <span className="font-semibold text-emerald-300">All changes go live instantly.</span>{' '}
+            Every save in this portal writes directly to Supabase — the live website at{' '}
+            <a
+              href={LIVE_SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-emerald-200"
+            >
+              {LIVE_SITE_URL.replace('https://', '')}
+            </a>{' '}
+            reflects your updates immediately.
           </p>
         </div>
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs ${connected === false ? 'bg-red-950/60 border-red-500/40 text-red-300' : 'bg-[#C5A046]/10 border-[#C5A046]/40 text-[#C5A046]'}`}>
-          {connected === false
-            ? <><WifiOff className="w-3.5 h-3.5" /> <span>Supabase disconnected</span></>
-            : <><Wifi className="w-3.5 h-3.5" /><span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /><span>Supabase Connected</span></>
-          }
-        </div>
       </div>
+
 
       {/* Metrics grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">

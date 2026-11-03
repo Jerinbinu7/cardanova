@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Package, Tags, Layers, Image as ImageIcon,
-  Home, Info, Award, Star, Phone, MessageSquareQuote,
-  Settings, LogOut, ExternalLink, Menu, X, HelpCircle,
+  LayoutDashboard, Package, Image as ImageIcon,
+  Home, Info, Award, Phone, MessageSquareQuote,
+  Settings, LogOut, ExternalLink, Menu, X,
   Search as SearchIcon, Users, Shield, ShoppingBag,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,19 +12,20 @@ import { getPendingQuotesCount } from '../services/quoteService';
 import toast from 'react-hot-toast';
 import { ADMIN_BASE_PATH } from './adminConstants';
 
+// In dev, link back to the local server root; in prod use the configured env var
+const LIVE_SITE_URL = import.meta.env.DEV
+  ? window.location.origin
+  : (import.meta.env.VITE_MAIN_SITE_URL ?? 'https://cardanovaspices.com');
+
 import DashboardOverview    from './views/DashboardOverview';
 import ProductManager       from './views/ProductManager';
-import CategoriesManager    from './views/CategoriesManager';
-import GradeComparisonManager from './views/GradeComparisonManager';
 import GalleryManager       from './views/GalleryManager';
 import HomepageManager      from './views/HomepageManager';
 import AboutManager         from './views/AboutManager';
 import OriginManager        from './views/OriginManager';
 import CertificationsManager from './views/CertificationsManager';
-import TestimonialsManager  from './views/TestimonialsManager';
 import ContactInfoManager   from './views/ContactInfoManager';
 import QuoteRequestsManager from './views/QuoteRequestsManager';
-import FAQManager           from './views/FAQManager';
 import SEOManager           from './views/SEOManager';
 import UsersManager         from './views/UsersManager';
 import SettingsManager      from './views/SettingsManager';
@@ -38,24 +39,29 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 const NAV_ITEMS = [
-  { id: 'dashboard',      label: 'Dashboard',          icon: LayoutDashboard,     roles: ['owner','admin','editor'] },
-  { id: 'orders',         label: 'Domestic Orders',    icon: ShoppingBag,         roles: ['owner','admin','editor'] },
-  { id: 'products',       label: 'Bulk Export',        icon: Package,             roles: ['owner','admin','editor'] },
-  { id: 'categories',     label: 'Categories',         icon: Tags,                roles: ['owner','admin','editor'] },
-  { id: 'gradeComparison',label: 'Grade Comparison',   icon: Layers,              roles: ['owner','admin','editor'] },
-  { id: 'shop',           label: 'Shop Products',      icon: Tags,                roles: ['owner','admin','editor'] },
-  { id: 'homepage',       label: 'Homepage',           icon: Home,                roles: ['owner','admin','editor'] },
-  { id: 'about',          label: 'About Page',         icon: Info,                roles: ['owner','admin','editor'] },
-  { id: 'origin',          label: 'Our Origin',         icon: OriginIcon,          roles: ['owner','admin','editor'] },
-  { id: 'gallery',        label: 'Gallery',            icon: ImageIcon,           roles: ['owner','admin','editor'] },
-  { id: 'certifications', label: 'Certifications',     icon: Award,               roles: ['owner','admin','editor'] },
-  { id: 'testimonials',   label: 'Testimonials',       icon: Star,                roles: ['owner','admin','editor'] },
-  { id: 'contact',        label: 'Contact',            icon: Phone,               roles: ['owner','admin','editor'] },
-  { id: 'quotes',         label: 'Quote Requests',     icon: MessageSquareQuote,  roles: ['owner','admin','editor'] },
-  { id: 'faq',            label: 'FAQ',                icon: HelpCircle,          roles: ['owner','admin','editor'] },
-  { id: 'seo',            label: 'SEO',                icon: SearchIcon,          roles: ['owner','admin']          },
-  { id: 'users',          label: 'Users',              icon: Users,               roles: ['owner']                  },
-  { id: 'settings',       label: 'Settings',           icon: Settings,            roles: ['owner','admin']          },
+  // ── Operations ─────────────────────────────────────────────
+  { id: 'dashboard',      label: 'Dashboard',          icon: LayoutDashboard,    roles: ['owner','admin','editor'] },
+  { id: 'orders',         label: 'Domestic Orders',    icon: ShoppingBag,        roles: ['owner','admin','editor'] },
+  { id: 'quotes',         label: 'Quote Requests',     icon: MessageSquareQuote, roles: ['owner','admin','editor'] },
+
+  // ── Products ────────────────────────────────────────────────
+  { id: 'products',       label: 'Bulk Export',        icon: Package,            roles: ['owner','admin','editor'] },
+  { id: 'shop',           label: 'Shop Packets',       icon: ShoppingBag,        roles: ['owner','admin','editor'] },
+
+  // ── Pages ───────────────────────────────────────────────────
+  { id: 'homepage',       label: 'Homepage',           icon: Home,               roles: ['owner','admin','editor'] },
+  { id: 'about',          label: 'About Page',         icon: Info,               roles: ['owner','admin','editor'] },
+  { id: 'origin',         label: 'Our Origin',         icon: OriginIcon,         roles: ['owner','admin','editor'] },
+
+  // ── Media & Content ─────────────────────────────────────────
+  { id: 'gallery',        label: 'Gallery',            icon: ImageIcon,          roles: ['owner','admin','editor'] },
+  { id: 'certifications', label: 'Certifications',     icon: Award,              roles: ['owner','admin','editor'] },
+  { id: 'contact',        label: 'Contact',            icon: Phone,              roles: ['owner','admin','editor'] },
+
+  // ── System ──────────────────────────────────────────────────
+  { id: 'seo',            label: 'SEO',                icon: SearchIcon,         roles: ['owner','admin']          },
+  { id: 'users',          label: 'Users',              icon: Users,              roles: ['owner']                  },
+  { id: 'settings',       label: 'Settings',           icon: Settings,           roles: ['owner','admin']          },
 ];
 
 // Custom leaf icon for Our Origin page
@@ -127,24 +133,25 @@ export default function AdminLayout() {
 
   const renderView = () => {
     switch (activeTab) {
+      // Operations
       case 'dashboard':      return <DashboardOverview onNavigateTab={setActiveTab} />;
       case 'orders':         return <OrdersManager />;
+      case 'quotes':         return <QuoteRequestsManager />;
+      // Products
       case 'products':       return <ProductManager />;
-      case 'categories':     return <CategoriesManager />;
-      case 'gradeComparison':return <GradeComparisonManager />;
-      case 'gallery':        return <GalleryManager />;
+      case 'shop':           return <ShopManager />;
+      // Pages
       case 'homepage':       return <HomepageManager />;
       case 'about':          return <AboutManager />;
       case 'origin':         return <OriginManager />;
+      // Media & Content
+      case 'gallery':        return <GalleryManager />;
       case 'certifications': return <CertificationsManager />;
-      case 'testimonials':   return <TestimonialsManager />;
       case 'contact':        return <ContactInfoManager />;
-      case 'quotes':         return <QuoteRequestsManager />;
-      case 'faq':            return <FAQManager />;
+      // System
       case 'seo':            return <SEOManager />;
       case 'users':          return <UsersManager />;
       case 'settings':       return <SettingsManager />;
-      case 'shop':           return <ShopManager />;
       default:               return <DashboardOverview onNavigateTab={setActiveTab} />;
     }
   };
@@ -261,13 +268,15 @@ export default function AdminLayout() {
 
         {/* Footer actions */}
         <div className="p-5 border-t border-[#C5A046]/15 space-y-2.5">
-          <Link
-            to="/"
+          <a
+            href={LIVE_SITE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#071309] border border-[#C5A046]/30 text-xs text-[#C5A046] hover:text-white transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>View Public Site</span>
-          </Link>
+            <span>View Live Site</span>
+          </a>
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-950/40 border border-red-500/30 text-xs text-red-300 hover:bg-red-900/60 transition-colors cursor-pointer"
@@ -280,6 +289,29 @@ export default function AdminLayout() {
 
       {/* Main Content */}
       <main className="flex-1 p-3 sm:p-6 md:p-8 lg:p-10 max-w-7xl w-full mx-auto overflow-x-hidden">
+        {/* Quality Spec Reminder — shown to all admin editors */}
+        {activeTab === 'products' && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-950/20 px-4 py-3 text-xs text-amber-300">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+            </svg>
+            <div>
+              <p className="font-semibold text-amber-200 mb-0.5">Quality Specification Wording (Updated Policy)</p>
+              <p className="text-amber-300/80 leading-relaxed">
+                Do not set fixed guaranteed moisture/volatile oil values per product. Use these approved phrases:
+                <span className="block mt-1 font-mono text-[11px] text-amber-100">
+                  Moisture → &quot;Target spec: ≤9.5%, subject to grade and lot&quot;
+                </span>
+                <span className="block font-mono text-[11px] text-amber-100">
+                  Volatile Oil → &quot;Lot-specific quality parameters available on request&quot;
+                </span>
+                <span className="block font-mono text-[11px] text-amber-100">
+                  Shelf Life → &quot;Subject to packaging, storage conditions and product specification&quot;
+                </span>
+              </p>
+            </div>
+          </div>
+        )}
         {renderView()}
       </main>
     </div>

@@ -277,8 +277,10 @@ export default function App() {
   };
 
   const handleOrderSuccess = () => {
+    // Only clear the cart — do NOT close the modal here.
+    // The success screen inside UpiCheckoutModal has a "Done" button
+    // that calls onClose, letting the buyer read their confirmation first.
     clearCart();
-    setIsUpiCheckoutOpen(false);
   };
 
   const currentSEO = PAGE_SEO[activeTab as keyof typeof PAGE_SEO] ?? PAGE_SEO.home;

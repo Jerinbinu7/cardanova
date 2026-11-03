@@ -240,20 +240,16 @@ export default function ProductCards({
                 </div>
 
                 {/* Minimal Specs Strip */}
-                <div className="space-y-1.5 pt-2 border-t border-white/[0.06] text-[11px] text-stone-300 font-light">
-                  <div className="flex justify-between items-center">
-                    <span className="text-stone-400">Packaging:</span>
-                    <span className="text-right text-stone-200 font-medium truncate max-w-[130px]">
+                <div className="pt-3 border-t border-white/[0.06] space-y-2 text-[11px] font-light">
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="text-stone-400 shrink-0">Packaging:</span>
+                    <span className="text-right text-stone-200 font-medium leading-snug">
                       {item.packaging}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-stone-400">Moisture:</span>
-                    <span className="text-stone-200 font-medium font-mono">≤ 9.5%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-stone-400">Volatile Oil:</span>
-                    <span className="text-stone-200 font-medium font-mono">{item.volatile}</span>
+                    <span className="text-stone-400">Port:</span>
+                    <span className="text-stone-200 font-medium">{item.ports}</span>
                   </div>
                 </div>
 
@@ -271,18 +267,29 @@ export default function ProductCards({
           ))}
         </div>
 
-        {/* Minimal Bottom Trust Note */}
-        <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/[0.08] text-xs text-stone-400">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#C5A046]" />
-            <span>Spices Board Export Registered • Phytosanitary & CoA Documentation Provided</span>
+        {/* Bottom Trust Note */}
+        <div className="mt-12 pt-6 border-t border-white/[0.08] space-y-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-stone-400">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#C5A046] shrink-0" />
+              <span>Spices Board Export Registered • Phytosanitary &amp; CoA Documentation Provided</span>
+            </div>
+            <button
+              onClick={onNavigateToProducts}
+              className="text-stone-300 hover:text-[#C5A046] underline underline-offset-4 cursor-pointer whitespace-nowrap"
+            >
+              Review Full Incoterms (FOB / CIF / CFR) →
+            </button>
           </div>
-          <button
-            onClick={onNavigateToProducts}
-            className="text-stone-300 hover:text-[#C5A046] underline underline-offset-4 cursor-pointer"
-          >
-            Review Full Incoterms (FOB / CIF / CFR) →
-          </button>
+          {/* Quality Parameters — shown once for all grades */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-[11px] text-stone-400">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-[#C5A046]/70 shrink-0">Quality Parameters:</span>
+            <span><span className="text-stone-300">Moisture</span> — Target spec ≤9.5%, subject to grade &amp; lot</span>
+            <span className="text-white/[0.12] hidden sm:inline">│</span>
+            <span><span className="text-stone-300">Volatile Oil &amp; other params</span> — Lot-specific data on request</span>
+            <span className="text-white/[0.12] hidden sm:inline">│</span>
+            <span><span className="text-stone-300">Shelf Life</span> — Subject to packaging &amp; storage conditions</span>
+          </div>
         </div>
       </div>
     </section>

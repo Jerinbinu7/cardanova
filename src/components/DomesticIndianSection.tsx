@@ -116,7 +116,8 @@ export default function DomesticIndianSection({
         </div>
 
         {/* Minimal 5 Packaging Options Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 sm:gap-6">
+        {/* Product Cards — 2 columns on sm+, 1 col on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {packagingOptions.map((pack, index) => {
             const discountPercent = Math.round(
               ((pack.originalPriceInr - pack.priceInr) / pack.originalPriceInr) * 100
@@ -129,76 +130,66 @@ export default function DomesticIndianSection({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.06 }}
-                className="group bg-white rounded-2xl border border-stone-200 hover:border-[#8B712A]/50 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+                className="group bg-white rounded-2xl border border-stone-200 hover:border-[#8B712A]/50 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col"
               >
-                {/* Product Image */}
-                <div className="relative aspect-square bg-[#F8F5F0] overflow-hidden flex items-center justify-center p-4">
+                {/* Image — fixed compact height */}
+                <div className="relative h-36 bg-[#F8F5F0] overflow-hidden flex items-center justify-center p-3 shrink-0">
                   <img
                     src={pack.image}
                     alt={pack.title}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                    className="h-full w-auto object-contain group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
-
-                  {/* Weight Tag */}
-                  <div className="absolute top-3 right-3 bg-[#112D15] text-[#FAF8F5] text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
-                    {pack.weight}
-                  </div>
-
-                  {/* Format Tag */}
-                  <div className="absolute top-3 left-3 bg-white/95 text-stone-600 text-[10px] font-medium tracking-wide uppercase px-2 py-0.5 rounded-md border border-stone-200">
-                    {pack.packagingType === 'Bottle' ? 'Glass Bottle' : pack.packagingType === 'Square Box' ? 'Gift Box' : 'Zipper Pouch'}
-                  </div>
-
-                  {/* Discount Tag */}
                   {discountPercent > 0 && (
-                    <div className="absolute bottom-3 left-3 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                    <div className="absolute top-2 left-2 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">
                       {discountPercent}% OFF
                     </div>
                   )}
+                  <div className="absolute top-2 right-2 bg-[#112D15] text-[#FAF8F5] text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                    {pack.weight}
+                  </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="p-4 flex flex-col flex-1 gap-3">
                   <div>
-                    <h3 className="font-display text-base font-semibold text-[#112D15] leading-snug">
+                    {/* Full title — no truncation, explicit color */}
+                    <h3
+                      className="font-semibold leading-snug text-sm"
+                      style={{ color: '#112D15' }}
+                    >
                       {pack.title}
                     </h3>
-                    <p className="text-xs text-stone-500 font-light mt-1 line-clamp-2">
+                    <p className="text-xs font-light mt-1 line-clamp-2 leading-relaxed" style={{ color: '#78716c' }}>
                       {pack.description}
                     </p>
                   </div>
 
-                  {/* Price Block */}
-                  <div className="pt-2 border-t border-stone-100">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xl font-medium text-[#112D15]">
+                  {/* Price + Buttons pinned to bottom */}
+                  <div className="mt-auto pt-3 border-t border-stone-100">
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <span className="text-xl font-semibold" style={{ color: '#112D15' }}>
                         ₹{pack.priceInr.toLocaleString('en-IN')}
                       </span>
                       <span className="text-xs text-stone-400 line-through">
                         ₹{pack.originalPriceInr.toLocaleString('en-IN')}
                       </span>
                     </div>
-
-                    {/* Dual Action Buttons: Add to Cart & Buy Now */}
-                    <div className="grid grid-cols-2 gap-2 mt-3.5">
+                    <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={() => handleAddToCart(pack)}
                         className="flex items-center justify-center gap-1.5 rounded-xl border border-stone-300 bg-white py-2.5 text-xs font-semibold text-stone-800 hover:border-[#8B712A] hover:text-[#8B712A] transition-colors cursor-pointer"
-                        title="Add to shopping cart"
                       >
                         <ShoppingCart className="w-3.5 h-3.5" />
-                        <span>Cart</span>
+                        Cart
                       </button>
-
                       <button
                         type="button"
                         onClick={() => handleBuyNow(pack)}
-                        className="flex items-center justify-center gap-1 rounded-xl gold-gradient-bg py-2.5 text-xs font-bold uppercase tracking-wider text-[#071309] hover:brightness-105 transition-all cursor-pointer shadow-sm active:scale-98"
-                        title="Buy immediately with UPI"
+                        className="flex items-center justify-center rounded-xl gold-gradient-bg py-2.5 text-xs font-bold uppercase tracking-wider text-[#071309] hover:brightness-105 transition-all cursor-pointer shadow-sm"
                       >
-                        <span>Buy Now</span>
+                        Buy Now
                       </button>
                     </div>
                   </div>
@@ -207,6 +198,8 @@ export default function DomesticIndianSection({
             );
           })}
         </div>
+
+
 
         {/* Minimal Bottom Bar */}
         <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white border border-stone-200">

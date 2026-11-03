@@ -466,5 +466,28 @@ export const domesticService = {
     } catch {
       return false;
     }
-  }
+  },
+
+  async cancelOrder(orderNumber: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('domestic_orders')
+        .update({ order_status: 'cancelled', payment_status: 'cancelled' })
+        .eq('order_number', orderNumber);
+
+      // Also remove from localStorage receipt cache
+      try {
+        const stored: any[] = JSON.parse(localStorage.getItem('cardanova_my_orders') || '[]');
+        const updated = stored.map((o) =>
+          o.orderNumber === orderNumber ? { ...o, orderStatus: 'cancelled', paymentStatus: 'cancelled' } : o
+        );
+        localStorage.setItem('cardanova_my_orders', JSON.stringify(updated));
+      } catch { /* ignore */ }
+
+      return !error;
+    } catch {
+      return false;
+    }
+  },
 };
+

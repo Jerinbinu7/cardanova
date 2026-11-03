@@ -198,8 +198,8 @@ function ProductCard({
           </div>
           <div className="w-px h-6 bg-stone-200" />
           <div className="text-center">
-            <div className="text-[10px] text-stone-400 font-light">Moisture</div>
-            <div className="text-xs text-stone-700 font-medium mt-0.5">{product.moisture}</div>
+            <div className="text-[10px] text-stone-400 font-light">Shelf Life</div>
+            <div className="text-xs text-stone-700 font-medium mt-0.5">{product.shelfLife}</div>
           </div>
         </div>
 
@@ -550,6 +550,26 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
       </AnimatePresence>
 
       <section className="py-16 px-6 lg:px-10 max-w-7xl mx-auto" aria-label="Cardamom Grades Catalogue">
+
+        {/* Quality Standards Note — shown once, applies to all grades */}
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-2xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
+          <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-[#112D15]/8 border border-[#112D15]/12">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#112D15]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 mb-1">Quality Parameters — All Grades</p>
+            <div className="flex flex-wrap gap-x-6 gap-y-1 text-[11px] text-stone-500">
+              <span><span className="font-medium text-[#112D15]">Moisture:</span> Target spec ≤9.5%, subject to grade &amp; lot</span>
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <span><span className="font-medium text-[#112D15]">Volatile Oil &amp; other parameters:</span> Lot-specific data available on request</span>
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <span><span className="font-medium text-[#112D15]">Shelf Life:</span> Subject to packaging, storage &amp; product spec</span>
+            </div>
+          </div>
+        </div>
+
         {filtered.length === 0 ? (
           <div className="text-center py-24 text-stone-400">
             <p className="font-display font-light text-2xl mb-2">No products found</p>
