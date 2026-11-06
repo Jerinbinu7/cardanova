@@ -95,6 +95,9 @@ export default function UpiCheckoutModal({
     if (!shipping.phone.trim() || !/^\d{10}$/.test(shipping.phone.replace(/\D/g, ''))) {
       errors.phone = 'Please enter a valid 10-digit phone/WhatsApp number';
     }
+    if (!shipping.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shipping.email.trim())) {
+      errors.email = 'Please enter a valid email address for order confirmation';
+    }
     if (!shipping.addressLine.trim() || shipping.addressLine.length < 5) {
       errors.addressLine = 'Please enter complete house/flat, street address';
     }
@@ -106,11 +109,10 @@ export default function UpiCheckoutModal({
     return Object.keys(errors).length === 0;
   };
 
-  const handleProceedToPayment = async (e: React.FormEvent) => {
+  const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setIsSubmitting(true);
     const orderNumber = currentOrder?.orderNumber || domesticService.generateOrderNumber();
     const orderData: DomesticOrder = {
       orderNumber,
@@ -124,14 +126,7 @@ export default function UpiCheckoutModal({
       orderStatus: 'received',
     };
 
-    // Always advance to payment — DB write is best-effort
-    try {
-      await domesticService.createOrder(orderData);
-    } catch (err) {
-      console.error('createOrder error (non-fatal):', err);
-    }
     setCurrentOrder(orderData);
-    setIsSubmitting(false);
     setStep('payment');
   };
 
@@ -157,42 +152,91 @@ export default function UpiCheckoutModal({
 
   const [utrError, setUtrError] = useState('');
 
-  const handleConfirmUtr = async () => {
-    if (!currentOrder) return;
-    const cleanUtr = utrInput.trim();
+  const validateUtr = (input: string): { valid: boolean; clean: string; error?: string } => {
+    const clean = input.trim().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    if (!clean) {
+      return {
+        valid: false,
+        clean: '',
+        error: 'UPI Reference / UTR number is mandatory to place your order.',
+      };
+    }
+    if (clean.length < 12 || clean.length > 22) {
+      return {
+        valid: false,
+        clean,
+        error: `UPI Reference / UTR number must be between 12 and 22 digits (currently ${clean.length} characters).`,
+      };
+    }
+    return { valid: true, clean };
+  };
 
-    // Mandatory UTR check: Must be between 12 and 22 characters
-    if (!cleanUtr) {
-      setUtrError('Please enter your UPI Reference / UTR number to complete the order.');
-      return;
+  const processOrderWithUtr = async (cleanUtr: string): Promise<DomesticOrder | null> => {
+    if (!currentOrder) return null;
+
+    const completedOrder: DomesticOrder = {
+      ...currentOrder,
+      upiReferenceUtr: cleanUtr,
+      paymentStatus: 'paid',
+      orderStatus: 'received',
+    };
+
+    // Save order into Supabase with UTR and send admin notification email
+    try {
+      await domesticService.createOrder(completedOrder);
+    } catch (err) {
+      console.error('Order save error (handled):', err);
     }
 
-    if (cleanUtr.length < 12 || cleanUtr.length > 22) {
-      setUtrError('UPI Reference / UTR number must be between 12 and 22 characters.');
+    setCurrentOrder(completedOrder);
+    return completedOrder;
+  };
+
+  const handleConfirmUtr = async () => {
+    const { valid, clean, error } = validateUtr(utrInput);
+    if (!valid) {
+      setUtrError(error || 'Invalid UTR');
       return;
     }
 
     setUtrError('');
     setIsSubmitting(true);
 
-    const completedOrder: DomesticOrder = {
-      ...currentOrder,
-      upiReferenceUtr: cleanUtr,
-      paymentStatus: 'paid',
-    };
-
-    // Try to update UTR in DB — but always show success to the buyer regardless
     try {
-      await domesticService.updateOrderUtr(currentOrder.orderNumber, cleanUtr);
-    } catch (err) {
-      console.error('UTR update error (non-fatal):', err);
-      // UTR is stored in completedOrder locally; order was already created in DB on step 1
+      const completedOrder = await processOrderWithUtr(clean);
+      setIsSubmitting(false);
+      setStep('success');
+      if (completedOrder && onOrderSuccess) onOrderSuccess(completedOrder);
+    } catch (e: any) {
+      setIsSubmitting(false);
+      setUtrError(e?.message || 'Failed to submit order. Please try again.');
     }
+  };
 
-    setCurrentOrder(completedOrder);
-    setIsSubmitting(false);
-    setStep('success');
-    if (onOrderSuccess) onOrderSuccess(completedOrder);
+  const handleWhatsAppConfirm = () => {
+    if (!currentOrder) return;
+    openWhatsAppChat(currentOrder, currentOrder.upiReferenceUtr || utrInput);
+  };
+
+  const openWhatsAppChat = (order: DomesticOrder, utr?: string) => {
+    const itemList = order.items
+      .map((i) => `• ${i.productName} (${i.weight}) x ${i.quantity} = ₹${i.totalPriceInr}`)
+      .join('\n');
+
+    const cleanUtr = utr || order.upiReferenceUtr || '';
+    const msg = `*NEW CARDANOVA DOMESTIC ORDER*\n\n` +
+      `*Order ID:* ${order.orderNumber}\n` +
+      `*Total Amount:* ₹${order.finalAmountInr}\n` +
+      (cleanUtr ? `*UPI Ref / UTR:* ${cleanUtr}\n` : '') +
+      `\n*Items:*\n${itemList}\n\n` +
+      `*Deliver To:*\n` +
+      `Name: ${order.customer.fullName}\n` +
+      `Phone: ${order.customer.phone}\n` +
+      `Address: ${order.customer.addressLine}, ${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}\n\n` +
+      `I have completed the UPI payment. Please verify UTR and confirm dispatch!`;
+
+    const url = `https://wa.me/${UPI_CONFIG.supportWhatsApp}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
   };
 
   const handleCancelOrder = async () => {
@@ -222,27 +266,6 @@ export default function UpiCheckoutModal({
     setIsCancelling(false);
     setCancelConfirm(false);
     setStep('cancelled');
-  };
-
-  const handleWhatsAppConfirm = () => {
-    if (!currentOrder) return;
-    const itemList = currentOrder.items
-      .map((i) => `• ${i.productName} (${i.weight}) x ${i.quantity} = ₹${i.totalPriceInr}`)
-      .join('\n');
-
-    const msg = `*NEW CARDANOVA DOMESTIC ORDER*\n\n` +
-      `*Order ID:* ${currentOrder.orderNumber}\n` +
-      `*Total Amount:* ₹${currentOrder.finalAmountInr}\n` +
-      (utrInput ? `*UPI Ref / UTR:* ${utrInput}\n` : '') +
-      `\n*Items:*\n${itemList}\n\n` +
-      `*Deliver To:*\n` +
-      `Name: ${currentOrder.customer.fullName}\n` +
-      `Phone: ${currentOrder.customer.phone}\n` +
-      `Address: ${currentOrder.customer.addressLine}, ${currentOrder.customer.city}, ${currentOrder.customer.state} - ${currentOrder.customer.pincode}\n\n` +
-      `I have completed the UPI payment. Please verify and confirm dispatch!`;
-
-    const url = `https://wa.me/${UPI_CONFIG.supportWhatsApp}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
   };
 
   return (
@@ -377,6 +400,25 @@ export default function UpiCheckoutModal({
                     <p className="text-[11px] text-red-500 mt-1">{formErrors.phone}</p>
                   )}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#112D15] mb-1">
+                  Email Address <span className="text-red-500">*</span> (for order receipt & dispatch updates)
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. aditi.sharma@gmail.com"
+                  value={shipping.email}
+                  onChange={(e) => setShipping({ ...shipping, email: e.target.value })}
+                  className={`w-full px-3.5 py-2.5 text-sm rounded-lg bg-white border ${
+                    formErrors.email ? 'border-red-400' : 'border-[#C5A046]/30'
+                  } focus:border-[#112D15] focus:outline-none transition-colors`}
+                />
+                {formErrors.email && (
+                  <p className="text-[11px] text-red-500 mt-1">{formErrors.email}</p>
+                )}
               </div>
 
               <div>
@@ -583,54 +625,70 @@ export default function UpiCheckoutModal({
               </div>
 
               {/* Step to Confirm / Enter UTR */}
-              <div className="bg-[#F3EFEA] p-4 rounded-xl border border-[#C5A046]/20 space-y-3">
+              <div className="bg-[#F3EFEA] p-4 sm:p-5 rounded-xl border border-[#C5A046]/30 space-y-3 shadow-inner">
                 <div>
-                  <label className="block text-xs font-semibold text-[#112D15] mb-1">
-                    Enter UPI Reference No. / UTR <span className="text-red-600">*</span> (12–22 digits)
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-[#112D15] flex items-center gap-1.5">
+                      <span>Enter UPI Reference No. / UTR</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 uppercase tracking-wider">
+                        Mandatory
+                      </span>
+                    </label>
+                    <span className={`text-[11px] font-mono ${utrInput.length >= 12 ? 'text-emerald-700 font-semibold' : 'text-stone-500'}`}>
+                      {utrInput.length >= 12 ? `✓ ${utrInput.length} chars entered` : `${utrInput.length}/12 digits (min)`}
+                    </span>
+                  </div>
+
                   <input
                     type="text"
                     maxLength={22}
-                    placeholder="e.g. 423589123456"
+                    placeholder="e.g. 423589123456 (12–22 characters)"
                     value={utrInput}
                     onChange={(e) => {
-                      const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+                      const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
                       setUtrInput(val);
                       if (utrError) setUtrError('');
                     }}
-                    className={`w-full px-3.5 py-2 text-sm font-mono rounded-lg bg-white border ${
-                      utrError ? 'border-red-500 bg-red-50/50' : 'border-[#C5A046]/30 focus:border-[#112D15]'
-                    } focus:outline-none`}
+                    className={`w-full px-3.5 py-2.5 text-sm font-mono tracking-wider rounded-lg bg-white border ${
+                      utrError
+                        ? 'border-red-500 bg-red-50/50 ring-1 ring-red-500'
+                        : utrInput.length >= 12
+                        ? 'border-emerald-500 ring-1 ring-emerald-500/20'
+                        : 'border-[#C5A046]/40 focus:border-[#112D15]'
+                    } focus:outline-none transition-all`}
                   />
+
                   {utrError ? (
                     <p className="text-[11px] text-red-600 font-medium mt-1.5 flex items-center gap-1">
                       ⚠️ {utrError}
                     </p>
                   ) : (
-                    <p className="text-[11px] text-stone-500 mt-1">
-                      Found in your UPI app payment receipt after completing the transfer (12 to 22 characters required).
-                    </p>
+                    <div className="mt-1.5 space-y-0.5">
+                      <p className="text-[11px] text-stone-600 font-medium">
+                        Found in your GPay / PhonePe / Paytm / BHIM payment receipt (12–22 digits).
+                      </p>
+                      <p className="text-[10px] text-stone-500">
+                        * Without entering UTR, this order cannot proceed or be verified.
+                      </p>
+                    </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <div className="pt-1">
                   <button
                     type="button"
                     onClick={handleConfirmUtr}
                     disabled={isSubmitting}
-                    className="py-3 px-4 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow cursor-pointer"
+                    className="w-full py-3.5 px-5 rounded-xl bg-[#112D15] hover:bg-[#1A3E1F] text-[#FAF8F5] font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer disabled:opacity-60"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-[#C5A046]" />
-                    <span>I Have Completed Payment</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleWhatsAppConfirm}
-                    className="py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow cursor-pointer"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Confirm via WhatsApp</span>
+                    {isSubmitting ? (
+                      <span>Verifying & Saving Order...</span>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-[#C5A046]" />
+                        <span>I Have Completed Payment</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

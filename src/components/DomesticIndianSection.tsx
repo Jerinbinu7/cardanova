@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingCart,
@@ -25,7 +25,15 @@ export default function DomesticIndianSection({
   onAddToCart,
   onBuyNow,
 }: DomesticIndianSectionProps) {
-  const packagingOptions = domesticService.getPackagingOptions();
+  const [packagingOptions, setPackagingOptions] = useState<PackagingOption[]>(() => domesticService.getPackagingOptions());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPackagingOptions(domesticService.getPackagingOptions());
+    };
+    window.addEventListener('cardanova_retail_products_updated', handleUpdate);
+    return () => window.removeEventListener('cardanova_retail_products_updated', handleUpdate);
+  }, []);
   const [addedToast, setAddedToast] = useState<string | null>(null);
 
   const createOrderItem = (pack: PackagingOption): DomesticOrderItem => ({

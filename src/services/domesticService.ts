@@ -1,6 +1,25 @@
-import { RetailPacketProduct, DomesticOrder, PackagingOption } from '../types/domestic';
+import { RetailPacketProduct, DomesticOrder, PackagingOption, WeightVariant } from '../types/domestic';
 import { supabase } from '../lib/supabase';
 import { sendOrderNotificationEmail } from './emailNotificationService';
+
+export function getPackagingLabel(product?: RetailPacketProduct | null, variant?: WeightVariant | null): string {
+  if (product?.id === 'pack-50g-bottle' || product?.name?.toLowerCase().includes('bottle') || variant?.packagingType === 'Bottle') {
+    return 'Glass Bottle';
+  }
+  if (product?.packagingBadge && product.packagingBadge.trim()) {
+    return product.packagingBadge.trim();
+  }
+  const pType = variant?.packagingType || product?.variants?.[0]?.packagingType;
+  if (pType) {
+    if (pType === 'Bottle') return 'Glass Bottle';
+    if (pType === 'Square Box') return 'Gift Box';
+    if (pType === 'Premium Packaging Pouch') return 'Zipper Pouch';
+    return pType;
+  }
+  if (product?.name && product.name.toLowerCase().includes('box')) return 'Gift Box';
+  return 'Zipper Pouch';
+}
+
 
 export const UPI_CONFIG = {
   vpa: 'cardanovaspices@icici', // Primary UPI VPA / ID
@@ -150,6 +169,7 @@ export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
     id: 'pack-50g-bottle',
     name: '50 Grams – Bottle',
     gradeBadge: '50g Net Weight',
+    packagingBadge: 'Glass Bottle',
     podDiameter: '50 Grams',
     tagline: 'Artisanal airtight glass spice jar with brushed brass gold cap.',
     description: 'Directly sourced from Idukki, Kerala. Artisanal glass jar with airtight brushed brass gold cap. Keeps delicate volatile oils fresh on your dining table, connoisseur tasting, and personal gifting.',
@@ -175,6 +195,7 @@ export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
     id: 'pack-100g-box',
     name: '100 Grams – Square Box',
     gradeBadge: '100g Net Weight',
+    packagingBadge: 'Gift Box',
     podDiameter: '100 Grams',
     tagline: 'Luxury rigid square gift box in deep emerald with gold foil stamping.',
     description: 'Bespoke rigid square gift box in deep emerald with hot-stamped gold foil. Moisture-barrier foil inner tray. Ideal for festive gifting, wedding favors, corporate presents, and luxury reserve.',
@@ -200,6 +221,7 @@ export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
     id: 'pack-250g-pouch',
     name: '250 Grams – Aroma-Lock Zipper Pouch',
     gradeBadge: '250g Net Weight',
+    packagingBadge: 'Zipper Pouch',
     podDiameter: '250 Grams',
     tagline: '3-layer food-grade aluminum barrier pouch with airtight resealable zip.',
     description: 'Multi-layer food-grade aluminum barrier pouch with airtight resealable zip. The essential choice for passionate home cooks, daily authentic masala chai, and gourmet recipes.',
@@ -225,6 +247,7 @@ export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
     id: 'pack-500g-pouch',
     name: '500 Grams – Chef Reserve Pouch',
     gradeBadge: '500g Net Weight',
+    packagingBadge: 'Zipper Pouch',
     podDiameter: '500 Grams',
     tagline: 'Generous culinary pouch offering optimal value for dessert makers and cafés.',
     description: 'Generous culinary pouch offering optimal value for dessert makers, artisan bakeries, and large gourmet households. Heavy-duty barrier locks in signature aroma.',
@@ -250,6 +273,7 @@ export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
     id: 'pack-1kg-pouch',
     name: '1 kg (1,000 Grams) – Master Estate Pouch',
     gradeBadge: '1 kg (1000g)',
+    packagingBadge: 'Zipper Pouch',
     podDiameter: '1,000 Grams',
     tagline: 'Direct-from-estate master pouch with nitrogen flush. Exceptional value for high volume.',
     description: 'Commercial-grade multi-ply master barrier foil pouch with nitrogen flush. Exceptional value for catering, institutional culinary kitchens, confectionery, and bulk pantry reserve.',
@@ -274,7 +298,39 @@ export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
 ];
 
 export const domesticService = {
-  getPackagingOptions(): PackagingOption[] {
+    getPackagingOptions(): PackagingOption[] {
+    try {
+      const prods = this.getProducts();
+      if (prods && prods.length > 0) {
+        return prods.map((prod, idx) => {
+          const fallback = NATURES_FINEST_PACKAGING_OPTIONS[idx] || NATURES_FINEST_PACKAGING_OPTIONS[0];
+          const v = prod.variants?.[0] || { weight: '50g', priceInr: 299, originalPriceInr: 450, inStock: true, packagingType: 'Bottle', label: '50g' };
+          const packagingLabel = getPackagingLabel(prod, v);
+          return {
+            id: prod.id,
+            weight: v.weight,
+            weightKg: v.weight === '50g' ? 0.05 : v.weight === '100g' ? 0.1 : v.weight === '250g' ? 0.25 : v.weight === '500g' ? 0.5 : 1.0,
+            packagingType: v.packagingType || packagingLabel,
+            title: prod.name,
+            subtitle: prod.tagline || fallback.subtitle,
+            description: prod.description || fallback.description,
+            badge: prod.gradeBadge || fallback.badge,
+            idealFor: fallback.idealFor,
+            priceInr: v.priceInr,
+            originalPriceInr: v.originalPriceInr,
+            inStock: prod.inStock && v.inStock,
+            image: prod.image || fallback.image,
+            specs: {
+              format: prod.specs?.packaging || fallback.specs.format,
+              sealing: fallback.specs.sealing,
+              shelfLife: prod.specs?.shelfLife || fallback.specs.shelfLife,
+            },
+          };
+        });
+      }
+    } catch (e) {
+      console.error('Failed to get dynamic packaging options:', e);
+    }
     return NATURES_FINEST_PACKAGING_OPTIONS;
   },
 
@@ -287,8 +343,8 @@ export const domesticService = {
       const stored = localStorage.getItem('cardanova_retail_products');
       if (stored) {
         const parsed: RetailPacketProduct[] = JSON.parse(stored);
-        // If old grade-based classification was cached, migrate to gram size
-        if (parsed.some((p) => p.id?.includes('85mm') || p.podDiameter?.includes('mm'))) {
+        // If legacy grade-based classification was cached, migrate to default retail products
+        if (parsed.some((p) => p.id === 'royal-cardamom-85mm' || p.id === 'imperial-cardamom-80mm' || p.id === 'heritage-cardamom-75mm')) {
           localStorage.setItem('cardanova_retail_products', JSON.stringify(DEFAULT_RETAIL_PRODUCTS));
           return DEFAULT_RETAIL_PRODUCTS;
         }
@@ -332,8 +388,9 @@ export const domesticService = {
 
   async createOrder(order: DomesticOrder): Promise<{ success: boolean; orderId: string; error?: string }> {
     try {
-      // 1. Try to save into Supabase domestic_orders table
-      const { data, error } = await supabase
+      // 1. Save into Supabase domestic_orders table
+      // Note: Do NOT use .select('id') here as anonymous shoppers only have INSERT privileges under RLS
+      const { error } = await supabase
         .from('domestic_orders')
         .insert({
           order_number: order.orderNumber,
@@ -349,19 +406,27 @@ export const domesticService = {
           shipping_fee_inr: order.shippingFeeInr,
           final_amount_inr: order.finalAmountInr,
           payment_method: 'UPI',
-          payment_status: order.paymentStatus || 'pending_verification',
+          payment_status: order.paymentStatus || 'paid',
           upi_reference_utr: order.upiReferenceUtr || null,
-          order_status: 'received',
+          order_status: order.orderStatus || 'received',
           notes: order.customer.notes || null,
-        })
-        .select('id')
-        .single();
+        });
 
       if (error) {
         console.warn('[domesticService] Supabase insert note:', error.message);
+        // If row already exists (duplicate key), update UTR and payment status
+        if (error.code === '23505') {
+          await supabase
+            .from('domestic_orders')
+            .update({
+              upi_reference_utr: order.upiReferenceUtr,
+              payment_status: order.paymentStatus || 'paid',
+            })
+            .eq('order_number', order.orderNumber);
+        }
       }
 
-      // 2. Send email notification to admin with full order details
+      // 2. Send email notification to admin with full order details and customer's UTR
       const itemsSummary = order.items
         .map((i) => `• ${i.productName} (${i.weight}) x ${i.quantity} = ₹${i.totalPriceInr}`)
         .join('\n');
@@ -377,10 +442,10 @@ export const domesticService = {
         upiReferenceUtr: order.upiReferenceUtr,
       }).catch((e) => console.warn('[domesticService] Email notification error:', e));
 
-      // Also store in localStorage as reliable buyer receipt cache
+      // 3. Buyer receipt cache in localStorage
       try {
         const stored = JSON.parse(localStorage.getItem('cardanova_my_orders') || '[]');
-        stored.unshift({ ...order, id: data?.id || `local-${Date.now()}` });
+        stored.unshift({ ...order, id: `local-${Date.now()}` });
         localStorage.setItem('cardanova_my_orders', JSON.stringify(stored.slice(0, 20)));
       } catch (e) {
         // ignore storage errors
@@ -388,7 +453,7 @@ export const domesticService = {
 
       return {
         success: true,
-        orderId: data?.id || order.orderNumber,
+        orderId: order.orderNumber,
       };
     } catch (err: any) {
       console.error('[domesticService] createOrder error:', err);
@@ -406,8 +471,12 @@ export const domesticService = {
         })
         .eq('order_number', orderNumber);
 
+      if (error) {
+        console.error('[domesticService] updateOrderUtr error:', error);
+      }
       return !error;
-    } catch {
+    } catch (err) {
+      console.error('[domesticService] updateOrderUtr exception:', err);
       return true;
     }
   },
@@ -419,7 +488,11 @@ export const domesticService = {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error || !data) return [];
+      if (error) {
+        console.error('[domesticService] fetchAllOrders error:', error);
+        throw error;
+      }
+      if (!data) return [];
       return data.map((d: any) => ({
         id: d.id,
         orderNumber: d.order_number,
@@ -444,7 +517,8 @@ export const domesticService = {
         courierTrackingNumber: d.courier_tracking_number,
         createdAt: d.created_at,
       }));
-    } catch {
+    } catch (err) {
+      console.error('[domesticService] fetchAllOrders exception:', err);
       return [];
     }
   },

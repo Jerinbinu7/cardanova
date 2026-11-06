@@ -1,5 +1,5 @@
-export type WeightOption = '50g' | '100g' | '250g' | '500g' | '1kg';
-export type PackagingType = 'Bottle' | 'Square Box' | 'Premium Packaging Pouch';
+export type WeightOption = '50g' | '100g' | '250g' | '500g' | '1kg' | string;
+export type PackagingType = 'Bottle' | 'Square Box' | 'Premium Packaging Pouch' | string;
 
 export interface WeightVariant {
   weight: WeightOption;
@@ -35,6 +35,7 @@ export interface RetailPacketProduct {
   id: string;
   name: string;
   gradeBadge: string;
+  packagingBadge?: string;
   podDiameter: string;
   tagline: string;
   description: string;
