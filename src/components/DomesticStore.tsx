@@ -335,12 +335,12 @@ export default function DomesticStore({
         </div>
       </section>
 
-      {/* Floating Sticky Cart Button */}
+      {/* Floating Sticky Cart Button (Stacked safely above WhatsApp button) */}
       {cartCount > 0 && onOpenCart && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="fixed bottom-6 right-6 z-[600]"
+          className="fixed bottom-24 right-4 sm:right-6 z-[600]"
         >
           <button
             onClick={onOpenCart}

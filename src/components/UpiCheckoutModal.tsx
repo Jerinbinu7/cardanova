@@ -318,7 +318,7 @@ export default function UpiCheckoutModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 max-h-[85dvh] overflow-y-auto">
           {/* STEP 1: SHIPPING DETAILS */}
           {step === 'details' && (
             <form onSubmit={handleProceedToPayment} className="space-y-5">
@@ -370,6 +370,7 @@ export default function UpiCheckoutModal({
                   <input
                     type="text"
                     required
+                    autoComplete="name"
                     placeholder="e.g. Aditi Sharma"
                     value={shipping.fullName}
                     onChange={(e) => setShipping({ ...shipping, fullName: e.target.value })}
@@ -388,6 +389,8 @@ export default function UpiCheckoutModal({
                   </label>
                   <input
                     type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
                     required
                     placeholder="e.g. 9876543210"
                     value={shipping.phone}
@@ -408,6 +411,8 @@ export default function UpiCheckoutModal({
                 </label>
                 <input
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
                   required
                   placeholder="e.g. aditi.sharma@gmail.com"
                   value={shipping.email}
@@ -427,6 +432,7 @@ export default function UpiCheckoutModal({
                 </label>
                 <textarea
                   required
+                  autoComplete="street-address"
                   rows={2}
                   placeholder="e.g. Flat 402, Green Meadows Apt, 12th Main Road, Indiranagar"
                   value={shipping.addressLine}
@@ -448,6 +454,7 @@ export default function UpiCheckoutModal({
                   <input
                     type="text"
                     required
+                    autoComplete="address-level2"
                     placeholder="e.g. Bengaluru"
                     value={shipping.city}
                     onChange={(e) => setShipping({ ...shipping, city: e.target.value })}
@@ -461,6 +468,7 @@ export default function UpiCheckoutModal({
                   </label>
                   <select
                     value={shipping.state}
+                    autoComplete="address-level1"
                     onChange={(e) => setShipping({ ...shipping, state: e.target.value })}
                     className="w-full px-3 py-2 text-sm rounded-lg bg-white border border-[#C5A046]/30 focus:border-[#112D15] focus:outline-none"
                   >
@@ -478,6 +486,9 @@ export default function UpiCheckoutModal({
                   </label>
                   <input
                     type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="postal-code"
                     required
                     maxLength={6}
                     placeholder="e.g. 560038"
@@ -641,6 +652,10 @@ export default function UpiCheckoutModal({
 
                   <input
                     type="text"
+                    inputMode="text"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck={false}
                     maxLength={22}
                     placeholder="e.g. 423589123456 (12–22 characters)"
                     value={utrInput}

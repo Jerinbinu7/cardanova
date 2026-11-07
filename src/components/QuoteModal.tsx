@@ -549,6 +549,7 @@ export default function QuoteModal({
                       <input
                         type="text"
                         required
+                        autoComplete="name"
                         placeholder={isDomestic ? 'e.g. Sunil Kumar' : 'e.g. Alexander Wright'}
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
@@ -562,6 +563,7 @@ export default function QuoteModal({
                       <input
                         type="text"
                         required
+                        autoComplete="organization"
                         placeholder={isDomestic ? 'e.g. Royal Spices & Foods' : 'e.g. Global Foods Trading Ltd.'}
                         value={formData.companyName}
                         onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
@@ -593,6 +595,8 @@ export default function QuoteModal({
                       </label>
                       <input
                         type="email"
+                        inputMode="email"
+                        autoComplete="email"
                         required
                         placeholder="trade@company.com"
                         value={formData.email}
@@ -628,6 +632,8 @@ export default function QuoteModal({
                       </label>
                       <input
                         type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
                         required
                         placeholder={isDomestic ? '+91 98765 43210' : '+1 (555) 000-0000'}
                         value={formData.phone}

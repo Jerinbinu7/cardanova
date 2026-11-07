@@ -52,7 +52,28 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
+  const touchStartXRef = useRef<number | null>(null);
   const SLIDE_DURATION = 6000;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartXRef.current - touchEndX;
+    if (diff > 45) {
+      // Swiped left -> next slide
+      setSlide((prev) => (prev + 1) % slides.length);
+      setProgress(0);
+    } else if (diff < -45) {
+      // Swiped right -> prev slide
+      setSlide((prev) => (prev - 1 + slides.length) % slides.length);
+      setProgress(0);
+    }
+    touchStartXRef.current = null;
+  };
 
   // When Google Translate is active, freeze the hero on slide 0.
   // AnimatePresence unmount/remount cycles replace translated DOM nodes with
@@ -146,7 +167,9 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
   return (
     <section
       ref={heroRef}
-      className="relative min-h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-center pt-24 sm:pt-28 pb-16 sm:pb-20"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="relative min-h-screen w-full overflow-hidden bg-[#071309] text-[#FAF8F5] flex flex-col justify-center pt-24 sm:pt-28 pb-16 sm:pb-20 select-none sm:select-auto"
       aria-label="Hero slideshow — Premium Cardanova Spices"
     >
       {/* ── Background Slideshow ─────────────────────────── */}
@@ -286,21 +309,28 @@ export default function HeroSlideshow({ onOpenQuoteModal, onNavigateToProducts }
 
       {/* ── Mobile Slide Dots ───────────────────────────── */}
       <div
-        className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex lg:hidden items-center gap-2"
+        className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex lg:hidden items-center gap-1"
         role="tablist"
         aria-label="Mobile slideshow navigation"
       >
         {slides.map((_, i) => (
           <button
             key={i}
-            onClick={() => setSlide(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-              slide === i ? 'w-7 bg-[#C5A046]' : 'w-2 bg-white/30'
-            }`}
+            onClick={() => {
+              setSlide(i);
+              setProgress(0);
+            }}
+            className="p-2.5 flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
             aria-label={`Go to slide ${i + 1}`}
             aria-selected={slide === i}
             role="tab"
-          />
+          >
+            <span
+              className={`block h-1.5 rounded-full transition-all duration-300 ${
+                slide === i ? 'w-8 bg-[#C5A046]' : 'w-2 bg-white/40'
+              }`}
+            />
+          </button>
         ))}
       </div>
 

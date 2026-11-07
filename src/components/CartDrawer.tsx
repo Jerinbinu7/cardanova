@@ -157,21 +157,21 @@ export default function CartDrawer({
                           <button
                             type="button"
                             onClick={() => onUpdateQuantity(item.productId, item.weight, -1)}
-                            className="w-7 h-7 flex items-center justify-center text-xs text-stone-600 hover:text-[#112D15] hover:bg-white rounded transition-colors cursor-pointer active:scale-95"
+                            className="w-8 h-8 flex items-center justify-center text-xs text-stone-600 hover:text-[#112D15] hover:bg-white rounded transition-colors cursor-pointer active:scale-90"
                             aria-label="Decrease quantity"
                           >
-                            <Minus className="w-3 h-3" />
+                            <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <span className="px-2.5 text-xs font-semibold text-[#112D15]">
+                          <span className="px-3 text-xs font-semibold text-[#112D15] select-none">
                             {item.quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => onUpdateQuantity(item.productId, item.weight, 1)}
-                            className="w-7 h-7 flex items-center justify-center text-xs text-stone-600 hover:text-[#112D15] hover:bg-white rounded transition-colors cursor-pointer active:scale-95"
+                            className="w-8 h-8 flex items-center justify-center text-xs text-stone-600 hover:text-[#112D15] hover:bg-white rounded transition-colors cursor-pointer active:scale-90"
                             aria-label="Increase quantity"
                           >
-                            <Plus className="w-3 h-3" />
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
@@ -195,7 +195,7 @@ export default function CartDrawer({
 
             {/* Footer Summary & Checkout Button */}
             {cartItems.length > 0 && (
-              <div className="p-5 sm:p-6 border-t border-stone-200 bg-white space-y-4">
+              <div className="p-5 sm:p-6 border-t border-stone-200 bg-white space-y-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between text-stone-500 font-light">
                     <span>Subtotal ({totalItemsCount} items):</span>

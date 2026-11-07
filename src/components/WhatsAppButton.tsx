@@ -27,10 +27,15 @@ export default function WhatsAppButton() {
       onClick={handleClick}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
-      className="fixed bottom-6 right-6 z-[180] flex items-center justify-center rounded-full shadow-2xl cursor-pointer transition-all"
-      style={{ width: '56px', height: '56px', background: '#25D366' }}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.94 }}
+      className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[180] flex items-center justify-center rounded-full shadow-2xl cursor-pointer transition-all"
+      style={{
+        width: '56px',
+        height: '56px',
+        background: '#25D366',
+        marginBottom: 'max(0px, env(safe-area-inset-bottom))',
+      }}
       aria-label="Chat on WhatsApp"
     >
       {/* Official WhatsApp SVG logo */}

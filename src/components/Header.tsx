@@ -26,6 +26,17 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
   }, []);
 
   useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
     let ticking = false;
     const onScroll = () => {
       if (!ticking) {
@@ -244,7 +255,7 @@ export default function Header({ activeTab, setActiveTab, onOpenQuoteModal, cart
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.35, ease: 'easeInOut' }}
-            className="overflow-hidden border-t border-[#A18637]/20 bg-[#071309]/97 backdrop-blur-2xl xl:hidden"
+            className="overflow-y-auto max-h-[calc(100dvh-5rem)] border-t border-[#A18637]/20 bg-[#071309]/98 backdrop-blur-2xl xl:hidden pb-10"
           >
             <nav className="flex flex-col gap-1 px-5 py-6" aria-label="Mobile navigation">
               {NAV_LINKS.map((link, i) => (

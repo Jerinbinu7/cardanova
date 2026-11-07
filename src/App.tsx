@@ -24,10 +24,6 @@ import ExportExperience from './components/ExportExperience';
 import GlobalStandards from './components/GlobalStandards';
 import CTABanner from './components/CTABanner';
 import ContactForm from './components/ContactForm';
-import AboutPage from './components/AboutPage';
-import OriginPage from './components/OriginPage';
-import ProductsPage from './components/ProductsPage';
-import DomesticStore from './components/DomesticStore';
 import DomesticIndianSection from './components/DomesticIndianSection';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -44,6 +40,12 @@ import {
 } from './services/cartService';
 import { ADMIN_BASE_PATH } from './admin/adminConstants';
 import { triggerGoogleTranslateSync } from './utils/translation';
+
+// Secondary views — lazy loaded for fast initial mobile page load & minimal bundle
+const AboutPage     = lazy(() => import('./components/AboutPage'));
+const OriginPage    = lazy(() => import('./components/OriginPage'));
+const ProductsPage  = lazy(() => import('./components/ProductsPage'));
+const DomesticStore = lazy(() => import('./components/DomesticStore'));
 
 // Admin Routes — lazy-loaded so public visitors never download admin JS
 const AdminPortal         = lazy(() => import('./admin/AdminPortal'));
@@ -393,64 +395,73 @@ export default function App() {
             </motion.div>
           )}
 
-          {activeTab === 'about' && (
-            <motion.div
-              key="about"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <AboutPage
-                onOpenQuoteModal={handleOpenQuoteModal}
-                onNavigateToProducts={handleNavigateToProducts}
-              />
-            </motion.div>
-          )}
+          <Suspense
+            fallback={
+              <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 bg-[#071309] text-[#FAF8F5]">
+                <div className="w-10 h-10 rounded-full border-2 border-[#C5A046] border-t-transparent animate-spin" />
+                <span className="text-xs font-mono tracking-wider text-stone-400">Loading Cardanova Experience...</span>
+              </div>
+            }
+          >
+            {activeTab === 'about' && (
+              <motion.div
+                key="about"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AboutPage
+                  onOpenQuoteModal={handleOpenQuoteModal}
+                  onNavigateToProducts={handleNavigateToProducts}
+                />
+              </motion.div>
+            )}
 
-          {activeTab === 'products' && (
-            <motion.div
-              key="products"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ProductsPage
-                onOpenQuoteModal={handleOpenQuoteModal}
-              />
-            </motion.div>
-          )}
+            {activeTab === 'products' && (
+              <motion.div
+                key="products"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ProductsPage
+                  onOpenQuoteModal={handleOpenQuoteModal}
+                />
+              </motion.div>
+            )}
 
-          {activeTab === 'packets' && (
-            <motion.div
-              key="packets"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <DomesticStore
-                onSwitchToExport={handleNavigateToProducts}
-                onOpenDomesticBulkModal={handleOpenDomesticBulkModal}
-                onAddToCart={handleAddToCart}
-                onBuyNow={handleBuyNow}
-                onOpenCart={() => setIsCartOpen(true)}
-              />
-            </motion.div>
-          )}
+            {activeTab === 'packets' && (
+              <motion.div
+                key="packets"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <DomesticStore
+                  onSwitchToExport={handleNavigateToProducts}
+                  onOpenDomesticBulkModal={handleOpenDomesticBulkModal}
+                  onAddToCart={handleAddToCart}
+                  onBuyNow={handleBuyNow}
+                  onOpenCart={() => setIsCartOpen(true)}
+                />
+              </motion.div>
+            )}
 
-          {activeTab === 'origin' && (
-            <motion.div
-              key="origin"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <OriginPage onOpenQuoteModal={handleOpenQuoteModal} />
-            </motion.div>
-          )}
+            {activeTab === 'origin' && (
+              <motion.div
+                key="origin"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <OriginPage onOpenQuoteModal={handleOpenQuoteModal} />
+              </motion.div>
+            )}
+          </Suspense>
         </main>
 
         {/* Footer & Global Floating Elements */}
