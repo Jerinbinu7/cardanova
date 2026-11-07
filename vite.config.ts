@@ -2,7 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 const buildTarget = process.env.VITE_BUILD_TARGET ?? 'main';
 const isAdminBuild = buildTarget === 'admin';
 
-function devApiEmailPlugin() {
+function devApiEmailPlugin(env: Record<string, string>) {
   return {
     name: 'dev-api-email-plugin',
     configureServer(server: any) {
@@ -34,7 +34,19 @@ function devApiEmailPlugin() {
         req.on('end', async () => {
           try {
             const json = JSON.parse(body || '{}');
-            const fakeReq = { method: 'POST', body: json, headers: req.headers };
+            // Ensure RESEND_API_KEY from .env is available in process.env and payload for dev handler
+            process.env.RESEND_API_KEY = process.env.RESEND_API_KEY || env.RESEND_API_KEY || env.VITE_RESEND_API_KEY;
+            process.env.VITE_ADMIN_NOTIFICATION_EMAIL = process.env.VITE_ADMIN_NOTIFICATION_EMAIL || env.VITE_ADMIN_NOTIFICATION_EMAIL;
+
+            const fakeReq = {
+              method: 'POST',
+              body: {
+                ...json,
+                resendApiKey: json.resendApiKey || process.env.RESEND_API_KEY,
+                adminEmail: json.adminEmail || process.env.VITE_ADMIN_NOTIFICATION_EMAIL || 'zentra.techofficial@gmail.com',
+              },
+              headers: req.headers,
+            };
             const fakeRes = {
               statusCode: 200,
               setHeader(k: string, v: string) { res.setHeader(k, v); },
@@ -59,46 +71,50 @@ function devApiEmailPlugin() {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    devApiEmailPlugin(),
-  ],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
 
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "src"),
-    },
-  },
+  return {
+    plugins: [
+      react(),
+      tailwindcss(),
+      devApiEmailPlugin(env),
+    ],
 
-  build: {
-    minify: "esbuild",
-    cssCodeSplit: true,
-    target: "es2020",
-
-    rollupOptions: {
-      // Admin build uses admin.html; main build uses index.html (default)
-      ...(isAdminBuild ? { input: path.resolve(__dirname, 'admin.html') } : {}),
-
-      output: {
-        manualChunks: {
-          "motion-vendor":   ["framer-motion"],
-          "ui-vendor":       ["lucide-react", "clsx", "tailwind-merge"],
-          "supabase-vendor": ["@supabase/supabase-js", "react-router-dom"],
-        },
-        chunkFileNames: "assets/[name]-[hash].js",
-        entryFileNames: "assets/[name]-[hash].js",
-        assetFileNames: "assets/[name]-[hash].[ext]",
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "src"),
       },
     },
 
-    reportCompressedSize: true,
-    chunkSizeWarningLimit: 500,
-  },
+    build: {
+      minify: "esbuild",
+      cssCodeSplit: true,
+      target: "es2020",
 
-  // Pre-bundle these for faster dev server startup
-  optimizeDeps: {
-    include: ["react", "react-dom", "framer-motion", "react-helmet-async"],
-  },
+      rollupOptions: {
+        // Admin build uses admin.html; main build uses index.html (default)
+        ...(isAdminBuild ? { input: path.resolve(__dirname, 'admin.html') } : {}),
+
+        output: {
+          manualChunks: {
+            "motion-vendor":   ["framer-motion"],
+            "ui-vendor":       ["lucide-react", "clsx", "tailwind-merge"],
+            "supabase-vendor": ["@supabase/supabase-js", "react-router-dom"],
+          },
+          chunkFileNames: "assets/[name]-[hash].js",
+          entryFileNames: "assets/[name]-[hash].js",
+          assetFileNames: "assets/[name]-[hash].[ext]",
+        },
+      },
+
+      reportCompressedSize: true,
+      chunkSizeWarningLimit: 500,
+    },
+
+    // Pre-bundle these for faster dev server startup
+    optimizeDeps: {
+      include: ["react", "react-dom", "framer-motion", "react-helmet-async"],
+    },
+  };
 });
