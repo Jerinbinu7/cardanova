@@ -22,6 +22,10 @@ jspm_packages/
 .vscode/
 .idea/
 
+# Build output
+dist/
+dist
+
 # Vite cache
 .vite
 /node_modules/.vite
