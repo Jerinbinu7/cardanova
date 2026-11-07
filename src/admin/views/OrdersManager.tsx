@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ShoppingBag, RefreshCw, CheckCircle2, Clock, Truck, Phone, MapPin, Hash, Search } from 'lucide-react';
+import { ShoppingBag, RefreshCw, CheckCircle2, Clock, Truck, Phone, MapPin, Hash, Search, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { domesticService } from '../../services/domesticService';
 import type { DomesticOrder, DomesticOrderItem } from '../../types/domestic';
@@ -111,7 +111,7 @@ export default function OrdersManager() {
       o.orderNumber.toLowerCase().includes(q) ||
       o.customer.fullName.toLowerCase().includes(q) ||
       o.customer.phone.includes(q) ||
-      (o.upiReferenceUtr && o.upiReferenceUtr.includes(q));
+      (o.upiReferenceUtr && o.upiReferenceUtr.toLowerCase().includes(q));
     return matchesFilter && matchesSearch;
   });
 
@@ -242,11 +242,25 @@ export default function OrdersManager() {
                     </td>
                     <td className="px-4 py-3.5">
                       {order.upiReferenceUtr ? (
-                        <span className="font-mono text-amber-300 bg-amber-950/60 px-2 py-1 rounded border border-amber-500/30">
-                          {order.upiReferenceUtr}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-amber-300 bg-amber-950/60 px-2.5 py-1 rounded border border-amber-500/30 font-semibold select-all">
+                            {order.upiReferenceUtr}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(order.upiReferenceUtr || '');
+                              toast.success('UTR copied to clipboard!');
+                            }}
+                            title="Copy UTR"
+                            className="p-1 hover:bg-[#C5A046]/20 text-[#C5A046] rounded transition-colors cursor-pointer"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       ) : (
-                        <span className="text-gray-500 italic">Not entered</span>
+                        <span className="text-gray-500 italic text-[11px]">Not entered</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
@@ -296,9 +310,28 @@ export default function OrdersManager() {
                 <span className="text-xs text-[#C5A046] uppercase tracking-wider font-medium flex items-center gap-1.5">
                   <Hash className="w-4 h-4" /> Customer Submitted UTR / Ref
                 </span>
-                <span className="text-xs font-mono font-bold text-amber-300 bg-amber-950 px-2.5 py-1 rounded border border-amber-500/40">
-                  {selectedOrder.upiReferenceUtr || 'No UTR provided yet'}
-                </span>
+                {selectedOrder.upiReferenceUtr ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-amber-300 bg-amber-950 px-3 py-1.5 rounded border border-amber-500/40 select-all">
+                      {selectedOrder.upiReferenceUtr}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedOrder.upiReferenceUtr || '');
+                        toast.success('UTR copied to clipboard!');
+                      }}
+                      className="p-1.5 bg-[#C5A046]/10 border border-[#C5A046]/30 text-[#C5A046] hover:bg-[#C5A046] hover:text-[#071309] rounded-lg transition-all cursor-pointer"
+                      title="Copy UTR"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-xs text-red-400 font-medium bg-red-950/50 px-2.5 py-1 rounded border border-red-500/30">
+                    No UTR provided yet
+                  </span>
+                )}
               </div>
               <p className="text-xs text-gray-400">
                 Verify this 12-digit UTR and ₹{selectedOrder.finalAmountInr} in your GPay / PhonePe / ICICI Bank app before confirming.

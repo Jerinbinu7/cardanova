@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import MagneticButton from './MagneticButton';
-import { CartItem } from './CartDrawer';
+import { ArrowRight, Sparkles, ShieldCheck, Box } from 'lucide-react';
 import { getFeaturedProducts } from '../services/productsService';
-import { getAuctionPrice } from '../services/auctionPriceService';
-import { ArrowRight } from 'lucide-react';
+import { CartItem } from './CartDrawer';
 
 interface ProductCardsProps {
   onOpenQuoteModal: (grade?: string, pricePerKg?: number) => void;
@@ -15,234 +13,132 @@ interface ProductCardsProps {
 
 const CARDAMOM_GRADES = [
   {
-    id: '8.5mm-bold',
-    gradeNum: '8.5',
+    id: '8mm-plus',
+    gradeNum: '8.0+',
     gradeUnit: 'mm',
-    gradeName: '8.5 mm+ Extra Bold',
-    badge: '8.5 mm+',
-    badgePrimary: true,
-    origin: 'Origin: Idukki, Kerala, India',
-    packaging: '5 kg Multi-Layer Vacuum Packs',
+    gradeName: '8 mm+ Extra Bold',
+    badge: 'Extra Bold Reserve',
+    origin: 'Top estate harvest. Maximum pod density and volatile essential oils. Flagship grade for GCC luxury retail and connoisseur blending.',
+    packaging: '5 kg Vacuum Packs / 10 kg Master Carton',
+    ports: 'FOB Cochin / CIF Worldwide',
     moq: '100 kg',
-    volatile: '>8.5% V/W',
+    volatile: '>8.0% V/W',
     pricePerKg: 3500,
-    defaultQtyKg: 25,
     image: '/images/cardamom-8.5mm.jpg',
   },
   {
-    id: '8.0mm-premium',
-    gradeNum: '8.0',
-    gradeUnit: 'mm',
-    gradeName: '8.0 mm+ Premium Bold',
-    badge: '8.0 mm+',
-    badgePrimary: false,
-    origin: 'Origin: Idukki, Kerala, India',
-    packaging: '10 kg Vacuum Bags',
-    moq: '100 kg',
-    volatile: '>8.0% V/W',
-    pricePerKg: 3200,
-    defaultQtyKg: 50,
-    image: '/images/cardamom-8.0mm.jpg',
-  },
-  {
-    id: '7.5mm-export',
+    id: '7-8mm',
     gradeNum: '7.5',
     gradeUnit: 'mm',
-    gradeName: '7.5 mm+ Export Grade',
-    badge: '7.5 mm+',
-    badgePrimary: false,
-    origin: 'Origin: Idukki, Kerala, India',
-    packaging: '25 kg Jute + PE Liner',
+    gradeName: '7.5 mm Export Bold',
+    badge: 'Export Benchmark',
+    origin: 'The global trade standard for Indian green cardamom. Impeccable chromatic sorting, vibrant green hue, and intense aroma.',
+    packaging: '10 kg / 25 kg Jute with Poly Liner',
+    ports: 'FOB Cochin / CIF Worldwide',
     moq: '100 kg',
     volatile: '>7.5% V/W',
     pricePerKg: 2900,
-    defaultQtyKg: 100,
     image: '/images/cardamom-7.5mm.jpg',
   },
   {
-    id: '7.0mm-commercial',
-    gradeNum: '7.0',
+    id: '6-7mm',
+    gradeNum: '6–7',
     gradeUnit: 'mm',
-    gradeName: '7.0 mm+ Commercial Grade',
-    badge: '7.0 mm+',
-    badgePrimary: false,
-    origin: 'Origin: Idukki, Kerala, India',
-    packaging: '25 kg HDPE Woven Bags',
+    gradeName: '6 to 7 mm Commercial',
+    badge: 'Foodservice Standard',
+    origin: 'Naturally cured Kerala green cardamom. Ideal for institutional food service, wholesale kitchen supply, and spice powder blenders.',
+    packaging: '25 kg HDPE Multi-Ply Sacks',
+    ports: 'FOB Cochin / CIF Worldwide',
     moq: '100 kg',
     volatile: '>7.0% V/W',
     pricePerKg: 2600,
-    defaultQtyKg: 250,
     image: '/images/cardamom-7.0mm.jpg',
   },
   {
-    id: 'bleached-half',
-    gradeNum: 'BL',
+    id: 'mixed-pods',
+    gradeNum: 'MIX',
     gradeUnit: '',
-    gradeName: 'Bleached / Half Bleached',
-    badge: 'Bleached',
-    badgePrimary: false,
-    origin: 'Origin: Idukki, Kerala, India',
-    packaging: '10 kg / 25 kg as required',
+    gradeName: 'Mixed Pods Bulk',
+    badge: 'Natural Lot',
+    origin: 'Natural unsorted estate harvest pods with intact seeds. Cost-effective volume grade for spice mills, masala grinders, and food production.',
+    packaging: '25 kg / 50 kg Bulk Bags',
+    ports: 'FOB Cochin / CIF Worldwide',
     moq: '100 kg',
-    volatile: '>7.0% V/W',
+    volatile: '>6.5% V/W',
     pricePerKg: 2200,
-    defaultQtyKg: 50,
-    image: '/images/cardamom-bleached.jpg',
+    image: '/images/cardamom-mixed.jpg',
+  },
+  {
+    id: 'rejection',
+    gradeNum: 'IND',
+    gradeUnit: '',
+    gradeName: 'Distillation / Industrial',
+    badge: 'Extraction Grade',
+    origin: 'Open pods, loose seeds, and extraction cuts suited for essential oil steam distillation, oleoresin extraction, and herbal pharma.',
+    packaging: '50 kg Industrial HDPE Sacks',
+    ports: 'FOB Cochin / CIF Worldwide',
+    moq: '100 kg',
+    volatile: 'Variable',
+    pricePerKg: 1200,
+    image: '/images/cardamom-extraction.jpg',
   },
 ];
-
-function CardamomCard({
-  item,
-  index,
-  onOpenQuoteModal,
-}: {
-  item: typeof CARDAMOM_GRADES[0];
-  index: number;
-  onOpenQuoteModal: (g?: string, pricePerKg?: number) => void;
-  onAddToCart?: (item: CartItem) => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.6, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-[#071309] border border-white/[0.06] hover:border-[#C5A046]/40 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(197,160,70,0.08)]"
-    >
-      {/* Image */}
-      <div className="relative h-44 w-full overflow-hidden shrink-0">
-        <img
-          src={item.image}
-          alt={item.gradeName}
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#071309] via-[#071309]/30 to-transparent" />
-        {item.badge && (
-          <div className="absolute top-3 left-3 rounded-full gold-gradient-bg px-3 py-1 text-[#071309] font-semibold text-[10px] uppercase tracking-wider shadow-sm z-10">
-            {item.badge}
-          </div>
-        )}
-      </div>
-
-      {/* Card Body */}
-      <div className="flex flex-col flex-1 p-5 gap-4">
-        {/* Name & Origin */}
-        <div>
-          <h3 className="font-display text-lg font-light text-[#FAF8F5] leading-snug">
-            {item.gradeName}
-          </h3>
-          <p className="text-xs text-stone-400 mt-1 font-light leading-relaxed line-clamp-2">
-            {item.origin}
-          </p>
-        </div>
-
-        {/* Grade specs row */}
-        <div className="flex items-center justify-between rounded-xl bg-white/[0.03] px-3.5 py-2.5 border border-white/[0.06]">
-          <div className="text-center">
-            <div className="text-[10px] text-stone-500 font-light">Pod Size</div>
-            <div className="text-xs text-stone-200 font-medium mt-0.5">{item.gradeNum}{item.gradeUnit}+</div>
-          </div>
-          <div className="w-px h-6 bg-white/10" />
-          <div className="text-center">
-            <div className="text-[10px] text-stone-500 font-light">MOQ Export</div>
-            <div className="text-xs text-stone-200 font-medium mt-0.5">{item.moq}</div>
-          </div>
-          <div className="w-px h-6 bg-white/10" />
-          <div className="text-center">
-            <div className="text-[10px] text-stone-500 font-light">Volatile Oil</div>
-            <div className="text-xs text-stone-200 font-medium mt-0.5">{item.volatile}</div>
-          </div>
-        </div>
-
-        {/* Price note */}
-        <p className="text-[10px] text-stone-500 font-light leading-relaxed">
-          Prices vary by grade, colour, quantity, harvest, packing and Incoterm.
-        </p>
-
-        {/* Single RFQ CTA */}
-        <button
-          type="button"
-          onClick={() => onOpenQuoteModal(`${item.gradeNum}${item.gradeUnit} ${item.gradeName}`)}
-          className="mt-auto w-full rounded-xl gold-gradient-bg py-3 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
-        >
-          <ArrowRight className="w-3.5 h-3.5 pointer-events-none" />
-          <span>Request Current Quote</span>
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
-function getGradeInrPrice(name: string, sizeMm?: string, liveAvgInr: number = 3049, idx: number = 0): number {
-  const str = `${name} ${sizeMm || ''}`.toLowerCase();
-  let mult = 1.0;
-
-  if (str.includes('8.5') || str.includes('extra bold')) mult = 1.15;
-  else if (str.includes('8.0') || str.includes('8.0mm') || str.includes('premium bold') || str.includes('8mm')) mult = 1.05;
-  else if (str.includes('7.5') || str.includes('7.5mm') || str.includes('export')) mult = 0.95;
-  else if (str.includes('7.0') || str.includes('7.0mm') || str.includes('7mm') || str.includes('commercial')) mult = 0.85;
-  else if (str.includes('6.5') || str.includes('mix') || str.includes('ageb')) mult = 0.70;
-  else if (str.includes('rej') || str.includes('oil') || str.includes('extract')) mult = 0.50;
-  else {
-    const fallbackMults = [1.15, 1.05, 0.95, 0.85, 0.70, 0.50];
-    mult = fallbackMults[idx % fallbackMults.length];
-  }
-
-  return Math.round(liveAvgInr * mult);
-}
 
 export default function ProductCards({
   onOpenQuoteModal,
   onNavigateToProducts,
   onNavigateToPackets,
-  onAddToCart,
 }: ProductCardsProps) {
   const [cards, setCards] = useState(CARDAMOM_GRADES);
 
   useEffect(() => {
     async function fetchProducts() {
-      let liveAvg = 3049;
       try {
-        const auctionRes = await getAuctionPrice('small_cardamom');
-        if (auctionRes?.data?.avgPrice) {
-          const parsed = parseFloat(auctionRes.data.avgPrice.replace(/,/g, ''));
-          if (!isNaN(parsed) && parsed > 0) liveAvg = parsed;
-        }
-      } catch (e) {
-        console.error('Failed to fetch live auction rate in ProductCards:', e);
-      }
-
-      try {
-        const prods = await getFeaturedProducts(4);
+        const prods = await getFeaturedProducts(5);
         if (prods && prods.length > 0) {
           const mapped = prods.map((p, idx) => {
-            const sizeStr = p.grades?.[0]?.size_mm || p.specifications?.find((s) => s.label.toLowerCase().includes('size'))?.value || '';
-            const fullGradeText = `${p.name} ${p.export_grade || ''} ${sizeStr}`;
-            const liveInrPrice = getGradeInrPrice(fullGradeText, sizeStr, liveAvg, idx);
-            const finalPrice = (p.price_per_kg && p.price_per_kg > 0) ? p.price_per_kg : liveInrPrice;
+            const defaultItem = CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length];
+            const sizeStr =
+              p.grades?.[0]?.size_mm ||
+              p.specifications?.find((s) => s.label.toLowerCase().includes('size'))?.value ||
+              '';
+
+            let cleanGradeName = defaultItem.gradeName;
+            if (p.name && p.name.length > 10 && !p.name.toLowerCase().includes('best')) {
+              cleanGradeName = p.name;
+            }
+
+            let cleanOrigin = defaultItem.origin;
+            if (
+              p.short_description &&
+              p.short_description.length > 25 &&
+              !p.short_description.toLowerCase().includes('best')
+            ) {
+              cleanOrigin = p.short_description;
+            }
+
             return {
               id: p.id,
-              gradeNum: sizeStr ? sizeStr.replace('mm', '').replace('+', '').trim() : String(8.5 - idx * 0.5),
-              gradeUnit: sizeStr.includes('mm') ? 'mm' : '',
-              gradeName: p.name,
-              badge: sizeStr ? `${sizeStr.replace('+', '')}+` : (p.export_grade || ''),
-              badgePrimary: p.featured,
-              origin: p.short_description || p.long_description || p.specifications?.find((s) => s.label === 'Origin')?.value || 'High-grade single origin green cardamom',
-              packaging: p.packaging_info || '5 kg Multi-Layer Vacuum Packs',
+              gradeNum: sizeStr || defaultItem.gradeNum,
+              gradeUnit: sizeStr ? '' : defaultItem.gradeUnit,
+              gradeName: cleanGradeName,
+              badge: defaultItem.badge,
+              origin: cleanOrigin,
+              packaging: p.packaging_info || defaultItem.packaging,
+              ports: 'FOB Cochin / CIF Worldwide',
               moq: '100 kg',
-              volatile: p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value || '>8.0% V/W',
-              pricePerKg: finalPrice,
-              defaultQtyKg: 25,
-              image: p.main_image_url || p.images?.[0]?.url || CARDAMOM_GRADES[idx % CARDAMOM_GRADES.length].image,
+              volatile:
+                p.specifications?.find((s) => s.label.toLowerCase().includes('oil'))?.value ||
+                defaultItem.volatile,
+              pricePerKg: p.price_per_kg || defaultItem.pricePerKg,
+              image: p.main_image_url || p.images?.[0]?.url || defaultItem.image,
             };
           });
           setCards(mapped);
-        } else {
-          setCards(CARDAMOM_GRADES.slice(0, 4));
         }
       } catch (e) {
         console.error(e);
-        setCards(CARDAMOM_GRADES.slice(0, 4));
+        setCards(CARDAMOM_GRADES);
       }
     }
     fetchProducts();
@@ -251,103 +147,150 @@ export default function ProductCards({
   return (
     <section
       id="products"
-      className="relative overflow-hidden bg-[#0A1F0D] text-[#FAF8F5] py-16 sm:py-28"
+      className="relative overflow-hidden bg-[#071309] text-[#FAF8F5] py-20 sm:py-28 border-b border-white/[0.08]"
     >
-      {/* Ambient glows */}
-      <div
-        className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-[120px] pointer-events-none"
-        style={{ background: '#C5A046' }}
-      />
-      <div
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-[0.03] blur-[100px] pointer-events-none"
-        style={{ background: '#C5A046' }}
-      />
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-        {/* Header — clean, editorial */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-8">
-          <div>
-            <span className="label-caps text-[#C5A046] text-[10px]">Origin: Idukki, Kerala, India</span>
-            <h2
-              className="font-display font-light text-[#FAF8F5] mt-3 leading-[0.92]"
-              style={{ fontSize: 'clamp(2.4rem, 5vw, 4.8rem)' }}
-            >
-              Premium Green<br />
-              <em className="not-italic gold-gradient-text">Cardamom Grades</em>
+        {/* Section Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-8 pb-8 border-b border-white/[0.08]">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#C5A046]/40 bg-[#112D15] px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C5A046] mb-3.5">
+              <Sparkles className="w-3 h-3 text-[#E2BF63]" />
+              <span>B2B Wholesale & Bulk Export Division</span>
+            </div>
+
+            <h2 className="font-display font-light text-[#FAF8F5] text-3xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
+              Export-Grade Cardamom –
+              <span className="font-serif italic text-[#E2BF63] font-normal block sm:inline sm:ml-2">
+                Wholesale Specifications
+              </span>
             </h2>
-            <div className="mt-5 h-px w-16 bg-[#C5A046]/40" />
+
+            <p className="mt-4 text-xs sm:text-sm text-stone-300 font-light leading-relaxed max-w-xl">
+              Sieve-calibrated pod diameters (6.0 mm to 8.5 mm+), Spices Board India certified export grading, and verified laboratory CoAs. Direct containerized sea/air cargo dispatched via Cochin & Tuticorin ports.
+            </p>
           </div>
 
-          <div className="lg:text-right shrink-0 max-w-xs lg:max-w-md">
-            <p className="text-xs text-stone-500 font-light leading-relaxed mb-4">
-              Export grades — request a current FOB/CIF quotation. For retail packs (50g–1 kg) or domestic bulk (MOQ 50 kg), see options below.
-            </p>
-            <div className="flex flex-wrap items-center lg:justify-end gap-2.5">
-              {onNavigateToPackets && (
-                <button
-                  type="button"
-                  onClick={onNavigateToPackets}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A046]/50 bg-[#112D15]/80 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#E2BF63] hover:bg-[#112D15] hover:border-[#C5A046] transition-all cursor-pointer shadow-sm"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#E2BF63] animate-pulse" />
-                  <span>🇮🇳 Shop Packets (50g - 1kg)</span>
-                </button>
-              )}
-              <MagneticButton
-                as="button"
-                onClick={onNavigateToProducts}
-                cursorLabel="Catalogue"
-                className="inline-flex items-center gap-2 rounded-full border border-[#C5A046]/30 bg-transparent px-4 py-2 text-[10px] font-semibold uppercase tracking-widest text-[#C5A046] hover:bg-[#C5A046]/8 hover:border-[#C5A046]/60 transition-all cursor-pointer"
+          {/* Quick Actions */}
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            {onNavigateToPackets && (
+              <button
+                type="button"
+                onClick={onNavigateToPackets}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-4 py-2.5 text-xs font-medium text-stone-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
               >
-                Full Catalogue <ArrowRight className="w-3.5 h-3.5" />
-              </MagneticButton>
-            </div>
+                <span>🇮🇳 Domestic Packets (50g – 1kg)</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onNavigateToProducts}
+              className="inline-flex items-center gap-2 rounded-full gold-gradient-bg px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#071309] hover:brightness-105 transition-all cursor-pointer shadow-md"
+            >
+              <span>Full Trade Catalogue</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
 
-        {/* Grade Cards Grid — dynamically balanced for 1 to 4 products */}
-        {(() => {
-          const displayCards = cards.slice(0, 4);
-          const count = displayCards.length;
-          let gridColsClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
-          if (count === 1) gridColsClass = "grid-cols-1 max-w-sm mx-auto";
-          else if (count === 2) gridColsClass = "grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto";
-          else if (count === 3) gridColsClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto";
-
-          return (
-            <div className={`grid ${gridColsClass} gap-6`}>
-              {displayCards.map((item, i) => (
-                <CardamomCard
-                  key={item.id}
-                  item={item}
-                  index={i}
-                  onOpenQuoteModal={onOpenQuoteModal}
-                  onAddToCart={onAddToCart}
+        {/* Minimal 5-Card Deck */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+          {cards.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: index * 0.06 }}
+              className="group bg-[#0D2213] rounded-2xl border border-white/[0.08] hover:border-[#C5A046]/50 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-2xl"
+            >
+              {/* Product Image */}
+              <div className="relative aspect-[4/3] bg-black/40 overflow-hidden">
+                <img
+                  src={item.image}
+                  alt={item.gradeName}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-95"
+                  loading="lazy"
                 />
-              ))}
-            </div>
-          );
-        })()}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0D2213] via-transparent to-transparent" />
 
-        {/* Bottom strip — elegant */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-14 flex flex-col sm:flex-row items-center justify-between gap-6 pt-10 border-t border-white/[0.06]"
-        >
-          <p className="text-xs text-stone-500 font-light max-w-xl">
-            Certificates of origin, phytosanitary documents, laboratory reports and other export documents can be provided based on buyer and destination requirements.
-          </p>
-          <button
-            onClick={onNavigateToProducts}
-            className="inline-flex items-center gap-2.5 rounded-full gold-gradient-bg px-7 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-[#071309] hover:brightness-110 transition-all cursor-pointer shadow-lg whitespace-nowrap"
-          >
-            Explore Full Export Catalogue
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </motion.div>
+                {/* Caliber Pill */}
+                <div className="absolute top-3 left-3 bg-[#071309]/90 border border-[#C5A046]/40 text-[#E2BF63] text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
+                  {item.gradeNum}{item.gradeUnit}
+                </div>
+
+                {/* MOQ Badge */}
+                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-xs text-stone-300 text-[10px] font-mono px-2 py-0.5 rounded">
+                  MOQ 100 kg
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#C5A046]/80 block mb-0.5">
+                    {item.badge}
+                  </span>
+                  <h3 className="font-display text-base font-semibold text-[#FAF8F5] leading-snug">
+                    {item.gradeName}
+                  </h3>
+                  <p className="text-xs text-stone-400 font-light mt-1.5 line-clamp-2 leading-relaxed">
+                    {item.origin}
+                  </p>
+                </div>
+
+                {/* Minimal Specs Strip */}
+                <div className="pt-3 border-t border-white/[0.06] space-y-2 text-[11px] font-light">
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="text-stone-400 shrink-0">Packaging:</span>
+                    <span className="text-right text-stone-200 font-medium leading-snug">
+                      {item.packaging}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-stone-400">Port:</span>
+                    <span className="text-stone-200 font-medium">{item.ports}</span>
+                  </div>
+                </div>
+
+                {/* Request Quote Button */}
+                <button
+                  type="button"
+                  onClick={() => onOpenQuoteModal(item.gradeName, item.pricePerKg)}
+                  className="w-full rounded-xl gold-gradient-bg py-2.5 text-xs font-bold uppercase tracking-wider text-[#071309] hover:brightness-105 transition-all cursor-pointer shadow-md flex items-center justify-center gap-1.5 active:scale-98"
+                >
+                  <span>Request Trade Quote</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Bottom Trust Note */}
+        <div className="mt-12 pt-6 border-t border-white/[0.08] space-y-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-stone-400">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#C5A046] shrink-0" />
+              <span>Spices Board Export Registered • Phytosanitary &amp; CoA Documentation Provided</span>
+            </div>
+            <button
+              onClick={onNavigateToProducts}
+              className="text-stone-300 hover:text-[#C5A046] underline underline-offset-4 cursor-pointer whitespace-nowrap"
+            >
+              Review Full Incoterms (FOB / CIF / CFR) →
+            </button>
+          </div>
+          {/* Quality Parameters — shown once for all grades */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-[11px] text-stone-400">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-[#C5A046]/70 shrink-0">Quality Parameters:</span>
+            <span><span className="text-stone-300">Moisture</span> — Target spec ≤9.5%, subject to grade &amp; lot</span>
+            <span className="text-white/[0.12] hidden sm:inline">│</span>
+            <span><span className="text-stone-300">Volatile Oil &amp; other params</span> — Lot-specific data on request</span>
+            <span className="text-white/[0.12] hidden sm:inline">│</span>
+            <span><span className="text-stone-300">Shelf Life</span> — Subject to packaging &amp; storage conditions</span>
+          </div>
+        </div>
       </div>
     </section>
   );

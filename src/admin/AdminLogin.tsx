@@ -6,6 +6,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { ADMIN_BASE_PATH } from './adminConstants';
 import toast from 'react-hot-toast';
 
+const LIVE_SITE_URL = import.meta.env.DEV
+  ? window.location.origin
+  : (import.meta.env.VITE_MAIN_SITE_URL ?? 'https://cardanovaspices.com');
+
 export default function AdminLogin() {
   const { signIn, loading } = useAuth();
   const navigate = useNavigate();
@@ -16,6 +20,9 @@ export default function AdminLogin() {
   const [error, setError]         = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // On standalone admin domain, ADMIN_BASE_PATH is not used — navigate to root
+  const dashboardPath = ADMIN_BASE_PATH || '/';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -23,7 +30,7 @@ export default function AdminLogin() {
     try {
       await signIn(email.trim(), password);
       toast.success('Welcome back!');
-      navigate(ADMIN_BASE_PATH);
+      navigate(dashboardPath);
     } catch (err: any) {
       const msg = err?.message || '';
       if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
@@ -48,14 +55,16 @@ export default function AdminLogin() {
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#C5A046]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-[#C5A046]/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Return to site */}
-      <Link
-        to="/"
+      {/* Return to live site */}
+      <a
+        href={LIVE_SITE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="absolute top-6 left-6 flex items-center gap-2 text-xs uppercase tracking-widest text-[#C5A046] hover:text-white transition-colors bg-[#0D2012]/80 px-4 py-2 rounded-full border border-[#C5A046]/30 backdrop-blur-md"
       >
         <ArrowLeft className="w-4 h-4" />
-        Public Website
-      </Link>
+        Live Website
+      </a>
 
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
@@ -112,7 +121,7 @@ export default function AdminLogin() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs uppercase tracking-wider text-[#C5A046] font-medium">Password</label>
-              <Link to={`${ADMIN_BASE_PATH}/forgot-password`} className="text-[11px] text-[#C5A046]/70 hover:text-[#C5A046] transition-colors">
+              <Link to={`${ADMIN_BASE_PATH}/forgot-password`.replace('//', '/')} className="text-[11px] text-[#C5A046]/70 hover:text-[#C5A046] transition-colors">
                 Forgot password?
               </Link>
             </div>

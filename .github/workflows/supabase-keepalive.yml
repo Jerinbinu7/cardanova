@@ -1,0 +1,40 @@
+name: Keep Supabase Active
+
+# Runs every 5 days at 06:00 UTC — well within Supabase's 7-day inactivity window.
+# Also runs on every push (to verify the workflow itself is working).
+on:
+  schedule:
+    - cron: '0 6 */5 * *'   # Every 5 days at 06:00 UTC
+  workflow_dispatch:          # Allows manual trigger from GitHub Actions UI
+  push:
+    branches: [main, master, finalv2]
+
+jobs:
+  ping-supabase:
+    name: Ping Supabase to prevent auto-pause
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          echo "Pinging Supabase at $(date -u)..."
+
+          HTTP_STATUS=$(curl -s -o /tmp/supabase_response.txt -w "%{http_code}" \
+            "${SUPABASE_URL}/rest/v1/products?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -H "Content-Type: application/json")
+
+          echo "HTTP Status: ${HTTP_STATUS}"
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "✅ Supabase is alive and responding."
+          else
+            echo "⚠️  Unexpected status code: ${HTTP_STATUS}"
+            cat /tmp/supabase_response.txt
+            exit 1
+          fi

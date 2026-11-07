@@ -1,6 +1,25 @@
-import { RetailPacketProduct, DomesticOrder } from '../types/domestic';
+import { RetailPacketProduct, DomesticOrder, PackagingOption, WeightVariant } from '../types/domestic';
 import { supabase } from '../lib/supabase';
 import { sendOrderNotificationEmail } from './emailNotificationService';
+
+export function getPackagingLabel(product?: RetailPacketProduct | null, variant?: WeightVariant | null): string {
+  if (product?.id === 'pack-50g-bottle' || product?.name?.toLowerCase().includes('bottle') || variant?.packagingType === 'Bottle') {
+    return 'Glass Bottle';
+  }
+  if (product?.packagingBadge && product.packagingBadge.trim()) {
+    return product.packagingBadge.trim();
+  }
+  const pType = variant?.packagingType || product?.variants?.[0]?.packagingType;
+  if (pType) {
+    if (pType === 'Bottle') return 'Glass Bottle';
+    if (pType === 'Square Box') return 'Gift Box';
+    if (pType === 'Premium Packaging Pouch') return 'Zipper Pouch';
+    return pType;
+  }
+  if (product?.name && product.name.toLowerCase().includes('box')) return 'Gift Box';
+  return 'Zipper Pouch';
+}
+
 
 export const UPI_CONFIG = {
   vpa: 'cardanovaspices@icici', // Primary UPI VPA / ID
@@ -12,131 +31,324 @@ export const UPI_CONFIG = {
   supportWhatsApp: '919656866090',
 };
 
+export const NATURES_FINEST_PACKAGING_OPTIONS: PackagingOption[] = [
+  {
+    id: 'pack-50g-bottle',
+    weight: '50g',
+    weightKg: 0.05,
+    packagingType: 'Bottle',
+    title: '50 g – Bottle',
+    subtitle: 'Airtight Glass Spice Jar',
+    description: 'Artisanal glass jar with airtight brushed brass gold cap. Keeps delicate volatile oils fresh on your dining table.',
+    badge: 'Artisanal Jar',
+    idealFor: 'Dining table elegance, connoisseur tasting & personal gifting',
+    priceInr: 299,
+    originalPriceInr: 450,
+    inStock: true,
+    image: '/images/package-50g-bottle.jpg',
+    specs: {
+      format: 'Cylindrical Glass Bottle with Brushed Gold Cap',
+      sealing: 'Hermetic Inner Freshness Seal',
+      shelfLife: '18 Months',
+    },
+  },
+  {
+    id: 'pack-100g-box',
+    weight: '100g',
+    weightKg: 0.1,
+    packagingType: 'Square Box',
+    title: '100 g – Square Box',
+    subtitle: 'Luxury Rigid Square Gift Box',
+    description: 'Bespoke rigid square gift box in deep emerald with hot-stamped gold foil. Moisture-barrier foil inner tray.',
+    badge: 'Luxury Gift Box',
+    idealFor: 'Festive gifting, wedding favors, corporate presents & pantry reserve',
+    priceInr: 549,
+    originalPriceInr: 799,
+    inStock: true,
+    image: '/images/package-100g-box.jpg',
+    specs: {
+      format: 'Rigid Square Box with Gold Foil Stamping',
+      sealing: 'Gold Foil Moisture-Barrier Inner Seal',
+      shelfLife: '18 Months',
+    },
+  },
+  {
+    id: 'pack-250g-pouch',
+    weight: '250g',
+    weightKg: 0.25,
+    packagingType: 'Premium Packaging Pouch',
+    title: '250 g – Premium Packaging Pouch',
+    subtitle: '3-Layer Aroma-Lock Zipper Pouch',
+    description: 'Multi-layer food-grade aluminum barrier pouch with airtight resealable zip. The essential choice for passionate home cooks.',
+    badge: 'Most Popular',
+    idealFor: 'Daily household cooking, authentic masala chai & gourmet recipes',
+    priceInr: 1299,
+    originalPriceInr: 1799,
+    inStock: true,
+    image: '/images/pouch-8.5mm-royal.jpg',
+    specs: {
+      format: '3-Layer Aluminum Foil Zipper Pouch',
+      sealing: 'Resealable Zip Lock with Nitrogen Flush',
+      shelfLife: '24 Months',
+    },
+  },
+  {
+    id: 'pack-500g-pouch',
+    weight: '500g',
+    weightKg: 0.5,
+    packagingType: 'Premium Packaging Pouch',
+    title: '500 g – Premium Packaging Pouch',
+    subtitle: 'Chef Reserve Zipper Pouch',
+    description: 'Generous culinary pouch offering optimal value for dessert makers, artisan bakeries, and large gourmet households.',
+    badge: 'Chef Value Pack',
+    idealFor: 'Large families, boutique bakeries, sweet shops & tea blenders',
+    priceInr: 2449,
+    originalPriceInr: 3299,
+    inStock: true,
+    image: '/images/pouch-8.0mm-imperial.jpg',
+    specs: {
+      format: 'Heavy-Duty Multi-Barrier Zipper Pouch',
+      sealing: 'Resealable Zip Lock with Degassing Aroma Barrier',
+      shelfLife: '24 Months',
+    },
+  },
+  {
+    id: 'pack-1kg-pouch',
+    weight: '1kg',
+    weightKg: 1.0,
+    packagingType: 'Premium Packaging Pouch',
+    title: '1 kg – Premium Packaging Pouch',
+    subtitle: 'Master Estate Pouch',
+    description: 'Direct-from-estate master pouch with nitrogen flush. Exceptional value for high-volume connoisseurs and catering.',
+    badge: 'Best Value / Master Pack',
+    idealFor: 'Catering, institutional culinary kitchens, confectionery & bulk pantry',
+    priceInr: 4799,
+    originalPriceInr: 6200,
+    inStock: true,
+    image: '/images/pouch-7.5mm-heritage.jpg',
+    specs: {
+      format: 'Commercial Grade Multi-Ply Master Barrier Foil Pouch',
+      sealing: 'Industrial Nitrogen-Flushed Resealable Pouch',
+      shelfLife: '24 Months',
+    },
+  },
+];
+
+export const NATURES_FINEST_PRODUCT: RetailPacketProduct = {
+  id: 'natures-finest-cardamom',
+  name: "Nature’s Finest – Premium Green Cardamom",
+  gradeBadge: "Nature’s Finest",
+  podDiameter: '8.0mm+ Estate Bold',
+  tagline: 'Single-origin green cardamom handpicked from Idukki highlands, flue-cured at source to preserve rich essential oils.',
+  description: 'Estate-selected 100% single-origin green cardamom from the cardamom hills of Idukki, Kerala. Precision cured and sealed in tailored preservation packaging for discerning households, chefs, and connoisseurs.',
+  image: '/images/package-50g-bottle.jpg',
+  colorTheme: 'emerald',
+  accentColor: '#112D15',
+  featured: true,
+  inStock: true,
+  variants: [
+    { weight: '50g', packagingType: 'Bottle', label: '50 g – Bottle', priceInr: 299, originalPriceInr: 450, inStock: true },
+    { weight: '100g', packagingType: 'Square Box', label: '100 g – Square Box', priceInr: 549, originalPriceInr: 799, inStock: true },
+    { weight: '250g', packagingType: 'Premium Packaging Pouch', label: '250 g – Premium Packaging Pouch', priceInr: 1299, originalPriceInr: 1799, inStock: true },
+    { weight: '500g', packagingType: 'Premium Packaging Pouch', label: '500 g – Premium Packaging Pouch', priceInr: 2449, originalPriceInr: 3299, inStock: true },
+    { weight: '1kg', packagingType: 'Premium Packaging Pouch', label: '1 kg – Premium Packaging Pouch', priceInr: 4799, originalPriceInr: 6200, inStock: true },
+  ],
+  specs: {
+    origin: 'Vandanmedu & Santhanpara, Idukki, Kerala, India',
+    speciality: 'GI-Tagged Alleppey Green Cardamom, Flue-Cured at Source',
+    grade: 'Single-Origin Extra Bold Estate Reserve',
+    moisture: 'Target moisture specification: ≤9.5%, subject to lot.',
+    essentialOil: 'Naturally rich in 1,8-cineole and alpha-terpinyl acetate.',
+    packaging: 'Airtight Glass Bottle, Luxury Rigid Box & 3-Layer Foil Pouches',
+    shelfLife: '18 to 24 Months in cool, dry conditions away from direct sunlight.',
+  },
+};
+
 export const DEFAULT_RETAIL_PRODUCTS: RetailPacketProduct[] = [
   {
-    id: 'cnd-pouch-85mm',
-    name: 'Royal Extra Bold Green Cardamom',
-    gradeBadge: '8.5mm+ Royal Extra Bold',
-    podDiameter: '8.5 mm & above',
-    tagline: 'The absolute pinnacle of Idukki harvest. Huge, emerald-green, intensely aromatic pods.',
-    description: 'Selected from the top 1% of the harvest in high-altitude estates of Idukki, Kerala. Each pod is flue-cured within hours of picking to lock in the volatile essential oils and unmistakable royal sweetness.',
+    id: 'pack-50g-bottle',
+    name: '50 Grams – Bottle',
+    gradeBadge: '50g Net Weight',
+    packagingBadge: 'Glass Bottle',
+    podDiameter: '50 Grams',
+    tagline: 'Artisanal airtight glass spice jar with brushed brass gold cap.',
+    description: 'Directly sourced from Idukki, Kerala. Artisanal glass jar with airtight brushed brass gold cap. Keeps delicate volatile oils fresh on your dining table, connoisseur tasting, and personal gifting.',
+    image: '/images/package-50g-bottle.jpg',
+    colorTheme: 'emerald',
+    accentColor: '#112D15',
+    featured: false,
+    inStock: true,
+    variants: [
+      { weight: '50g', packagingType: 'Bottle', label: '50g Artisanal Glass Jar', priceInr: 299, originalPriceInr: 450, inStock: true },
+    ],
+    specs: {
+      origin: 'Idukki, Kerala, India',
+      speciality: '100% Single Origin Green Cardamom',
+      grade: 'Flue-Cured Estate Reserve',
+      moisture: 'Target moisture specification: ≤9.5%',
+      essentialOil: 'Naturally rich in volatile aroma oils',
+      packaging: 'Cylindrical Glass Bottle with Brushed Gold Cap',
+      shelfLife: '18 Months',
+    },
+  },
+  {
+    id: 'pack-100g-box',
+    name: '100 Grams – Square Box',
+    gradeBadge: '100g Net Weight',
+    packagingBadge: 'Gift Box',
+    podDiameter: '100 Grams',
+    tagline: 'Luxury rigid square gift box in deep emerald with gold foil stamping.',
+    description: 'Bespoke rigid square gift box in deep emerald with hot-stamped gold foil. Moisture-barrier foil inner tray. Ideal for festive gifting, wedding favors, corporate presents, and luxury reserve.',
+    image: '/images/package-100g-box.jpg',
+    colorTheme: 'emerald',
+    accentColor: '#112D15',
+    featured: false,
+    inStock: true,
+    variants: [
+      { weight: '100g', packagingType: 'Square Box', label: '100g Luxury Rigid Box', priceInr: 549, originalPriceInr: 799, inStock: true },
+    ],
+    specs: {
+      origin: 'Idukki, Kerala, India',
+      speciality: '100% Single Origin Green Cardamom',
+      grade: 'Flue-Cured Estate Reserve',
+      moisture: 'Target moisture specification: ≤9.5%',
+      essentialOil: 'Naturally rich in volatile aroma oils',
+      packaging: 'Rigid Square Box with Gold Foil Stamping',
+      shelfLife: '18 Months',
+    },
+  },
+  {
+    id: 'pack-250g-pouch',
+    name: '250 Grams – Aroma-Lock Zipper Pouch',
+    gradeBadge: '250g Net Weight',
+    packagingBadge: 'Zipper Pouch',
+    podDiameter: '250 Grams',
+    tagline: '3-layer food-grade aluminum barrier pouch with airtight resealable zip.',
+    description: 'Multi-layer food-grade aluminum barrier pouch with airtight resealable zip. The essential choice for passionate home cooks, daily authentic masala chai, and gourmet recipes.',
     image: '/images/pouch-8.5mm-royal.jpg',
     colorTheme: 'emerald',
     accentColor: '#112D15',
     featured: true,
     inStock: true,
     variants: [
-      { weight: '50g', label: '50 gm Trial Pack', priceInr: 299, originalPriceInr: 450, inStock: true },
-      { weight: '100g', label: '100 gm Pouch', priceInr: 549, originalPriceInr: 799, inStock: true },
-      { weight: '250g', label: '250 gm Zipper Pack', priceInr: 1299, originalPriceInr: 1799, inStock: true },
-      { weight: '500g', label: '500 gm Chef Pack', priceInr: 2449, originalPriceInr: 3299, inStock: true },
-      { weight: '1kg', label: '1 kg Master Pouch', priceInr: 4799, originalPriceInr: 6200, inStock: true },
+      { weight: '250g', packagingType: 'Premium Packaging Pouch', label: '250g Zipper Pouch', priceInr: 1299, originalPriceInr: 1799, inStock: true },
     ],
     specs: {
-      origin: 'Vandanmedu & Santhanpara, Idukki, Kerala',
-      speciality: 'Hand-picked GI-Tagged Alleppey Green Extra Bold',
-      grade: 'AGB (Alleppey Green Extra Bold) 8.5mm+',
-      moisture: 'Target moisture specification: ≤9.5%, subject to grade and lot.',
-      essentialOil: 'Lot-specific quality parameters available on request.',
+      origin: 'Idukki, Kerala, India',
+      speciality: '100% Single Origin Green Cardamom',
+      grade: 'Flue-Cured Estate Reserve',
+      moisture: 'Target moisture specification: ≤9.5%',
+      essentialOil: 'Naturally rich in volatile aroma oils',
       packaging: '3-Layer Aluminum Foil Zipper Pouch with Nitrogen Flush',
-      shelfLife: 'Shelf life subject to packaging, storage conditions and product specification.',
+      shelfLife: '24 Months',
     },
   },
   {
-    id: 'cnd-pouch-80mm',
-    name: 'Imperial Bold Green Cardamom',
-    gradeBadge: '8.0mm Imperial Bold',
-    podDiameter: '8.0 mm - 8.4 mm',
-    tagline: 'Uniformly large, deep green pods packed with signature warm camphor notes.',
-    description: 'Master-graded whole cardamom pods with vibrant green color and unmatched freshness. Perfect for premium culinary use, artisan baking, bespoke tea blends, and festive gifting.',
+    id: 'pack-500g-pouch',
+    name: '500 Grams – Chef Reserve Pouch',
+    gradeBadge: '500g Net Weight',
+    packagingBadge: 'Zipper Pouch',
+    podDiameter: '500 Grams',
+    tagline: 'Generous culinary pouch offering optimal value for dessert makers and cafés.',
+    description: 'Generous culinary pouch offering optimal value for dessert makers, artisan bakeries, and large gourmet households. Heavy-duty barrier locks in signature aroma.',
     image: '/images/pouch-8.0mm-imperial.jpg',
     colorTheme: 'obsidian',
     accentColor: '#1A1A1A',
     featured: false,
     inStock: true,
     variants: [
-      { weight: '50g', label: '50 gm Trial Pack', priceInr: 259, originalPriceInr: 399, inStock: true },
-      { weight: '100g', label: '100 gm Pouch', priceInr: 489, originalPriceInr: 699, inStock: true },
-      { weight: '250g', label: '250 gm Zipper Pack', priceInr: 1149, originalPriceInr: 1599, inStock: true },
-      { weight: '500g', label: '500 gm Chef Pack', priceInr: 2199, originalPriceInr: 2999, inStock: true },
-      { weight: '1kg', label: '1 kg Master Pouch', priceInr: 4299, originalPriceInr: 5600, inStock: true },
+      { weight: '500g', packagingType: 'Premium Packaging Pouch', label: '500g Chef Reserve Pouch', priceInr: 2449, originalPriceInr: 3299, inStock: true },
     ],
     specs: {
-      origin: 'Nedumkandam Estates, Idukki, Kerala',
-      speciality: 'Natural Flue Cured Green Cardamom',
-      grade: 'AGS-1 (Alleppey Green Superior 8.0mm)',
-      moisture: 'Target moisture specification: ≤9.5%, subject to grade and lot.',
-      essentialOil: 'Lot-specific quality parameters available on request.',
-      packaging: 'Airtight Food-Grade Zipper Pouch',
-      shelfLife: 'Shelf life subject to packaging, storage conditions and product specification.',
+      origin: 'Idukki, Kerala, India',
+      speciality: '100% Single Origin Green Cardamom',
+      grade: 'Flue-Cured Estate Reserve',
+      moisture: 'Target moisture specification: ≤9.5%',
+      essentialOil: 'Naturally rich in volatile aroma oils',
+      packaging: 'Heavy-Duty Multi-Barrier Zipper Pouch',
+      shelfLife: '24 Months',
     },
   },
   {
-    id: 'cnd-pouch-75mm',
-    name: 'Heritage Select Green Cardamom',
-    gradeBadge: '7.5mm Heritage Select',
-    podDiameter: '7.5 mm - 7.9 mm',
-    tagline: 'The daily gold standard for authentic Indian aromatic cooking and beverages.',
-    description: 'Crisp, aromatic, medium-bold pods bursting with essential oils. Exceptional quality offering remarkable flavor depth for daily household delicacies and sweet preparations.',
+    id: 'pack-1kg-pouch',
+    name: '1 kg (1,000 Grams) – Master Estate Pouch',
+    gradeBadge: '1 kg (1000g)',
+    packagingBadge: 'Zipper Pouch',
+    podDiameter: '1,000 Grams',
+    tagline: 'Direct-from-estate master pouch with nitrogen flush. Exceptional value for high volume.',
+    description: 'Commercial-grade multi-ply master barrier foil pouch with nitrogen flush. Exceptional value for catering, institutional culinary kitchens, confectionery, and bulk pantry reserve.',
     image: '/images/pouch-7.5mm-heritage.jpg',
     colorTheme: 'ivory',
     accentColor: '#C5A046',
     featured: false,
     inStock: true,
     variants: [
-      { weight: '50g', label: '50 gm Trial Pack', priceInr: 219, originalPriceInr: 349, inStock: true },
-      { weight: '100g', label: '100 gm Pouch', priceInr: 399, originalPriceInr: 599, inStock: true },
-      { weight: '250g', label: '250 gm Zipper Pack', priceInr: 949, originalPriceInr: 1399, inStock: true },
-      { weight: '500g', label: '500 gm Kitchen Pack', priceInr: 1799, originalPriceInr: 2499, inStock: true },
-      { weight: '1kg', label: '1 kg Value Pack', priceInr: 3499, originalPriceInr: 4800, inStock: true },
+      { weight: '1kg', packagingType: 'Premium Packaging Pouch', label: '1 kg Master Foil Pouch', priceInr: 4799, originalPriceInr: 6200, inStock: true },
     ],
     specs: {
-      origin: 'Kattappana Highlands, Idukki, Kerala',
-      speciality: 'Authentic Green Cardamom from Idukki',
-      grade: 'AGS-2 (Alleppey Green Select 7.5mm)',
-      moisture: 'Target moisture specification: ≤9.5%, subject to grade and lot.',
-      essentialOil: 'Lot-specific quality parameters available on request.',
-      packaging: 'Aroma-Lock Fresh Pouch',
-      shelfLife: 'Shelf life subject to packaging, storage conditions and product specification.',
-    },
-  },
-  {
-    id: 'cnd-pouch-70mm',
-    name: 'Classic Commercial Green Cardamom',
-    gradeBadge: '7.0mm Classic Everyday',
-    podDiameter: '7.0 mm - 7.4 mm',
-    tagline: 'Rich authentic cardamom flavor at everyday accessible pricing.',
-    description: 'Pure, authentic Kerala green cardamom with intense aroma. Ideal for masala chai makers, sweet makers, catering, and daily spice grinding.',
-    image: '/images/pouch-7.0mm-classic.jpg',
-    colorTheme: 'sage',
-    accentColor: '#346D3D',
-    featured: false,
-    inStock: true,
-    variants: [
-      { weight: '50g', label: '50 gm Trial Pack', priceInr: 179, originalPriceInr: 299, inStock: true },
-      { weight: '100g', label: '100 gm Pouch', priceInr: 329, originalPriceInr: 499, inStock: true },
-      { weight: '250g', label: '250 gm Zipper Pack', priceInr: 789, originalPriceInr: 1199, inStock: true },
-      { weight: '500g', label: '500 gm Family Pack', priceInr: 1499, originalPriceInr: 2199, inStock: true },
-      { weight: '1kg', label: '1 kg Bulk Pouch', priceInr: 2899, originalPriceInr: 3999, inStock: true },
-    ],
-    specs: {
-      origin: 'Idukki Western Ghats, Kerala',
-      speciality: '100% Pure Chemical-Free Green Cardamom',
-      grade: 'AGE (Alleppey Green Commercial 7.0mm)',
-      moisture: 'Target moisture specification: ≤9.5%, subject to grade and lot.',
-      essentialOil: 'Lot-specific quality parameters available on request.',
-      packaging: 'Sealed Multi-barrier Pouch',
-      shelfLife: 'Shelf life subject to packaging, storage conditions and product specification.',
+      origin: 'Idukki, Kerala, India',
+      speciality: '100% Single Origin Green Cardamom',
+      grade: 'Flue-Cured Estate Reserve',
+      moisture: 'Target moisture specification: ≤9.5%',
+      essentialOil: 'Naturally rich in volatile aroma oils',
+      packaging: 'Commercial Multi-Ply Master Barrier Foil Pouch',
+      shelfLife: '24 Months',
     },
   },
 ];
 
 export const domesticService = {
+    getPackagingOptions(): PackagingOption[] {
+    try {
+      const prods = this.getProducts();
+      if (prods && prods.length > 0) {
+        return prods.map((prod, idx) => {
+          const fallback = NATURES_FINEST_PACKAGING_OPTIONS[idx] || NATURES_FINEST_PACKAGING_OPTIONS[0];
+          const v = prod.variants?.[0] || { weight: '50g', priceInr: 299, originalPriceInr: 450, inStock: true, packagingType: 'Bottle', label: '50g' };
+          const packagingLabel = getPackagingLabel(prod, v);
+          return {
+            id: prod.id,
+            weight: v.weight,
+            weightKg: v.weight === '50g' ? 0.05 : v.weight === '100g' ? 0.1 : v.weight === '250g' ? 0.25 : v.weight === '500g' ? 0.5 : 1.0,
+            packagingType: v.packagingType || packagingLabel,
+            title: prod.name,
+            subtitle: prod.tagline || fallback.subtitle,
+            description: prod.description || fallback.description,
+            badge: prod.gradeBadge || fallback.badge,
+            idealFor: fallback.idealFor,
+            priceInr: v.priceInr,
+            originalPriceInr: v.originalPriceInr,
+            inStock: prod.inStock && v.inStock,
+            image: prod.image || fallback.image,
+            specs: {
+              format: prod.specs?.packaging || fallback.specs.format,
+              sealing: fallback.specs.sealing,
+              shelfLife: prod.specs?.shelfLife || fallback.specs.shelfLife,
+            },
+          };
+        });
+      }
+    } catch (e) {
+      console.error('Failed to get dynamic packaging options:', e);
+    }
+    return NATURES_FINEST_PACKAGING_OPTIONS;
+  },
+
+  getNaturesFinestProduct(): RetailPacketProduct {
+    return NATURES_FINEST_PRODUCT;
+  },
+
   getProducts(): RetailPacketProduct[] {
     try {
       const stored = localStorage.getItem('cardanova_retail_products');
       if (stored) {
-        return JSON.parse(stored);
+        const parsed: RetailPacketProduct[] = JSON.parse(stored);
+        // If legacy grade-based classification was cached, migrate to default retail products
+        if (parsed.some((p) => p.id === 'royal-cardamom-85mm' || p.id === 'imperial-cardamom-80mm' || p.id === 'heritage-cardamom-75mm')) {
+          localStorage.setItem('cardanova_retail_products', JSON.stringify(DEFAULT_RETAIL_PRODUCTS));
+          return DEFAULT_RETAIL_PRODUCTS;
+        }
+        return parsed;
       }
     } catch {
       // Fallback to default
@@ -176,8 +388,9 @@ export const domesticService = {
 
   async createOrder(order: DomesticOrder): Promise<{ success: boolean; orderId: string; error?: string }> {
     try {
-      // 1. Try to save into Supabase domestic_orders table
-      const { data, error } = await supabase
+      // 1. Save into Supabase domestic_orders table
+      // Note: Do NOT use .select('id') here as anonymous shoppers only have INSERT privileges under RLS
+      const { error } = await supabase
         .from('domestic_orders')
         .insert({
           order_number: order.orderNumber,
@@ -193,19 +406,27 @@ export const domesticService = {
           shipping_fee_inr: order.shippingFeeInr,
           final_amount_inr: order.finalAmountInr,
           payment_method: 'UPI',
-          payment_status: order.paymentStatus || 'pending_verification',
+          payment_status: order.paymentStatus || 'paid',
           upi_reference_utr: order.upiReferenceUtr || null,
-          order_status: 'received',
+          order_status: order.orderStatus || 'received',
           notes: order.customer.notes || null,
-        })
-        .select('id')
-        .single();
+        });
 
       if (error) {
         console.warn('[domesticService] Supabase insert note:', error.message);
+        // If row already exists (duplicate key), update UTR and payment status
+        if (error.code === '23505') {
+          await supabase
+            .from('domestic_orders')
+            .update({
+              upi_reference_utr: order.upiReferenceUtr,
+              payment_status: order.paymentStatus || 'paid',
+            })
+            .eq('order_number', order.orderNumber);
+        }
       }
 
-      // 2. Send email notification to admin with full order details
+      // 2. Send email notification to admin with full order details and customer's UTR
       const itemsSummary = order.items
         .map((i) => `• ${i.productName} (${i.weight}) x ${i.quantity} = ₹${i.totalPriceInr}`)
         .join('\n');
@@ -221,10 +442,10 @@ export const domesticService = {
         upiReferenceUtr: order.upiReferenceUtr,
       }).catch((e) => console.warn('[domesticService] Email notification error:', e));
 
-      // Also store in localStorage as reliable buyer receipt cache
+      // 3. Buyer receipt cache in localStorage
       try {
         const stored = JSON.parse(localStorage.getItem('cardanova_my_orders') || '[]');
-        stored.unshift({ ...order, id: data?.id || `local-${Date.now()}` });
+        stored.unshift({ ...order, id: `local-${Date.now()}` });
         localStorage.setItem('cardanova_my_orders', JSON.stringify(stored.slice(0, 20)));
       } catch (e) {
         // ignore storage errors
@@ -232,7 +453,7 @@ export const domesticService = {
 
       return {
         success: true,
-        orderId: data?.id || order.orderNumber,
+        orderId: order.orderNumber,
       };
     } catch (err: any) {
       console.error('[domesticService] createOrder error:', err);
@@ -250,8 +471,12 @@ export const domesticService = {
         })
         .eq('order_number', orderNumber);
 
+      if (error) {
+        console.error('[domesticService] updateOrderUtr error:', error);
+      }
       return !error;
-    } catch {
+    } catch (err) {
+      console.error('[domesticService] updateOrderUtr exception:', err);
       return true;
     }
   },
@@ -263,7 +488,11 @@ export const domesticService = {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error || !data) return [];
+      if (error) {
+        console.error('[domesticService] fetchAllOrders error:', error);
+        throw error;
+      }
+      if (!data) return [];
       return data.map((d: any) => ({
         id: d.id,
         orderNumber: d.order_number,
@@ -288,7 +517,8 @@ export const domesticService = {
         courierTrackingNumber: d.courier_tracking_number,
         createdAt: d.created_at,
       }));
-    } catch {
+    } catch (err) {
+      console.error('[domesticService] fetchAllOrders exception:', err);
       return [];
     }
   },
@@ -310,5 +540,28 @@ export const domesticService = {
     } catch {
       return false;
     }
-  }
+  },
+
+  async cancelOrder(orderNumber: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('domestic_orders')
+        .update({ order_status: 'cancelled', payment_status: 'cancelled' })
+        .eq('order_number', orderNumber);
+
+      // Also remove from localStorage receipt cache
+      try {
+        const stored: any[] = JSON.parse(localStorage.getItem('cardanova_my_orders') || '[]');
+        const updated = stored.map((o) =>
+          o.orderNumber === orderNumber ? { ...o, orderStatus: 'cancelled', paymentStatus: 'cancelled' } : o
+        );
+        localStorage.setItem('cardanova_my_orders', JSON.stringify(updated));
+      } catch { /* ignore */ }
+
+      return !error;
+    } catch {
+      return false;
+    }
+  },
 };
+

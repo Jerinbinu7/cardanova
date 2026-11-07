@@ -21,6 +21,8 @@ interface FileUploadProps {
   className?: string;
   /** Default aspect ratio for cropper */
   defaultAspect?: '3:4' | '1:1' | '4:3' | '16:9' | 'free';
+  /** Whether to open image cropper dialog before uploading. Default: false (uploads directly) */
+  enableCrop?: boolean;
 }
 
 const ACCEPT_MAP = {
@@ -40,6 +42,7 @@ export default function FileUpload({
   disabled,
   className = '',
   defaultAspect = '3:4',
+  enableCrop = false,
 }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -60,14 +63,14 @@ export default function FileUpload({
     }
     if (valid.length) {
       const firstImage = valid.find((f) => f.type.startsWith('image/'));
-      if (firstImage) {
+      if (firstImage && enableCrop) {
         setPendingFiles(valid.filter((f) => f !== firstImage));
         setCropFile(firstImage);
       } else {
         onFiles(valid);
       }
     }
-  }, [accept, onFiles]);
+  }, [accept, enableCrop, onFiles]);
 
   const handleCropComplete = (croppedFile: File) => {
     onFiles([croppedFile, ...pendingFiles]);
@@ -111,14 +114,14 @@ export default function FileUpload({
             <img
               src={currentUrl}
               alt="Current"
-              className="w-28 h-28 object-cover rounded-xl border border-[#C5A046]/30"
+              className="w-28 h-28 object-contain rounded-xl border border-[#C5A046]/30 bg-[#FAF8F5]/5 p-1"
             />
           )}
           {onRemove && (
             <button
               type="button"
               onClick={onRemove}
-              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-0.5 hover:bg-red-700 transition-colors"
+              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-0.5 hover:bg-red-700 transition-colors cursor-pointer"
               title="Remove"
             >
               <X className="w-3.5 h-3.5" />
@@ -195,18 +198,19 @@ export default function FileUpload({
         </div>
       )}
 
-      {/* Image Cropper Modal */}
-      <ImageCropperModal
-        isOpen={!!cropFile}
-        imageFile={cropFile}
-        onClose={() => {
-          setCropFile(null);
-          setPendingFiles([]);
-        }}
-        onCropComplete={handleCropComplete}
-        defaultAspect={defaultAspect}
-      />
+      {/* Image Cropper Modal (Only if enableCrop=true) */}
+      {enableCrop && (
+        <ImageCropperModal
+          isOpen={!!cropFile}
+          imageFile={cropFile}
+          onClose={() => {
+            setCropFile(null);
+            setPendingFiles([]);
+          }}
+          onCropComplete={handleCropComplete}
+          defaultAspect={defaultAspect}
+        />
+      )}
     </div>
   );
 }
-

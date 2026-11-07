@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Crop, ZoomIn, MoveVertical, MoveHorizontal, Check } from 'lucide-react';
+import { X, Crop, ZoomIn, MoveVertical, MoveHorizontal, Check, Image as ImageIcon } from 'lucide-react';
 
 interface ImageCropperModalProps {
   isOpen: boolean;
@@ -69,21 +69,23 @@ export default function ImageCropperModal({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let targetWidth = 600;
-    let targetHeight = 600;
+    // Determine target dimensions based on aspect ratio
+    const selectedRatio = ASPECT_RATIOS.find((r) => r.id === aspect)?.ratio || 0;
+    let targetWidth = 800;
+    let targetHeight = 800;
 
-    const selectedRatio = ASPECT_RATIOS.find((r) => r.id === aspect)?.ratio ?? 0;
     if (selectedRatio > 0) {
       if (selectedRatio >= 1) {
-        targetWidth = 800;
-        targetHeight = Math.round(800 / selectedRatio);
+        targetWidth = 1000;
+        targetHeight = Math.round(targetWidth / selectedRatio);
       } else {
-        targetHeight = 800;
-        targetWidth = Math.round(800 * selectedRatio);
+        targetHeight = 1000;
+        targetWidth = Math.round(targetHeight * selectedRatio);
       }
     } else {
-      targetWidth = img.width;
-      targetHeight = img.height;
+      // Free / original aspect ratio
+      targetWidth = Math.min(img.naturalWidth, 1200);
+      targetHeight = Math.round(targetWidth * (img.naturalHeight / img.naturalWidth));
     }
 
     canvas.width = targetWidth;
@@ -91,29 +93,35 @@ export default function ImageCropperModal({
 
     ctx.clearRect(0, 0, targetWidth, targetHeight);
 
-    // Calculate source crop region based on scale and offsets
-    const imgRatio = img.width / img.height;
-    const canvasRatio = targetWidth / targetHeight;
+    // Calculate crop rectangle with scale and offsets
+    const imgAspect = img.naturalWidth / img.naturalHeight;
+    const canvasAspect = targetWidth / targetHeight;
 
-    let drawW: number;
-    let drawH: number;
+    let srcW = img.naturalWidth;
+    let srcH = img.naturalHeight;
 
-    if (imgRatio > canvasRatio) {
-      drawH = targetHeight * scale;
-      drawW = drawH * imgRatio;
+    if (imgAspect > canvasAspect) {
+      srcW = img.naturalHeight * canvasAspect;
     } else {
-      drawW = targetWidth * scale;
-      drawH = drawW / imgRatio;
+      srcH = img.naturalWidth / canvasAspect;
     }
 
-    // Offset calculations
-    const extraX = drawW - targetWidth;
-    const extraY = drawH - targetHeight;
+    // Apply zoom (scale >= 1 means smaller source window, zooming in)
+    srcW = srcW / scale;
+    srcH = srcH / scale;
 
-    const drawX = -extraX * (offsetX / 100);
-    const drawY = -extraY * (offsetY / 100);
+    // Apply pan offsets (0 to 100%)
+    const maxOffsetX = img.naturalWidth - srcW;
+    const maxOffsetY = img.naturalHeight - srcH;
 
-    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    const srcX = Math.max(0, Math.min(maxOffsetX, (offsetX / 100) * maxOffsetX));
+    const srcY = Math.max(0, Math.min(maxOffsetY, (offsetY / 100) * maxOffsetY));
+
+    // High-quality image rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
   };
 
   const handleApplyCrop = () => {
@@ -123,41 +131,47 @@ export default function ImageCropperModal({
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
-        const croppedFile = new File([blob], imageFile.name, {
-          type: imageFile.type || 'image/jpeg',
-          lastModified: Date.now(),
-        });
+        const croppedFile = new File(
+          [blob],
+          imageFile.name.replace(/\.[^.]+$/, '.webp'),
+          { type: 'image/webp', lastModified: Date.now() }
+        );
         onCropComplete(croppedFile);
-        onClose();
       },
-      imageFile.type || 'image/jpeg',
-      0.92
+      'image/webp',
+      0.9
     );
   };
 
-  if (!isOpen || !imageFile || !imgSrc) return null;
+  const handleUseOriginal = () => {
+    if (imageFile) {
+      onCropComplete(imageFile);
+    }
+  };
+
+  if (!isOpen || !imageFile) return null;
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="bg-[#0D2012] border border-[#C5A046]/40 rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl">
+    <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+      <div className="bg-[#0D2012] border border-[#C5A046]/40 rounded-2xl w-full max-w-2xl my-auto shadow-2xl overflow-hidden p-5 sm:p-6 space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#C5A046]/20 pb-4">
-          <div className="flex items-center gap-2 text-[#C5A046]">
-            <Crop className="w-5 h-5" />
-            <h3 className="text-lg font-light text-[#FAF8F5]">Crop & Adjust Image</h3>
+        <div className="flex items-center justify-between pb-3 border-b border-[#C5A046]/20">
+          <div className="flex items-center gap-2">
+            <Crop className="w-5 h-5 text-[#C5A046]" />
+            <h3 className="text-base font-semibold text-white">Crop &amp; Adjust Image</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-stone-400 hover:text-white p-1 rounded-lg transition-colors"
+            className="text-stone-400 hover:text-white p-1 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Aspect Ratio Selector */}
+        {/* 1. Aspect Ratio Presets */}
         <div>
-          <label className="block text-xs uppercase tracking-wider text-[#C5A046] mb-2 font-medium">
+          <label className="block text-[11px] font-semibold text-[#C5A046] uppercase tracking-wider mb-2">
             1. Select Aspect Ratio
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -166,10 +180,10 @@ export default function ImageCropperModal({
                 key={r.id}
                 type="button"
                 onClick={() => setAspect(r.id)}
-                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-xs font-medium border text-left transition-all cursor-pointer ${
                   aspect === r.id
-                    ? 'bg-[#C5A046] text-[#071309] font-bold shadow-md'
-                    : 'bg-[#071309] text-stone-300 border border-[#C5A046]/30 hover:border-[#C5A046]'
+                    ? 'bg-[#C5A046] text-[#071309] border-[#C5A046] font-semibold shadow-md'
+                    : 'bg-[#071309] text-stone-300 border-[#C5A046]/30 hover:border-[#C5A046]'
                 }`}
               >
                 {r.label}
@@ -178,17 +192,17 @@ export default function ImageCropperModal({
           </div>
         </div>
 
-        {/* Canvas Preview Box */}
-        <div className="flex justify-center bg-[#071309] border border-[#C5A046]/30 rounded-2xl p-4 overflow-hidden max-h-[320px]">
+        {/* 2. Interactive Canvas Preview */}
+        <div className="relative bg-[#071309] border border-[#C5A046]/30 rounded-xl overflow-hidden flex items-center justify-center min-h-[220px] max-h-[340px] p-2">
           <canvas
             ref={canvasRef}
-            className="max-h-[280px] w-auto object-contain rounded-lg shadow-lg border border-[#C5A046]/20"
+            className="max-h-[300px] w-auto max-w-full object-contain rounded-lg shadow-lg"
           />
         </div>
 
-        {/* Fine Adjustment Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#071309]/80 p-4 rounded-2xl border border-[#C5A046]/20">
-          {/* Zoom */}
+        {/* 3. Controls: Zoom & Focus Position */}
+        <div className="space-y-3 bg-[#071309]/80 border border-[#C5A046]/20 rounded-xl p-3.5">
+          {/* Zoom Slider */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-stone-300">
               <span className="flex items-center gap-1"><ZoomIn className="w-3.5 h-3.5 text-[#C5A046]" /> Zoom</span>
@@ -239,21 +253,33 @@ export default function ImageCropperModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
           <button
             type="button"
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-xl text-xs text-stone-300 border border-stone-700 hover:border-stone-500 cursor-pointer"
+            onClick={handleUseOriginal}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs text-[#C5A046] border border-[#C5A046]/40 hover:bg-[#C5A046]/10 cursor-pointer transition-colors"
+            title="Use original file without cropping"
           >
-            Cancel
+            <ImageIcon className="w-3.5 h-3.5" />
+            Skip / Use Original
           </button>
-          <button
-            type="button"
-            onClick={handleApplyCrop}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-semibold text-xs uppercase tracking-wider hover:brightness-110 cursor-pointer shadow-xl"
-          >
-            <Check className="w-4 h-4" /> Crop & Apply
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2.5 rounded-xl text-xs text-stone-300 border border-stone-700 hover:border-stone-500 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleApplyCrop}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#C5A046] to-[#DFBF6C] text-[#071309] font-semibold text-xs uppercase tracking-wider hover:brightness-110 cursor-pointer shadow-xl"
+            >
+              <Check className="w-4 h-4" /> Crop &amp; Apply
+            </button>
+          </div>
         </div>
       </div>
     </div>

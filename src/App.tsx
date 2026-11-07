@@ -32,7 +32,16 @@ import DomesticIndianSection from './components/DomesticIndianSection';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import QuoteModal from './components/QuoteModal';
-import CartDrawer, { CartItem } from './components/CartDrawer';
+import CartDrawer from './components/CartDrawer';
+import UpiCheckoutModal from './components/UpiCheckoutModal';
+import { DomesticOrderItem, WeightOption } from './types/domestic';
+import {
+  getCartItems,
+  addToCart,
+  updateCartQuantity,
+  removeFromCart,
+  clearCart,
+} from './services/cartService';
 import { ADMIN_BASE_PATH } from './admin/adminConstants';
 import { triggerGoogleTranslateSync } from './utils/translation';
 
@@ -157,25 +166,21 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'about' | 'products' | 'origin' | 'packets' | 'admin'>('home');
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState<string>('8.5 mm Extra Bold');
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
 
-  // Cart state with localStorage persistence
+  // Shopping Cart & UPI Checkout state
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('cardanova_export_cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [cartItems, setCartItems] = useState<DomesticOrderItem[]>(() => getCartItems());
+  const [isUpiCheckoutOpen, setIsUpiCheckoutOpen] = useState(false);
+  const [checkoutItems, setCheckoutItems] = useState<DomesticOrderItem[]>([]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('cardanova_export_cart', JSON.stringify(cartItems));
-    } catch (e) {
-      console.warn('Failed to save export cart:', e);
-    }
-  }, [cartItems]);
+    const handleCartSync = () => {
+      setCartItems(getCartItems());
+    };
+    window.addEventListener('cardanova_cart_updated', handleCartSync);
+    return () => window.removeEventListener('cardanova_cart_updated', handleCartSync);
+  }, []);
 
   const reducedMotion = useReducedMotion();
 
@@ -229,11 +234,16 @@ export default function App() {
   const [isCartCheckout, setIsCartCheckout] = useState(false);
   const [selectedPricePerKg, setSelectedPricePerKg] = useState<number | undefined>(undefined);
 
-  const handleOpenQuoteModal = (grade?: string, pricePerKg?: number) => {
+  const handleOpenQuoteModal = (grade?: string, pricePerKg?: number, country?: string) => {
     if (grade) setSelectedGrade(grade);
     setSelectedPricePerKg(pricePerKg);
+    setSelectedCountry(country || '');
     setIsCartCheckout(false);
     setIsQuoteOpen(true);
+  };
+
+  const handleOpenDomesticBulkModal = (grade?: string) => {
+    handleOpenQuoteModal(grade || '8 mm+', undefined, 'India');
   };
 
   const handleNavigateToProducts = () => {
@@ -241,36 +251,36 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAddToCart = (item: CartItem) => {
-    setCartItems((prev) => {
-      const existingIndex = prev.findIndex((i) => i.id === item.id);
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex].quantityKg += item.quantityKg;
-        return updated;
-      }
-      return [...prev, item];
-    });
+  const handleAddToCart = (item: DomesticOrderItem) => {
+    addToCart(item);
     setIsCartOpen(true);
   };
 
-  const handleUpdateQuantity = (id: string, newQty: number) => {
-    setCartItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, quantityKg: newQty } : i))
-    );
+  const handleBuyNow = (item: DomesticOrderItem) => {
+    setCheckoutItems([item]);
+    setIsUpiCheckoutOpen(true);
   };
 
-  const handleRemoveItem = (id: string) => {
-    setCartItems((prev) => prev.filter((i) => i.id !== id));
+  const handleCartCheckout = () => {
+    if (cartItems.length === 0) return;
+    setCheckoutItems(cartItems);
+    setIsCartOpen(false);
+    setIsUpiCheckoutOpen(true);
   };
 
-  const handleCheckoutRFQ = () => {
-    const itemsSummary = cartItems
-      .map((i) => `${i.gradeName} (${i.quantityKg}kg)`)
-      .join(', ');
-    setSelectedGrade(`Bulk Cart Order: ${itemsSummary}`);
-    setIsCartCheckout(true);
-    setIsQuoteOpen(true);
+  const handleUpdateQuantity = (productId: string, weight: WeightOption, delta: number) => {
+    updateCartQuantity(productId, weight, delta);
+  };
+
+  const handleRemoveItem = (productId: string, weight: WeightOption) => {
+    removeFromCart(productId, weight);
+  };
+
+  const handleOrderSuccess = () => {
+    // Only clear the cart — do NOT close the modal here.
+    // The success screen inside UpiCheckoutModal has a "Done" button
+    // that calls onClose, letting the buyer read their confirmation first.
+    clearCart();
   };
 
   const currentSEO = PAGE_SEO[activeTab as keyof typeof PAGE_SEO] ?? PAGE_SEO.home;
@@ -342,7 +352,7 @@ export default function App() {
           activeTab={activeTab as any}
           setActiveTab={(tab) => handleSelectTab(tab as any)}
           onOpenQuoteModal={handleOpenQuoteModal}
-          cartCount={cartItems.length}
+          cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)}
           onOpenCart={() => setIsCartOpen(true)}
         />
 
@@ -362,15 +372,16 @@ export default function App() {
               />
               <DomesticIndianSection
                 onOpenQuoteModal={handleOpenQuoteModal}
+                onOpenDomesticBulkModal={handleOpenDomesticBulkModal}
                 onNavigateToPackets={() => handleSelectTab('packets')}
                 onAddToCart={handleAddToCart}
+                onBuyNow={handleBuyNow}
               />
               <WhyChooseCardanova />
               <ProductCards
                 onOpenQuoteModal={handleOpenQuoteModal}
                 onNavigateToProducts={handleNavigateToProducts}
                 onNavigateToPackets={() => handleSelectTab('packets')}
-                onAddToCart={handleAddToCart}
               />
               <ExportExperience />
               <GlobalStandards />
@@ -407,7 +418,6 @@ export default function App() {
             >
               <ProductsPage
                 onOpenQuoteModal={handleOpenQuoteModal}
-                onAddToCart={handleAddToCart}
               />
             </motion.div>
           )}
@@ -420,7 +430,13 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <DomesticStore onSwitchToExport={handleNavigateToProducts} />
+              <DomesticStore
+                onSwitchToExport={handleNavigateToProducts}
+                onOpenDomesticBulkModal={handleOpenDomesticBulkModal}
+                onAddToCart={handleAddToCart}
+                onBuyNow={handleBuyNow}
+                onOpenCart={() => setIsCartOpen(true)}
+              />
             </motion.div>
           )}
 
@@ -444,32 +460,37 @@ export default function App() {
         />
         <WhatsAppButton />
 
-        {/* Interactive International B2B Quote Modal */}
+        {/* Unified B2B Wholesale & Export Trade Quote Modal */}
         <QuoteModal
           isOpen={isQuoteOpen}
           onClose={() => {
             setIsQuoteOpen(false);
             setIsCartCheckout(false);
+            setSelectedCountry('');
           }}
           defaultGrade={selectedGrade}
           defaultPricePerKg={selectedPricePerKg}
-          cartItems={isCartCheckout ? cartItems : []}
-          onSuccess={() => {
-            if (isCartCheckout) {
-              setCartItems([]);
-              setIsCartCheckout(false);
-            }
-          }}
+          defaultCountry={selectedCountry}
+          cartItems={[]}
+          onNavigateToPackets={() => handleSelectTab('packets')}
         />
 
-        {/* Cart Drawer */}
+        {/* Shopping Cart Drawer (Single Currency INR with direct Buy flow) */}
         <CartDrawer
           isOpen={isCartOpen}
           onClose={() => setIsCartOpen(false)}
           cartItems={cartItems}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
-          onCheckoutRFQ={handleCheckoutRFQ}
+          onCheckout={handleCartCheckout}
+        />
+
+        {/* UPI Direct Checkout Modal */}
+        <UpiCheckoutModal
+          isOpen={isUpiCheckoutOpen}
+          onClose={() => setIsUpiCheckoutOpen(false)}
+          orderItems={checkoutItems}
+          onOrderSuccess={handleOrderSuccess}
         />
       </motion.div>
       </>} />

@@ -268,7 +268,7 @@ export default function ExportExperience() {
                   <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" />
                 </circle>
                 <circle cx="662" cy="230" r="5" fill="#C5A046" />
-                <text x="672" y="225" fill="#FAF8F5" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="600">
+                <text x="662" y="246" fill="#FAF8F5" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="600" textAnchor="middle">
                   Idukki, India (Origin)
                 </text>
               </g>

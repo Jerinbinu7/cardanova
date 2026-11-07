@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown, X, SlidersHorizontal } from 'lucide-react';
 import { getProducts } from '../services/productsService';
-import { getAuctionPrice } from '../services/auctionPriceService';
 import { triggerGoogleTranslateSync } from '../utils/translation';
 import type { CartItem } from './CartDrawer';
 
@@ -13,56 +12,34 @@ interface ProductsPageProps {
 
 const PRODUCTS_CATALOGUE = [
   {
-    id: '8.5mm-bold',
-    category: 'flagship' as const,
-    gradeNum: '8.5',
-    gradeUnit: 'mm',
-    gradeName: '8.5 mm+ Extra Bold',
-    size: '8.5 mm+',
-    color: 'Deep Natural Emerald Green',
-    origin: 'Idukki, Kerala, India',
-    moisture: '< 9.5%',
-    availability: 'Year-Round',
-    packaging: '5kg Multi-Layer Vacuum Packs / 10kg Master Cartons',
-    moq: '100 kg',
-    hsCode: '0908.31.10',
-    shelfLife: '24 Months',
-    applications: 'Luxury Retail, High-End Gourmet, Middle East Coffee Blends, Premium Export',
-    image: '/images/cardamom-8.5mm.jpg',
-    badge: '8.5 mm+',
-    pricePerKg: 2850,
-    rating: 4.8,
-    reviewCount: 124,
-  },
-  {
-    id: '8mm-premium',
-    category: 'flagship' as const,
-    gradeNum: '8.0',
-    gradeUnit: 'mm',
-    gradeName: '8.0 mm+ Premium Bold',
-    size: '8.0 mm – 8.4 mm',
-    color: 'Vibrant Forest Green',
-    origin: 'Idukki, Kerala, India',
-    moisture: '< 10.0%',
-    availability: 'In Stock',
-    packaging: '10kg Vacuum Foil Bags / 25kg Cartons',
-    moq: '100 kg',
-    hsCode: '0908.31.10',
-    shelfLife: '24 Months',
-    applications: 'Premium Wholesale, Supermarket Labels, Confectionery & Beverage',
-    image: '/images/cardamom-8.0mm.jpg',
-    badge: '8.0 mm+',
-    pricePerKg: 2550,
-    rating: 4.5,
-    reviewCount: 98,
-  },
-  {
-    id: '7.5mm-export',
+    id: '6-7mm',
     category: 'standard' as const,
-    gradeNum: '7.5',
+    gradeNum: '6–7',
     gradeUnit: 'mm',
-    gradeName: '7.5 mm+ Export Grade',
-    size: '7.5 mm – 7.9 mm',
+    gradeName: '6 to 7 mm',
+    size: '6.0 mm – 7.0 mm',
+    color: 'Medium Light Green',
+    origin: 'Idukki, Kerala, India',
+    moisture: '< 11.0%',
+    availability: 'In Stock',
+    packaging: '25kg Bulk HDPE / Jute Bags',
+    moq: '100 kg',
+    hsCode: '0908.31.20',
+    shelfLife: '24 Months',
+    applications: 'Commercial Kitchens, Institutional Foodservice, Catering Supply, Spice Blenders',
+    image: '/images/cardamom-7.0mm.jpg',
+    badge: '6 to 7 mm',
+    pricePerKg: 2600,
+    rating: 4.3,
+    reviewCount: 64,
+  },
+  {
+    id: '7-8mm',
+    category: 'standard' as const,
+    gradeNum: '7–8',
+    gradeUnit: 'mm',
+    gradeName: '7 – 8 mm',
+    size: '7.0 mm – 8.0 mm',
     color: 'Rich Emerald Green',
     origin: 'Idukki, Kerala, India',
     moisture: '< 10.0%',
@@ -73,40 +50,40 @@ const PRODUCTS_CATALOGUE = [
     shelfLife: '24 Months',
     applications: 'Export Wholesalers, Culinary Repackers, Bakery & Spice Blenders',
     image: '/images/cardamom-7.5mm.jpg',
-    badge: '7.5 mm+',
-    pricePerKg: 2250,
-    rating: 4.4,
+    badge: '7 – 8 mm',
+    pricePerKg: 2900,
+    rating: 4.5,
     reviewCount: 76,
   },
   {
-    id: '7mm-commercial',
-    category: 'standard' as const,
-    gradeNum: '7.0',
+    id: '8mm-plus',
+    category: 'flagship' as const,
+    gradeNum: '8+',
     gradeUnit: 'mm',
-    gradeName: '7.0 mm+ Commercial Grade',
-    size: '7.0 mm – 7.4 mm',
-    color: 'Medium Light Green',
+    gradeName: '8 mm+',
+    size: '8.0 mm+',
+    color: 'Deep Natural Emerald Green',
     origin: 'Idukki, Kerala, India',
-    moisture: '< 11.0%',
-    availability: 'In Stock',
-    packaging: '25kg Bulk HDPE / Jute Bags',
+    moisture: '< 9.5%',
+    availability: 'Year-Round',
+    packaging: '5kg Multi-Layer Vacuum Packs / 10kg Master Cartons',
     moq: '100 kg',
-    hsCode: '0908.31.20',
+    hsCode: '0908.31.10',
     shelfLife: '24 Months',
-    applications: 'Commercial Kitchens, Institutional Foodservice, Catering Supply',
-    image: '/images/cardamom-7.0mm.jpg',
-    badge: '7.0 mm+',
-    pricePerKg: 1950,
-    rating: 4.2,
-    reviewCount: 64,
+    applications: 'Luxury Retail, High-End Gourmet, Middle East Coffee Blends, Premium Export',
+    image: '/images/cardamom-8.5mm.jpg',
+    badge: '8 mm+',
+    pricePerKg: 3500,
+    rating: 4.8,
+    reviewCount: 124,
   },
   {
-    id: 'split-grade',
+    id: 'mixed-pods',
     category: 'industrial' as const,
     gradeNum: 'MIX',
     gradeUnit: '',
-    gradeName: 'Mixed Pods (AGEB / LGB)',
-    size: 'Assorted (6.5 mm – 8.0 mm)',
+    gradeName: 'Mixed pods(bulk)',
+    size: 'Assorted (6.0 mm – 8.0 mm)',
     color: 'Natural Mixed Green',
     origin: 'Idukki, Kerala, India',
     moisture: '< 11.5%',
@@ -117,17 +94,17 @@ const PRODUCTS_CATALOGUE = [
     shelfLife: '24 Months',
     applications: 'Grinding, Spice Powders, Extract Processing, Bulk Food Manufacture',
     image: '/images/cardamom-mixed.jpg',
-    badge: 'Mixed Size',
-    pricePerKg: 1650,
+    badge: 'Mixed pods',
+    pricePerKg: 2200,
     rating: 4.0,
     reviewCount: 42,
   },
   {
-    id: 'rejection-grade',
+    id: 'rejection',
     category: 'industrial' as const,
-    gradeNum: 'OIL',
+    gradeNum: 'REJ',
     gradeUnit: '',
-    gradeName: 'Extraction Grade',
+    gradeName: 'Rejection',
     size: 'Pods, Seeds & Husks',
     color: 'Natural Pale / Yellowish Green',
     origin: 'Idukki, Kerala, India',
@@ -139,8 +116,8 @@ const PRODUCTS_CATALOGUE = [
     shelfLife: '18 Months',
     applications: 'Essential Oil Distillation, Oleoresin Extraction, Pharmaceutical Processing',
     image: '/images/cardamom-extraction.jpg',
-    badge: 'Rej. Pieces',
-    pricePerKg: 950,
+    badge: 'Rejection',
+    pricePerKg: 1200,
     rating: 4.1,
     reviewCount: 36,
   },
@@ -221,8 +198,8 @@ function ProductCard({
           </div>
           <div className="w-px h-6 bg-stone-200" />
           <div className="text-center">
-            <div className="text-[10px] text-stone-400 font-light">Moisture</div>
-            <div className="text-xs text-stone-700 font-medium mt-0.5">{product.moisture}</div>
+            <div className="text-[10px] text-stone-400 font-light">Shelf Life</div>
+            <div className="text-xs text-stone-700 font-medium mt-0.5">{product.shelfLife}</div>
           </div>
         </div>
 
@@ -248,14 +225,13 @@ function ProductCard({
 
 function getProductGradeMultiplier(name: string, sizeStr: string, idx: number): number {
   const str = `${name} ${sizeStr}`.toLowerCase();
-  if (str.includes('8.5') || str.includes('extra bold')) return 1.15;
-  if (str.includes('8.0') || str.includes('8mm') || str.includes('premium')) return 1.05;
-  if (str.includes('7.5') || str.includes('export')) return 0.95;
-  if (str.includes('7.0') || str.includes('7mm') || str.includes('commercial')) return 0.85;
-  if (str.includes('6.5') || str.includes('mix') || str.includes('ageb')) return 0.70;
+  if (str.includes('8 mm+') || str.includes('8mm+') || str.includes('8.0') || str.includes('8.5')) return 1.15;
+  if (str.includes('7') && str.includes('8')) return 1.0;
+  if (str.includes('6') && str.includes('7')) return 0.85;
+  if (str.includes('mix')) return 0.70;
   if (str.includes('rej') || str.includes('oil') || str.includes('extract') || str.includes('spent')) return 0.50;
 
-  const fallbackMults = [1.15, 1.05, 0.95, 0.85, 0.70, 0.50];
+  const fallbackMults = [0.85, 1.0, 1.15, 0.70, 0.50];
   return fallbackMults[idx % fallbackMults.length];
 }
 
@@ -284,15 +260,6 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
   useEffect(() => {
     async function load() {
       let liveAvg = 3049;
-      try {
-        const auctionRes = await getAuctionPrice('small_cardamom');
-        if (auctionRes?.data?.avgPrice) {
-          const parsed = parseFloat(auctionRes.data.avgPrice.replace(/,/g, ''));
-          if (!isNaN(parsed) && parsed > 0) liveAvg = parsed;
-        }
-      } catch (e) {
-        console.error('Failed to fetch live auction rate:', e);
-      }
 
       try {
         const prods = await getProducts(true);
@@ -583,6 +550,26 @@ export default function ProductsPage({ onOpenQuoteModal, onAddToCart }: Products
       </AnimatePresence>
 
       <section className="py-16 px-6 lg:px-10 max-w-7xl mx-auto" aria-label="Cardamom Grades Catalogue">
+
+        {/* Quality Standards Note — shown once, applies to all grades */}
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-2xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
+          <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-[#112D15]/8 border border-[#112D15]/12">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#112D15]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 mb-1">Quality Parameters — All Grades</p>
+            <div className="flex flex-wrap gap-x-6 gap-y-1 text-[11px] text-stone-500">
+              <span><span className="font-medium text-[#112D15]">Moisture:</span> Target spec ≤9.5%, subject to grade &amp; lot</span>
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <span><span className="font-medium text-[#112D15]">Volatile Oil &amp; other parameters:</span> Lot-specific data available on request</span>
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <span><span className="font-medium text-[#112D15]">Shelf Life:</span> Subject to packaging, storage &amp; product spec</span>
+            </div>
+          </div>
+        </div>
+
         {filtered.length === 0 ? (
           <div className="text-center py-24 text-stone-400">
             <p className="font-display font-light text-2xl mb-2">No products found</p>

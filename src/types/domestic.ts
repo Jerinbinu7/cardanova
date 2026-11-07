@@ -1,17 +1,41 @@
-﻿export type WeightOption = '50g' | '100g' | '250g' | '500g' | '1kg';
+export type WeightOption = '50g' | '100g' | '250g' | '500g' | '1kg' | string;
+export type PackagingType = 'Bottle' | 'Square Box' | 'Premium Packaging Pouch' | string;
 
 export interface WeightVariant {
   weight: WeightOption;
   label: string;
+  packagingType?: PackagingType;
   priceInr: number;
   originalPriceInr: number;
   inStock: boolean;
+}
+
+export interface PackagingOption {
+  id: string;
+  weight: WeightOption;
+  weightKg: number;
+  packagingType: PackagingType;
+  title: string;
+  subtitle: string;
+  description: string;
+  badge?: string;
+  idealFor: string;
+  priceInr: number;
+  originalPriceInr: number;
+  inStock: boolean;
+  image: string;
+  specs: {
+    format: string;
+    sealing: string;
+    shelfLife: string;
+  };
 }
 
 export interface RetailPacketProduct {
   id: string;
   name: string;
   gradeBadge: string;
+  packagingBadge?: string;
   podDiameter: string;
   tagline: string;
   description: string;

@@ -11,10 +11,10 @@ const WHY_ITEMS = [
       </svg>
     ),
     tag: 'Origin: Idukki, Kerala, India',
-    title: 'High-Altitude Estates',
-    stat: '1,100m',
-    statLabel: 'Elevation',
-    sub: 'Cultivated in the high ranges of Idukki, Kerala — where altitude, mist, and mineral-rich soil produce cardamom with authentic aroma and natural essential oil content.',
+    title: 'Single-Origin Estates',
+    stat: '100%',
+    statLabel: 'Single Origin',
+    sub: 'Cultivated in the fertile hills of Idukki, Kerala — where ideal soil, gentle mountain mist, and traditional farming produce cardamom with authentic aroma and natural essential oil content.',
   },
   {
     id: 'farmer-network',
